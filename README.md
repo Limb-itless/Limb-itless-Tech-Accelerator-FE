@@ -2,7 +2,7 @@
 
 ## Team members
 
-* Siphamandla Malaza
-* Jessica Harrison
-* Reuben Ellis
+- Siphamandla Malaza
+- Jessica Harrison
+- Reuben Ellis
 
