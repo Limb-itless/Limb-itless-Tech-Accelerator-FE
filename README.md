@@ -1,3 +1,5 @@
-Welcome to Limb-itlesss Project
+# Welcome to Limb-itless Project
+## Team members
 
-Team member 1: Siphamandla Malaza
+- Siphamandla Malaza
+- Jessica Harrison
