@@ -1,0 +1,8 @@
+<button
+  class="app-button app-button--{{ variant() }}"
+  type="button"
+  [disabled]="disabled()"
+  (click)="pressed.emit()"
+>
+  <ng-content />
+</button>
