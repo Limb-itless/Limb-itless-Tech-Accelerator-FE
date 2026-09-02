@@ -1,8 +1,14 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-users',
-  templateUrl: './users.html',
+  template: `
+    <section class="page">
+      <h1>Users</h1>
+      <p>Users feature works!</p>
+    </section>
+  `,
   styleUrl: './users.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Users {}
