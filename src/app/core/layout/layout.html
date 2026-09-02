@@ -1,11 +1,30 @@
 <div class="app-shell">
   <header class="app-header">
     <span class="app-header__brand">LimbItless</span>
-    <nav class="app-header__nav">
+
+    <nav class="app-header__nav" aria-label="Primary">
       <a routerLink="/dashboard" routerLinkActive="is-active">Dashboard</a>
       <a routerLink="/reports" routerLinkActive="is-active">Reports</a>
       <a routerLink="/users" routerLinkActive="is-active">Users</a>
     </nav>
+
+    @if (user(); as currentUser) {
+      <div class="app-header__user">
+        <span class="app-header__identity">
+          <span class="app-header__email">{{ currentUser.email }}</span>
+          <span class="app-header__context">
+            {{ roleLabel() }}
+            @if (currentUser.practiceName) {
+              <span aria-hidden="true"> · </span>{{ currentUser.practiceName }}
+            }
+            @if (currentUser.siteName) {
+              <span aria-hidden="true"> · </span>{{ currentUser.siteName }}
+            }
+          </span>
+        </span>
+        <button type="button" class="app-header__signout" (click)="signOut()">Sign out</button>
+      </div>
+    }
   </header>
 
   <main class="app-content">

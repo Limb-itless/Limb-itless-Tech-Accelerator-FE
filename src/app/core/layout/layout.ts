@@ -1,5 +1,16 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
+
+import { Auth, UserRole } from '../auth/auth';
+
+const ROLE_LABELS: Record<UserRole, string> = {
+  platform_administrator: 'Platform administrator',
+  practice_administrator: 'Practice administrator',
+  clinician: 'Clinician',
+  prosthetist: 'Prosthetist',
+  patient: 'Patient',
+  medical_aid_reviewer: 'Medical aid reviewer',
+};
 
 @Component({
   selector: 'app-layout',
@@ -8,4 +19,18 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   styleUrl: './layout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Layout {}
+export class Layout {
+  private readonly auth = inject(Auth);
+  private readonly router = inject(Router);
+
+  readonly user = this.auth.currentUser;
+  readonly roleLabel = computed(() => {
+    const role = this.user()?.role;
+    return role ? ROLE_LABELS[role] : '';
+  });
+
+  signOut(): void {
+    this.auth.logout();
+    void this.router.navigateByUrl('/login');
+  }
+}
