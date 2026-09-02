@@ -30,6 +30,8 @@ export interface AuthenticatedUser {
   isActive: boolean;
   practiceId: number | null;
   siteId: number | null;
+  practiceName: string | null;
+  siteName: string | null;
 }
 
 interface TokenResponse {
@@ -45,6 +47,8 @@ interface CurrentUserResponse {
   is_active: boolean;
   practice_id: number | null;
   site_id: number | null;
+  practice_name: string | null;
+  site_name: string | null;
 }
 
 const AUTH_BASE = `${environment.apiBaseUrl}/auth`;
@@ -144,6 +148,8 @@ export class Auth {
       isActive: res.is_active,
       practiceId: res.practice_id,
       siteId: res.site_id,
+      practiceName: res.practice_name,
+      siteName: res.site_name,
     };
   }
 }

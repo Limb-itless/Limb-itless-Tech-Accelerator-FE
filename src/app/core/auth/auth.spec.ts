@@ -16,6 +16,8 @@ const ME = {
   is_active: true,
   practice_id: 3,
   site_id: 5,
+  practice_name: 'Northgate',
+  site_name: 'Gait Lab',
 };
 
 const TOKENS = {
@@ -75,6 +77,8 @@ describe('Auth', () => {
       isActive: true,
       practiceId: 3,
       siteId: 5,
+      practiceName: 'Northgate',
+      siteName: 'Gait Lab',
     });
     expect(result).toEqual(auth.currentUser());
   });
