@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
@@ -7,6 +7,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
   selector: 'app-button',
   templateUrl: './button.html',
   styleUrl: './button.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Button {
   readonly variant = input<ButtonVariant>('primary');
