@@ -78,6 +78,11 @@ npm test          # or: ng test
 
 Runs the [Vitest](https://vitest.dev/)-based test runner against every `*.spec.ts` file.
 
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`,
+on Node 22: `npm test -- --watch=false` (the Vitest suite) and `npm run build`.
+
 ## Building
 
 ```bash
