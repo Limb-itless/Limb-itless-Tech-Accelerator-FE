@@ -40,4 +40,23 @@ export const PATIENT_ROUTES: Routes = [
     data: { mode: 'replace' },
     loadComponent: () => import('./devices/device-form/device-form').then((m) => m.DeviceForm),
   },
+  {
+    path: ':id/milestones/new',
+    canActivate: [writerRoles],
+    loadComponent: () =>
+      import('./milestones/milestone-form/milestone-form').then((m) => m.MilestoneForm),
+  },
+  {
+    path: ':id/milestones/:milestoneId/edit',
+    canActivate: [writerRoles],
+    data: { mode: 'edit' },
+    loadComponent: () =>
+      import('./milestones/milestone-form/milestone-form').then((m) => m.MilestoneForm),
+  },
+  {
+    path: ':id/pathways/new',
+    canActivate: [writerRoles],
+    loadComponent: () =>
+      import('./milestones/pathway-apply/pathway-apply').then((m) => m.PathwayApply),
+  },
 ];

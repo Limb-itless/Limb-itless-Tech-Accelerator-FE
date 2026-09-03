@@ -1,0 +1,90 @@
+<section class="milestone-form">
+  <a class="milestone-form__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <h1>{{ heading() }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="milestone-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="milestone-form__row">
+      <div class="milestone-form__field">
+        <label for="milestoneType">Milestone</label>
+        <select
+          id="milestoneType"
+          formControlName="milestoneType"
+          [attr.aria-invalid]="invalid('milestoneType') ? 'true' : null"
+        >
+          <option value="">Choose…</option>
+          @for (type of types; track type) {
+            <option [value]="type">{{ humanise(type) }}</option>
+          }
+        </select>
+        @if (invalid('milestoneType')) {
+          <p class="milestone-form__hint">Choose a milestone.</p>
+        }
+      </div>
+
+      <div class="milestone-form__field">
+        <label for="carePathway">Pathway</label>
+        <select id="carePathway" formControlName="carePathway">
+          @for (pathway of pathways; track pathway) {
+            <option [value]="pathway">{{ humanise(pathway) }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="milestone-form__row">
+      <div class="milestone-form__field">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status">
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ humanise(status) }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="milestone-form__field">
+        <label for="orderIndex">Order</label>
+        <input id="orderIndex" type="number" min="0" formControlName="orderIndex" />
+      </div>
+    </div>
+
+    <div class="milestone-form__field">
+      <label for="deviceId">Related device (optional)</label>
+      <select id="deviceId" formControlName="deviceId">
+        <option value="">None</option>
+        @for (device of deviceOptions.value() ?? []; track device.id) {
+          <option [value]="device.id">
+            #{{ device.id }} — {{ humanise(device.limbSide) }} {{ humanise(device.deviceType) }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="milestone-form__row">
+      <div class="milestone-form__field">
+        <label for="targetDate">Target date</label>
+        <input id="targetDate" type="date" formControlName="targetDate" />
+      </div>
+      <div class="milestone-form__field">
+        <label for="completedDate">Completed date</label>
+        <input id="completedDate" type="date" formControlName="completedDate" />
+      </div>
+    </div>
+
+    <div class="milestone-form__field">
+      <label for="notes">Notes</label>
+      <textarea id="notes" rows="3" formControlName="notes"></textarea>
+    </div>
+
+    <div class="milestone-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="['/patients', id()]">Cancel</a>
+    </div>
+  </form>
+</section>

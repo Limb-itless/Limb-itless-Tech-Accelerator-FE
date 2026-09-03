@@ -1,0 +1,80 @@
+<section class="milestones">
+  <header class="milestones__head">
+    <h2>Recovery pathway</h2>
+    @if (canEdit()) {
+      <div class="milestones__head-actions">
+        <a class="milestones__action" [routerLink]="['/patients', patientId(), 'pathways', 'new']">
+          Apply pathway
+        </a>
+        <a
+          class="milestones__action"
+          [routerLink]="['/patients', patientId(), 'milestones', 'new']"
+        >
+          Add milestone
+        </a>
+      </div>
+    }
+  </header>
+
+  @if (milestones.isLoading()) {
+    <p role="status">Loading milestones…</p>
+  } @else if (milestones.error()) {
+    <p role="alert" class="milestones__error">Milestones could not be loaded.</p>
+  } @else if (milestones.value(); as list) {
+    @if (list.length === 0) {
+      <p class="milestones__empty">No milestones yet.</p>
+    } @else {
+      <ol class="milestones__list">
+        @for (milestone of list; track milestone.id) {
+          <li class="milestones__item">
+            <div class="milestones__item-head">
+              <h3 class="milestones__title">{{ humanise(milestone.milestoneType) }}</h3>
+              <span class="milestones__badge" [class]="statusModifier(milestone.status)">
+                {{ humanise(milestone.status) }}
+              </span>
+              @if (isOverdue(milestone)) {
+                <span class="milestones__badge milestones__badge--overdue">Overdue</span>
+              }
+            </div>
+
+            <dl class="milestones__meta">
+              <div>
+                <dt>Pathway</dt>
+                <dd>{{ humanise(milestone.carePathway) }}</dd>
+              </div>
+              <div>
+                <dt>Target</dt>
+                <dd>{{ milestone.targetDate ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Completed</dt>
+                <dd>{{ milestone.completedDate ?? '—' }}</dd>
+              </div>
+            </dl>
+
+            @if (milestone.notes) {
+              <p class="milestones__notes">{{ milestone.notes }}</p>
+            }
+
+            @if (canEdit()) {
+              <div class="milestones__item-actions">
+                <a [routerLink]="['/patients', patientId(), 'milestones', milestone.id, 'edit']">
+                  Edit
+                </a>
+                @if (milestone.status !== 'complete') {
+                  <button
+                    type="button"
+                    (click)="markComplete(milestone)"
+                    [disabled]="busyId() === milestone.id"
+                  >
+                    Mark complete
+                  </button>
+                }
+              </div>
+            }
+          </li>
+        }
+      </ol>
+    }
+  }
+</section>

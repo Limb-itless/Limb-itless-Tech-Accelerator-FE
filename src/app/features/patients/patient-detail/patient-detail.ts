@@ -6,10 +6,11 @@ import { Auth } from '../../../core/auth/auth';
 import { humanise } from '../patient.model';
 import { PatientsService } from '../patients.service';
 import { DeviceList } from '../devices/device-list/device-list';
+import { MilestoneList } from '../milestones/milestone-list/milestone-list';
 
 @Component({
   selector: 'app-patient-detail',
-  imports: [RouterLink, DeviceList],
+  imports: [RouterLink, DeviceList, MilestoneList],
   templateUrl: './patient-detail.html',
   styleUrl: './patient-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

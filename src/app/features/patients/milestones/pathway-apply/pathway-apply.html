@@ -1,0 +1,47 @@
+<section class="pathway-apply">
+  <a class="pathway-apply__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <h1>Apply a recovery pathway</h1>
+  <p class="pathway-apply__note">
+    This creates the standard set of milestones for the chosen pathway, with target dates spaced by
+    the interval below.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="pathway-apply__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="pathway-apply__field">
+      <label for="carePathway">Pathway</label>
+      <select id="carePathway" formControlName="carePathway">
+        @for (pathway of pathways; track pathway) {
+          <option [value]="pathway">{{ humanise(pathway) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="pathway-apply__row">
+      <div class="pathway-apply__field">
+        <label for="startDate">Start date</label>
+        <input id="startDate" type="date" formControlName="startDate" />
+        <p class="pathway-apply__hint">Defaults to today.</p>
+      </div>
+
+      <div class="pathway-apply__field">
+        <label for="intervalDays">Days between milestones</label>
+        <input id="intervalDays" type="number" min="1" max="365" formControlName="intervalDays" />
+        @if (invalid('intervalDays')) {
+          <p class="pathway-apply__hint">Enter between 1 and 365 days.</p>
+        }
+      </div>
+    </div>
+
+    <div class="pathway-apply__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Applying…' : 'Apply pathway' }}
+      </button>
+      <a [routerLink]="['/patients', id()]">Cancel</a>
+    </div>
+  </form>
+</section>
