@@ -1,0 +1,72 @@
+<section class="patient">
+  <a class="patient__back" routerLink="/patients">← Back to patients</a>
+
+  @if (patient.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (patient.error()) {
+    <p role="alert" class="patient__error">This patient could not be loaded.</p>
+  } @else if (patient.value(); as p) {
+    <header class="patient__head">
+      <div>
+        <h1>{{ p.firstName }} {{ p.lastName }}</h1>
+        <span class="patient__badge" [class.patient__badge--inactive]="!p.isActive">
+          {{ p.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+
+      @if (canEdit()) {
+        <div class="patient__actions">
+          <a class="patient__edit" [routerLink]="['/patients', p.id, 'edit']">Edit</a>
+          @if (p.isActive) {
+            <button type="button" (click)="setActive(false)" [disabled]="busy()">Deactivate</button>
+          } @else {
+            <button type="button" (click)="setActive(true)" [disabled]="busy()">Reactivate</button>
+          }
+        </div>
+      }
+    </header>
+
+    <dl class="patient__grid">
+      <div>
+        <dt>Date of birth</dt>
+        <dd>{{ p.dateOfBirth }}{{ age() !== null ? ' (age ' + age() + ')' : '' }}</dd>
+      </div>
+      <div>
+        <dt>National ID</dt>
+        <dd>{{ p.nationalId ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Passport number</dt>
+        <dd>{{ p.passportNumber ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Cause of limb loss</dt>
+        <dd>{{ p.causeOfLimbLoss ? humanise(p.causeOfLimbLoss) : '—' }}</dd>
+      </div>
+      <div>
+        <dt>Limb loss level</dt>
+        <dd>{{ p.limbLossLevel ? humanise(p.limbLossLevel) : '—' }}</dd>
+      </div>
+      <div>
+        <dt>Email</dt>
+        <dd>{{ p.contactEmail ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Phone</dt>
+        <dd>{{ p.contactPhone ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Address</dt>
+        <dd>{{ p.address ?? '—' }}</dd>
+      </div>
+    </dl>
+
+    <section class="patient__notes">
+      <h2>Medical history</h2>
+      <p>{{ p.medicalHistory || 'None recorded.' }}</p>
+
+      <h2>Comorbidities</h2>
+      <p>{{ p.comorbidities || 'None recorded.' }}</p>
+    </section>
+  }
+</section>

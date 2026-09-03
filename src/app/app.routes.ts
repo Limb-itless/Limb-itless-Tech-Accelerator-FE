@@ -22,6 +22,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
+        path: 'patients',
+        canActivate: [roleGuard('clinician', 'prosthetist', 'practice_administrator')],
+        loadChildren: () =>
+          import('./features/patients/patients.routes').then((m) => m.PATIENT_ROUTES),
+      },
+      {
         path: 'reports',
         loadComponent: () => import('./features/reports/reports').then((m) => m.Reports),
       },

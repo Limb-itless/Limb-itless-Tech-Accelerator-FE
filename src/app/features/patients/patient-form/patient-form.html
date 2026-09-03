@@ -1,0 +1,134 @@
+<section class="patient-form">
+  <h1>{{ mode() === 'edit' ? 'Edit patient' : 'New patient' }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="patient-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="patient-form__row">
+      <div class="patient-form__field">
+        <label for="firstName">First name</label>
+        <input
+          id="firstName"
+          formControlName="firstName"
+          [attr.aria-invalid]="invalid('firstName') ? 'true' : null"
+          [attr.aria-describedby]="invalid('firstName') ? 'firstName-error' : null"
+        />
+        @if (invalid('firstName')) {
+          <p id="firstName-error" class="patient-form__hint">First name is required.</p>
+        }
+      </div>
+
+      <div class="patient-form__field">
+        <label for="lastName">Last name</label>
+        <input
+          id="lastName"
+          formControlName="lastName"
+          [attr.aria-invalid]="invalid('lastName') ? 'true' : null"
+          [attr.aria-describedby]="invalid('lastName') ? 'lastName-error' : null"
+        />
+        @if (invalid('lastName')) {
+          <p id="lastName-error" class="patient-form__hint">Last name is required.</p>
+        }
+      </div>
+    </div>
+
+    <div class="patient-form__row">
+      <div class="patient-form__field">
+        <label for="dateOfBirth">Date of birth</label>
+        <input
+          id="dateOfBirth"
+          type="date"
+          formControlName="dateOfBirth"
+          [attr.aria-invalid]="invalid('dateOfBirth') ? 'true' : null"
+          [attr.aria-describedby]="invalid('dateOfBirth') ? 'dob-error' : null"
+        />
+        @if (invalid('dateOfBirth')) {
+          <p id="dob-error" class="patient-form__hint">Date of birth is required.</p>
+        }
+      </div>
+    </div>
+
+    <fieldset class="patient-form__identity">
+      <legend>Identifier <span class="patient-form__req">(one is required)</span></legend>
+      <div class="patient-form__row">
+        <div class="patient-form__field">
+          <label for="nationalId">National ID</label>
+          <input id="nationalId" formControlName="nationalId" autocomplete="off" />
+        </div>
+        <div class="patient-form__field">
+          <label for="passportNumber">Passport number</label>
+          <input id="passportNumber" formControlName="passportNumber" autocomplete="off" />
+        </div>
+      </div>
+      @if (identityMissing) {
+        <p class="patient-form__hint" role="alert">Enter a national ID or a passport number.</p>
+      }
+    </fieldset>
+
+    <div class="patient-form__row">
+      <div class="patient-form__field">
+        <label for="contactEmail">Email</label>
+        <input
+          id="contactEmail"
+          type="email"
+          formControlName="contactEmail"
+          autocomplete="off"
+          [attr.aria-invalid]="invalid('contactEmail') ? 'true' : null"
+          [attr.aria-describedby]="invalid('contactEmail') ? 'email-error' : null"
+        />
+        @if (invalid('contactEmail')) {
+          <p id="email-error" class="patient-form__hint">Enter a valid email address.</p>
+        }
+      </div>
+      <div class="patient-form__field">
+        <label for="contactPhone">Phone</label>
+        <input id="contactPhone" formControlName="contactPhone" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="patient-form__field">
+      <label for="address">Address</label>
+      <input id="address" formControlName="address" autocomplete="off" />
+    </div>
+
+    <div class="patient-form__row">
+      <div class="patient-form__field">
+        <label for="causeOfLimbLoss">Cause of limb loss</label>
+        <select id="causeOfLimbLoss" formControlName="causeOfLimbLoss">
+          <option value="">Not recorded</option>
+          @for (cause of causes; track cause) {
+            <option [value]="cause">{{ humanise(cause) }}</option>
+          }
+        </select>
+      </div>
+      <div class="patient-form__field">
+        <label for="limbLossLevel">Limb loss level</label>
+        <select id="limbLossLevel" formControlName="limbLossLevel">
+          <option value="">Not recorded</option>
+          @for (level of levels; track level) {
+            <option [value]="level">{{ humanise(level) }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="patient-form__field">
+      <label for="medicalHistory">Medical history</label>
+      <textarea id="medicalHistory" rows="3" formControlName="medicalHistory"></textarea>
+    </div>
+
+    <div class="patient-form__field">
+      <label for="comorbidities">Comorbidities</label>
+      <textarea id="comorbidities" rows="2" formControlName="comorbidities"></textarea>
+    </div>
+
+    <div class="patient-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="mode() === 'edit' ? ['/patients', id()] : ['/patients']"> Cancel </a>
+    </div>
+  </form>
+</section>

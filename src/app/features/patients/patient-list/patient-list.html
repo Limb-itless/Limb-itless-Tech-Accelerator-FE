@@ -1,0 +1,84 @@
+<section class="patients">
+  <header class="patients__head">
+    <h1>Patients</h1>
+    @if (canEdit()) {
+      <a class="patients__new" routerLink="/patients/new">New patient</a>
+    }
+  </header>
+
+  <div class="patients__controls">
+    <label class="patients__search">
+      <span class="patients__search-label">Search by name</span>
+      <input
+        #search
+        type="search"
+        [value]="searchTerm()"
+        (input)="onSearch(search.value)"
+        placeholder="Surname or first name"
+        autocomplete="off"
+      />
+    </label>
+
+    <label class="patients__status-filter">
+      <span class="patients__search-label">Status</span>
+      <select #statusSelect [value]="status()" (change)="onStatusChange(statusSelect.value)">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </label>
+  </div>
+
+  @if (page.isLoading()) {
+    <p class="patients__status" role="status">Loading patients…</p>
+  } @else if (page.error()) {
+    <p class="patients__status patients__status--error" role="alert">
+      Could not load patients. Please try again.
+    </p>
+  } @else if (page.value(); as result) {
+    @if (result.items.length === 0) {
+      <p class="patients__status">No patients match your search.</p>
+    } @else {
+      <table class="patients__table">
+        <caption class="visually-hidden">
+          List of patients
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Date of birth</th>
+            <th scope="col">Identifier</th>
+            <th scope="col">Limb loss level</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (patient of result.items; track patient.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/patients', patient.id]">
+                  {{ patient.lastName }}, {{ patient.firstName }}
+                </a>
+              </td>
+              <td>{{ patient.dateOfBirth }}</td>
+              <td>{{ patient.nationalId ?? patient.passportNumber ?? '—' }}</td>
+              <td>
+                {{ patient.limbLossLevel ? humanise(patient.limbLossLevel) : '—' }}
+              </td>
+              <td>
+                <span class="patients__badge" [class.patients__badge--inactive]="!patient.isActive">
+                  {{ patient.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <nav class="patients__pager" aria-label="Pagination">
+        <button type="button" (click)="prev()" [disabled]="!hasPrev()">Previous</button>
+        <span aria-live="polite"> {{ rangeStart() }}–{{ rangeEnd() }} of {{ result.total }} </span>
+        <button type="button" (click)="next()" [disabled]="!hasNext()">Next</button>
+      </nav>
+    }
+  }
+</section>
