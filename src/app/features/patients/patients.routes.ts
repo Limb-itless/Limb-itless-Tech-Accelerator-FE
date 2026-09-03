@@ -59,4 +59,15 @@ export const PATIENT_ROUTES: Routes = [
     loadComponent: () =>
       import('./milestones/pathway-apply/pathway-apply').then((m) => m.PathwayApply),
   },
+  {
+    path: ':id/proms/new',
+    canActivate: [writerRoles],
+    loadComponent: () => import('./proms/prom-form/prom-form').then((m) => m.PromForm),
+  },
+  {
+    path: ':id/proms/:promId/edit',
+    canActivate: [writerRoles],
+    data: { mode: 'edit' },
+    loadComponent: () => import('./proms/prom-form/prom-form').then((m) => m.PromForm),
+  },
 ];

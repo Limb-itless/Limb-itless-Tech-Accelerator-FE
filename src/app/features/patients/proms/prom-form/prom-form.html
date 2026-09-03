@@ -1,0 +1,81 @@
+<section class="prom-form">
+  <a class="prom-form__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <h1>{{ heading() }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="prom-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="prom-form__field">
+      <label for="instrument">Instrument</label>
+      <select
+        id="instrument"
+        formControlName="instrument"
+        [attr.aria-invalid]="invalid('instrument') ? 'true' : null"
+      >
+        <option value="">Choose…</option>
+        @for (instrument of instruments; track instrument) {
+          <option [value]="instrument">{{ meta[instrument].label }}</option>
+        }
+      </select>
+      @if (invalid('instrument')) {
+        <p class="prom-form__hint">Choose an instrument.</p>
+      }
+    </div>
+
+    <div class="prom-form__field">
+      <label for="score">Score</label>
+      <input
+        id="score"
+        type="number"
+        formControlName="score"
+        [attr.min]="selectedMeta()?.min ?? null"
+        [attr.max]="selectedMeta()?.max ?? null"
+        [attr.aria-invalid]="invalid('score') ? 'true' : null"
+      />
+      @if (selectedMeta(); as m) {
+        <p class="prom-form__hint">
+          {{ m.min }}–{{ m.max }} · {{ m.scaleHint }} · flags {{ m.flagWhen === 'gte' ? '≥' : '≤' }}
+          {{ m.threshold }}
+        </p>
+      }
+      @if (invalid('score')) {
+        <p class="prom-form__hint">A score is required.</p>
+      }
+    </div>
+
+    <div class="prom-form__row">
+      <div class="prom-form__field">
+        <label for="recordedAt">Recorded at</label>
+        <input id="recordedAt" type="datetime-local" formControlName="recordedAt" />
+        <p class="prom-form__hint">Defaults to now.</p>
+      </div>
+
+      <div class="prom-form__field">
+        <label for="deviceId">Related device (optional)</label>
+        <select id="deviceId" formControlName="deviceId">
+          <option value="">None</option>
+          @for (device of deviceOptions.value() ?? []; track device.id) {
+            <option [value]="device.id">
+              #{{ device.id }} — {{ humanise(device.limbSide) }} {{ humanise(device.deviceType) }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="prom-form__field">
+      <label for="notes">Notes</label>
+      <textarea id="notes" rows="3" formControlName="notes"></textarea>
+    </div>
+
+    <div class="prom-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="['/patients', id()]">Cancel</a>
+    </div>
+  </form>
+</section>

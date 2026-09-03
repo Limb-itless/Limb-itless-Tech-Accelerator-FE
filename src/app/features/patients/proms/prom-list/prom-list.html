@@ -1,0 +1,65 @@
+<section class="proms">
+  <header class="proms__head">
+    <h2>Outcome measures</h2>
+    @if (canEdit()) {
+      <a class="proms__add" [routerLink]="['/patients', patientId(), 'proms', 'new']">
+        Record measure
+      </a>
+    }
+  </header>
+
+  @if (proms.isLoading()) {
+    <p role="status">Loading outcome measures…</p>
+  } @else if (proms.error()) {
+    <p role="alert" class="proms__error">Outcome measures could not be loaded.</p>
+  } @else if (proms.value(); as list) {
+    @if (list.length === 0) {
+      <p class="proms__empty">No outcome measures recorded yet.</p>
+    } @else {
+      @if (trends().length > 0) {
+        <div class="proms__trends">
+          @for (trend of trends(); track trend.instrument) {
+            <app-prom-trend [instrument]="trend.instrument" [points]="trend.points" />
+          }
+        </div>
+      }
+
+      <table class="proms__table">
+        <caption class="visually-hidden">
+          Recorded outcome measures, most recent first
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Instrument</th>
+            <th scope="col">Score</th>
+            <th scope="col">Recorded</th>
+            <th scope="col">Notes</th>
+            @if (canEdit()) {
+              <th scope="col"><span class="visually-hidden">Actions</span></th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (prom of recent(); track prom.id) {
+            <tr [class.proms__row--flagged]="prom.flagged">
+              <td>{{ labelFor(prom.instrument) }}</td>
+              <td>
+                {{ prom.score ?? '—' }}
+                @if (prom.flagged) {
+                  <span class="proms__flag" [title]="prom.flagReason ?? 'Flagged'">Flagged</span>
+                }
+              </td>
+              <td>{{ prom.recordedAt.slice(0, 10) }}</td>
+              <td>{{ prom.notes ?? '—' }}</td>
+              @if (canEdit()) {
+                <td>
+                  <a [routerLink]="['/patients', patientId(), 'proms', prom.id, 'edit']">Edit</a>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</section>

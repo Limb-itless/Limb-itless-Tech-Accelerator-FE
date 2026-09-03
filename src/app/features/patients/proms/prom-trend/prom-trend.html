@@ -1,0 +1,60 @@
+<figure class="prom-trend">
+  <figcaption class="prom-trend__caption">
+    <span class="prom-trend__label">{{ meta().label }}</span>
+    @if (latest(); as last) {
+      <span class="prom-trend__latest" [class.prom-trend__latest--flagged]="last.flagged">
+        {{ last.score }} / {{ meta().max }}
+      </span>
+    }
+    <span class="prom-trend__hint">{{ meta().scaleHint }}</span>
+  </figcaption>
+
+  <svg
+    class="prom-trend__svg"
+    [attr.viewBox]="viewBox"
+    role="img"
+    [attr.aria-label]="summary()"
+    preserveAspectRatio="none"
+  >
+    <!-- plot frame -->
+    <line
+      [attr.x1]="axis.x0"
+      [attr.y1]="axis.y1"
+      [attr.x2]="axis.x1"
+      [attr.y2]="axis.y1"
+      class="prom-trend__axis"
+    />
+    <line
+      [attr.x1]="axis.x0"
+      [attr.y1]="axis.y0"
+      [attr.x2]="axis.x0"
+      [attr.y2]="axis.y1"
+      class="prom-trend__axis"
+    />
+
+    <!-- clinical threshold -->
+    <line
+      [attr.x1]="axis.x0"
+      [attr.y1]="thresholdY()"
+      [attr.x2]="axis.x1"
+      [attr.y2]="thresholdY()"
+      class="prom-trend__threshold"
+    />
+    <text [attr.x]="axis.x1" [attr.y]="thresholdY() - 3" class="prom-trend__threshold-label">
+      flag {{ meta().flagWhen === 'gte' ? '≥' : '≤' }} {{ meta().threshold }}
+    </text>
+
+    @if (plotted().length > 1) {
+      <path [attr.d]="linePath()" class="prom-trend__line" />
+    }
+    @for (point of plotted(); track point.x) {
+      <circle
+        [attr.cx]="point.x"
+        [attr.cy]="point.y"
+        r="3.5"
+        class="prom-trend__dot"
+        [class.prom-trend__dot--flagged]="point.flagged"
+      />
+    }
+  </svg>
+</figure>
