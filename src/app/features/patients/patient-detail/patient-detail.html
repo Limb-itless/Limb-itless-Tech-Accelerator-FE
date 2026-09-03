@@ -68,5 +68,7 @@
       <h2>Comorbidities</h2>
       <p>{{ p.comorbidities || 'None recorded.' }}</p>
     </section>
+
+    <app-device-list [patientId]="p.id" />
   }
 </section>

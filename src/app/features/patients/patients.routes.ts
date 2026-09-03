@@ -23,4 +23,21 @@ export const PATIENT_ROUTES: Routes = [
     canActivate: [writerRoles],
     loadComponent: () => import('./patient-form/patient-form').then((m) => m.PatientForm),
   },
+  {
+    path: ':id/devices/new',
+    canActivate: [writerRoles],
+    loadComponent: () => import('./devices/device-form/device-form').then((m) => m.DeviceForm),
+  },
+  {
+    path: ':id/devices/:deviceId/edit',
+    canActivate: [writerRoles],
+    data: { mode: 'edit' },
+    loadComponent: () => import('./devices/device-form/device-form').then((m) => m.DeviceForm),
+  },
+  {
+    path: ':id/devices/:deviceId/replace',
+    canActivate: [writerRoles],
+    data: { mode: 'replace' },
+    loadComponent: () => import('./devices/device-form/device-form').then((m) => m.DeviceForm),
+  },
 ];

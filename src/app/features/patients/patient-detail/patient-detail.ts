@@ -5,10 +5,11 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/auth/auth';
 import { humanise } from '../patient.model';
 import { PatientsService } from '../patients.service';
+import { DeviceList } from '../devices/device-list/device-list';
 
 @Component({
   selector: 'app-patient-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, DeviceList],
   templateUrl: './patient-detail.html',
   styleUrl: './patient-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,160 @@
+<section class="device-form">
+  <a class="device-form__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <h1>{{ heading() }}</h1>
+
+  @if (mode() === 'replace') {
+    <p class="device-form__note">
+      The current device will be marked <strong>replaced</strong> and this one linked to it as its
+      successor.
+    </p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="device-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="device-form__row">
+      <div class="device-form__field">
+        <label for="limbSide">Limb side</label>
+        <select
+          id="limbSide"
+          formControlName="limbSide"
+          [attr.aria-invalid]="invalid('limbSide') ? 'true' : null"
+        >
+          <option value="">Choose…</option>
+          @for (side of sides; track side) {
+            <option [value]="side">{{ humanise(side) }}</option>
+          }
+        </select>
+        @if (invalid('limbSide')) {
+          <p class="device-form__hint">Limb side is required.</p>
+        }
+      </div>
+
+      <div class="device-form__field">
+        <label for="limbLevel">Limb level</label>
+        <select
+          id="limbLevel"
+          formControlName="limbLevel"
+          [attr.aria-invalid]="invalid('limbLevel') ? 'true' : null"
+        >
+          <option value="">Choose…</option>
+          @for (level of levels; track level) {
+            <option [value]="level">{{ humanise(level) }}</option>
+          }
+        </select>
+        @if (invalid('limbLevel')) {
+          <p class="device-form__hint">Limb level is required.</p>
+        }
+      </div>
+    </div>
+
+    <div class="device-form__row">
+      <div class="device-form__field">
+        <label for="deviceType">Device type</label>
+        <select
+          id="deviceType"
+          formControlName="deviceType"
+          [attr.aria-invalid]="invalid('deviceType') ? 'true' : null"
+        >
+          <option value="">Choose…</option>
+          @for (type of types; track type) {
+            <option [value]="type">{{ humanise(type) }}</option>
+          }
+        </select>
+        @if (invalid('deviceType')) {
+          <p class="device-form__hint">Device type is required.</p>
+        }
+      </div>
+
+      <div class="device-form__field">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status">
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ humanise(status) }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="device-form__group">
+      <legend>Componentry</legend>
+      <div class="device-form__row">
+        <div class="device-form__field">
+          <label for="manufacturer">Manufacturer</label>
+          <input id="manufacturer" formControlName="manufacturer" autocomplete="off" />
+        </div>
+        <div class="device-form__field">
+          <label for="model">Model</label>
+          <input id="model" formControlName="model" autocomplete="off" />
+        </div>
+      </div>
+      <div class="device-form__row">
+        <div class="device-form__field">
+          <label for="serialNumber">Serial number</label>
+          <input id="serialNumber" formControlName="serialNumber" autocomplete="off" />
+        </div>
+        <div class="device-form__field">
+          <label for="terminalDevice">Terminal device</label>
+          <input id="terminalDevice" formControlName="terminalDevice" autocomplete="off" />
+        </div>
+      </div>
+      <div class="device-form__row">
+        <div class="device-form__field">
+          <label for="socketType">Socket type</label>
+          <input id="socketType" formControlName="socketType" autocomplete="off" />
+        </div>
+        <div class="device-form__field">
+          <label for="linerType">Liner type</label>
+          <input id="linerType" formControlName="linerType" autocomplete="off" />
+        </div>
+      </div>
+      <div class="device-form__field">
+        <label for="suspensionType">Suspension type</label>
+        <input id="suspensionType" formControlName="suspensionType" autocomplete="off" />
+      </div>
+    </fieldset>
+
+    <fieldset class="device-form__group">
+      <legend>Key dates</legend>
+      <div class="device-form__row">
+        <div class="device-form__field">
+          <label for="castScanDate">Cast / scan</label>
+          <input id="castScanDate" type="date" formControlName="castScanDate" />
+        </div>
+        <div class="device-form__field">
+          <label for="deliveryDate">Delivery</label>
+          <input id="deliveryDate" type="date" formControlName="deliveryDate" />
+        </div>
+        <div class="device-form__field">
+          <label for="fittedDate">Fitted</label>
+          <input id="fittedDate" type="date" formControlName="fittedDate" />
+        </div>
+      </div>
+      <div class="device-form__row">
+        <div class="device-form__field">
+          <label for="warrantyStart">Warranty start</label>
+          <input id="warrantyStart" type="date" formControlName="warrantyStart" />
+        </div>
+        <div class="device-form__field">
+          <label for="warrantyExpiry">Warranty expiry</label>
+          <input id="warrantyExpiry" type="date" formControlName="warrantyExpiry" />
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="device-form__field">
+      <label for="notes">Notes</label>
+      <textarea id="notes" rows="3" formControlName="notes"></textarea>
+    </div>
+
+    <div class="device-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="['/patients', id()]">Cancel</a>
+    </div>
+  </form>
+</section>

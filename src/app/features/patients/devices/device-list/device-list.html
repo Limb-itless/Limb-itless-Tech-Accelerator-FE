@@ -1,0 +1,100 @@
+<section class="devices">
+  <header class="devices__head">
+    <h2>Devices</h2>
+    @if (canEdit()) {
+      <a class="devices__add" [routerLink]="['/patients', patientId(), 'devices', 'new']">
+        Add device
+      </a>
+    }
+  </header>
+
+  @if (devices.isLoading()) {
+    <p role="status">Loading devices…</p>
+  } @else if (devices.error()) {
+    <p role="alert" class="devices__error">Devices could not be loaded.</p>
+  } @else if (devices.value(); as list) {
+    @if (list.length === 0) {
+      <p class="devices__empty">No devices recorded for this patient.</p>
+    } @else {
+      <ul class="devices__list">
+        @for (device of list; track device.id) {
+          <li class="devices__card">
+            <div class="devices__card-head">
+              <h3 class="devices__title">
+                {{ humanise(device.limbSide) }} {{ humanise(device.limbLevel) }} —
+                {{ humanise(device.deviceType) }}
+              </h3>
+              <span class="devices__badge" [class]="statusModifier(device.status)">
+                {{ humanise(device.status) }}
+              </span>
+            </div>
+
+            @if (device.replacesDeviceId) {
+              <p class="devices__replaces">Replaces device #{{ device.replacesDeviceId }}</p>
+            }
+
+            <dl class="devices__grid">
+              <div>
+                <dt>Manufacturer</dt>
+                <dd>{{ device.manufacturer ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Model</dt>
+                <dd>{{ device.model ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Serial number</dt>
+                <dd>{{ device.serialNumber ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Socket</dt>
+                <dd>{{ device.socketType ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Liner</dt>
+                <dd>{{ device.linerType ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Suspension</dt>
+                <dd>{{ device.suspensionType ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Terminal device</dt>
+                <dd>{{ device.terminalDevice ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Cast / scan</dt>
+                <dd>{{ device.castScanDate ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Delivery</dt>
+                <dd>{{ device.deliveryDate ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Fitted</dt>
+                <dd>{{ device.fittedDate ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt>Warranty</dt>
+                <dd>{{ device.warrantyStart ?? '—' }} → {{ device.warrantyExpiry ?? '—' }}</dd>
+              </div>
+            </dl>
+
+            @if (device.notes) {
+              <p class="devices__notes">{{ device.notes }}</p>
+            }
+
+            @if (canEdit()) {
+              <div class="devices__actions">
+                <a [routerLink]="['/patients', patientId(), 'devices', device.id, 'edit']">Edit</a>
+                <a [routerLink]="['/patients', patientId(), 'devices', device.id, 'replace']">
+                  Replace
+                </a>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>
