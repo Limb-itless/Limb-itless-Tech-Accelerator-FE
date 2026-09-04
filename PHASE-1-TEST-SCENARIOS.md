@@ -166,7 +166,9 @@ the platform practices list has real data.
 2. **Replaced + active devices on one involvement.** Sipho Nkosi (39) →
    **one** involvement card (_Right leg — Amputation (Transfemoral)_)
    whose Devices sub-list has **two** rows: a _Replaced_ Ottobock 3R60
-   and an _Active_ Ottobock 3R80 that reads `replaces #…`.
+   and an _Active_ Ottobock 3R80. (The seed adds them as independent
+   rows, so neither shows a `replaces #…` line — that link only appears
+   after you use **Replace**, see §13.)
 3. **Multiple active devices, no conflict.** Bongani Zulu (41) → one
    involvement card with **two _Active_ devices** (Ottobock 1C30 everyday
    leg + Ossur Cheetah Xtend blade). No warning — the old "one active
@@ -255,7 +257,8 @@ section is the device-mechanics checklist.
 
 1. **Panel.** Sipho Nkosi (39) → the single involvement card's **Devices**
    sub-list has two rows: a _Replaced_ Ottobock 3R60 and an _Active_
-   Ottobock 3R80; the active one reads `replaces #…`.
+   Ottobock 3R80. (Seeded as independent rows — the `replaces #…` link
+   only appears after using **Replace**, §4.)
 2. **Add.** On Ayesha Patel (40)'s involvement card, **Add device** →
    choose _Passive cosmetic_ / _planned_, add a mount location, save → a
    new row appears under that card.
