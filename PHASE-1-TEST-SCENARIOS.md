@@ -1,10 +1,11 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-16 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-18 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
-Care team). Runs against the local stack with the seeded clinical sample
-data.
+Care team, Body map, Reports). Runs against the local stack with the
+seeded clinical sample data. R-17 (body map) and R-18 (reports) are the
+first Phase 2 items.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -46,26 +47,27 @@ data.
 
 ### Seeded patients (Northgate unless noted)
 
-IDs below assume a fresh `--reset` on an otherwise-untouched dev DB. If
-your IDs differ, the **National ID** column is stable — search by name
-and read the id off the URL.
+Since R-28, `reset_clinical()` restarts the id sequences, so a `--reset`
+puts the clinical patients on **ids 1–14** every time. (On an older DB the
+ids will be higher — the **National ID** column is stable, so search by
+name and read the id off the URL.)
 
 | ID  | Name             | Involvement(s) → device(s)                                                                                                            | Notable for                                                                                                                            |
 | --- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 36  | Thabo Molefe     | Left leg amputation (transfemoral, trauma) → Ottobock Genium X3 _active_                                                              | mid-pathway, 1 overdue + 1 upcoming milestone, flagged residual-limb pain (8), 2 notes, 2 PROM points → trend line                     |
-| 37  | Lerato Dlamini   | Right leg amputation (transtibial, dysvascular) → Blatchford Elan _active_                                                            | **upcoming** milestone in ~4 days, flagged Socket Comfort Score (3), 3 PROMs incl. LCI                                                 |
-| 38  | Naledi Khumalo   | Left arm amputation (transhumeral, tumour) → Ossur i-Limb Quantum _in fitting_                                                        | upper-limb pathway, device _in fitting_, flagged phantom pain (7)                                                                      |
-| 39  | Sipho Nkosi      | Right leg amputation (transfemoral, dysvascular) → Ottobock 3R60 _replaced_ + Ottobock 3R80 _active_ (one involvement)                | **worst case**: 3 overdue milestones (one 38 days), 2 flagged PROMs (pain 9, LCI 18), a replaced+active device pair on one involvement |
-| 40  | Ayesha Patel     | Left arm **congenital absence** (transradial) → Steeper Realistic Hand _planned_                                                      | brand-new upper-limb patient, pathway just started, device _planned_, no flags; involvement has a level but **no cause**               |
-| 41  | Bongani Zulu     | Left leg amputation (transtibial, trauma) → Ottobock 1C30 _active_ + Ossur Cheetah Xtend _active_ (one involvement)                   | discharged/annual-review: all 7 milestones complete; **two active devices on one involvement** (everyday leg + running blade)          |
-| 42  | Michelle van Wyk | Right leg amputation (knee disarticulation, infection) → Blatchford KX06 _in fitting_                                                 | 1 overdue + 1 upcoming milestone, borderline flagged SCS (4)                                                                           |
-| 43  | Johannes Botha   | Left leg amputation (transtibial, dysvascular) → Ottobock 1C30 _retired_                                                              | **inactive** patient (records closed), retired device                                                                                  |
-| 44  | Zanele Mthembu   | Left leg amputation (transfemoral, trauma) → Ossur Power Knee _active_                                                                | **Cape Mobility** — must NOT appear for Northgate users                                                                                |
-| 45  | David Fourie     | Right arm amputation (transradial, trauma) → Hosmer Hook 5XA _active_                                                                 | **Cape Mobility** — upper limb, no flags                                                                                               |
-| 46  | Kagiso Sithole   | **Two amputation involvements**: Left leg (transfemoral) → Ottobock 3R80 _active_; Right leg (transtibial) → Ottobock Triton _active_ | **bilateral amputee** — one involvement per side, one active device each                                                               |
-| 47  | Precious Ndlovu  | Right leg amputation (transtibial, trauma) → Blatchford Avalon _active_                                                               | **Sunrise** — gives the third practice a caseload                                                                                      |
-| 48  | Themba Cele      | Left leg amputation (transfemoral, dysvascular) → Ossur Rheo Knee XC _active_                                                         | **Sunrise** — 1 overdue milestone                                                                                                      |
-| 49  | Refilwe Adams    | **Two orthotic-need involvements**: Left leg → Blatchford Carbon AFO _active_; Spine → Aspen TLSO _active_                            | **no limb loss** — post-stroke foot drop + a spinal brace; involvements carry no level or cause                                        |
+| 1   | Thabo Molefe     | Left leg amputation (transfemoral, trauma) → Ottobock Genium X3 _active_                                                              | mid-pathway, 1 overdue + 1 upcoming milestone, flagged residual-limb pain (8), 2 notes, 2 PROM points → trend line                     |
+| 2   | Lerato Dlamini   | Right leg amputation (transtibial, dysvascular) → Blatchford Elan _active_                                                            | **upcoming** milestone in ~4 days, flagged Socket Comfort Score (3), 3 PROMs incl. LCI                                                 |
+| 3   | Naledi Khumalo   | Left arm amputation (transhumeral, tumour) → Ossur i-Limb Quantum _in fitting_                                                        | upper-limb pathway, device _in fitting_, flagged phantom pain (7)                                                                      |
+| 4   | Sipho Nkosi      | Right leg amputation (transfemoral, dysvascular) → Ottobock 3R60 _replaced_ + Ottobock 3R80 _active_ (one involvement)                | **worst case**: 3 overdue milestones (one 38 days), 2 flagged PROMs (pain 9, LCI 18), a replaced+active device pair on one involvement |
+| 5   | Ayesha Patel     | Left arm **congenital absence** (transradial) → Steeper Realistic Hand _planned_                                                      | brand-new upper-limb patient, pathway just started, device _planned_, no flags; involvement has a level but **no cause**               |
+| 6   | Bongani Zulu     | Left leg amputation (transtibial, trauma) → Ottobock 1C30 _active_ + Ossur Cheetah Xtend _active_ (one involvement)                   | discharged/annual-review: all 7 milestones complete; **two active devices on one involvement** (everyday leg + running blade)          |
+| 7   | Michelle van Wyk | Right leg amputation (knee disarticulation, infection) → Blatchford KX06 _in fitting_                                                 | 1 overdue + 1 upcoming milestone, borderline flagged SCS (4)                                                                           |
+| 8   | Johannes Botha   | Left leg amputation (transtibial, dysvascular) → Ottobock 1C30 _retired_                                                              | **inactive** patient (records closed), retired device                                                                                  |
+| 9   | Zanele Mthembu   | Left leg amputation (transfemoral, trauma) → Ossur Power Knee _active_                                                                | **Cape Mobility** — must NOT appear for Northgate users                                                                                |
+| 10  | David Fourie     | Right arm amputation (transradial, trauma) → Hosmer Hook 5XA _active_                                                                 | **Cape Mobility** — upper limb, no flags                                                                                               |
+| 11  | Kagiso Sithole   | **Two amputation involvements**: Left leg (transfemoral) → Ottobock 3R80 _active_; Right leg (transtibial) → Ottobock Triton _active_ | **bilateral amputee** — one involvement per side, one active device each                                                               |
+| 12  | Precious Ndlovu  | Right leg amputation (transtibial, trauma) → Blatchford Avalon _active_                                                               | **Sunrise** — gives the third practice a caseload                                                                                      |
+| 13  | Themba Cele      | Left leg amputation (transfemoral, dysvascular) → Ossur Rheo Knee XC _active_                                                         | **Sunrise** — 1 overdue milestone                                                                                                      |
+| 14  | Refilwe Adams    | **Two orthotic-need involvements**: Left leg → Blatchford Carbon AFO _active_; Spine → Aspen TLSO _active_                            | **no limb loss** — post-stroke foot drop + a spinal brace; involvements carry no level or cause                                        |
 
 Extra Northgate staff exist for the admin screens:
 `nomvula.clinician@`, `thandi.clinician@`, `pieter.prosthetist@` (all
@@ -75,7 +77,7 @@ Cape Mobility has a second site, _Bellville Satellite Rooms_.
 A third practice, **Sunrise Prosthetics & Orthotics** (Durban, private
 practice), has one site (_Sunrise Durban Rooms_),
 `admin@sunrise-prosthetics.co.za`, `clinician@sunrise-prosthetics.co.za`,
-and two patients (Precious Ndlovu id 47, Themba Cele id 48). It exists so
+and two patients (Precious Ndlovu id 12, Themba Cele id 13). It exists so
 the platform practices list has real data.
 
 ---
@@ -129,7 +131,7 @@ the platform practices list has real data.
    short debounce.
 2. **Status filter.** Switch the Status dropdown to **Inactive** → only
    Johannes Botha. Back to **Active** → he disappears.
-3. **Detail.** Open Sipho Nkosi (39) → demographics, "Active" badge, and
+3. **Detail.** Open Sipho Nkosi (4) → demographics, "Active" badge, and
    the **Limb involvements** / Recovery pathway / Outcome measures panels
    below. The header has **no** "Cause of limb loss" / "Limb loss level"
    rows any more.
@@ -154,7 +156,7 @@ the platform practices list has real data.
 
 ### The involvements panel
 
-1. **Bilateral — one involvement per side.** Open Kagiso Sithole (46) →
+1. **Bilateral — one involvement per side.** Open Kagiso Sithole (11) →
    the **Limb involvements** panel shows **two cards**:
    _Left leg — Amputation (Transfemoral)_ and
    _Right leg — Amputation (Transtibial)_. Each has an **Active** status
@@ -164,22 +166,22 @@ the platform practices list has real data.
    (Ottobock 3R80 / Ottobock Triton), each showing an _Active_ badge and
    `Edit` / `Replace` links. Each card also has **Add device** and
    **Edit involvement**.
-2. **Replaced + active devices on one involvement.** Sipho Nkosi (39) →
+2. **Replaced + active devices on one involvement.** Sipho Nkosi (4) →
    **one** involvement card (_Right leg — Amputation (Transfemoral)_)
    whose Devices sub-list has **two** rows: a _Replaced_ Ottobock 3R60
    and an _Active_ Ottobock 3R80. (The seed adds them as independent
    rows, so neither shows a `replaces #…` line — that link only appears
    after you use **Replace**, see §13.)
-3. **Multiple active devices, no conflict.** Bongani Zulu (41) → one
+3. **Multiple active devices, no conflict.** Bongani Zulu (6) → one
    involvement card with **two _Active_ devices** (Ottobock 1C30 everyday
    leg + Ossur Cheetah Xtend blade). No warning — the old "one active
    device per limb" rule is gone.
-4. **Orthotic-need involvements.** Refilwe Adams (49) → **two cards**,
+4. **Orthotic-need involvements.** Refilwe Adams (14) → **two cards**,
    both _Orthotic need_: _Left leg_ (Blatchford Carbon AFO) and _Spine_
    (Aspen TLSO). Neither card shows an amputation level in the title or a
    `Cause` row — those don't apply to an orthotic need. Only `Onset` is
    listed.
-5. **Congenital absence.** Ayesha Patel (40) → one card
+5. **Congenital absence.** Ayesha Patel (5) → one card
    _Left arm — Congenital absence (Transradial)_ — a level in the title
    but **no `Cause` row** (cause is recorded for acquired amputations
    only). Device: Steeper Realistic Hand, _Planned_.
@@ -230,19 +232,19 @@ the platform practices list has real data.
     _Replaced_, the new one shows `replaces #…`, both stay on the same
     involvement.
 14. **Route shape.** Device routes are now nested:
-    `/patients/46/involvements/<iid>/devices/new`,
+    `/patients/11/involvements/<iid>/devices/new`,
     `.../devices/<did>/edit`, `.../devices/<did>/replace`. Visiting a
     device `/new` as the practice admin → `/forbidden`.
 
 ### Optional involvement link on milestones / PROMs / notes / pathway
 
-15. **The picker.** For Kagiso (46), open **Add milestone**, **Record
+15. **The picker.** For Kagiso (11), open **Add milestone**, **Record
     measure**, **Add note** (from the timeline) and **Apply pathway** —
     each form has a **Limb involvement (optional)** `<select>` listing
     _Left leg — Amputation_ and _Right leg — Amputation_. Pick one, Save
     → the record is created against that involvement. Leave it on
     _None_ → the record stays patient-level (the previous behaviour).
-16. **Single-involvement patient.** For Thabo (36) the same picker lists
+16. **Single-involvement patient.** For Thabo (1) the same picker lists
     just his one involvement; the record still saves either way.
 17. **API guard.** Posting a milestone / PROM / note with an
     `involvement_id` from another patient returns **400**
@@ -258,11 +260,11 @@ A **Care team** panel sits between the medical-history block and the
 `/patients/{id}/assignments` history and the `/practice/clinical-staff`
 roster.
 
-1. **Two current assignments.** Kagiso Sithole (46) → **Care team** lists
+1. **Two current assignments.** Kagiso Sithole (11) → **Care team** lists
    two rows: _Clinician_ `clinician@northgate-rehab.co.za` and
    _Prosthetist_ `prosthetist@northgate-rehab.co.za`, each _since_ the
    pathway start date. Writers see an **End** button per row.
-2. **One current assignment.** Sipho Nkosi (39) → a single _Clinician_
+2. **One current assignment.** Sipho Nkosi (4) → a single _Clinician_
    row (his seed has no prosthetist).
 3. **Assign staff.** As a writer, **Assign staff** →
    `/patients/:id/assignments/new`. The **Staff member** `<select>` lists
@@ -296,12 +298,12 @@ the patient detail header next to **View timeline**. Read-only for every
 patient-visible role. It reads the existing involvements + devices
 endpoints — no new API.
 
-1. **Markers by region.** Kagiso Sithole (46) → an SVG figure with **two
+1. **Markers by region.** Kagiso Sithole (11) → an SVG figure with **two
    red markers** on the legs — _Left leg_ on your **right**, _Right leg_
    on your **left** (the caption: "as if facing the patient"). Beside it,
    a card per involvement (region — kind (level), status badge) with the
    mounted device listed underneath.
-2. **Kind colour.** Refilwe Adams (49) → **two blue markers** (orthotic
+2. **Kind colour.** Refilwe Adams (14) → **two blue markers** (orthotic
    need) — one on the left leg, one centre-torso for _Spine_. Amputations
    are red, congenital absence amber, orthotic need blue; the card swatch
    matches its marker.
@@ -324,20 +326,58 @@ endpoints — no new API.
 
 ---
 
+## R-18 — Reports _(Phase 2)_
+
+The **Reports** nav item (clinician / prosthetist / practice admin) now
+opens a real page at `/reports` — practice-scoped rollups from
+`GET /reports/summary`. A **Period** picker (7 / 30 / 90 / 365 days)
+drives the "new" / "in period" figures.
+
+1. **Four cards.** As the Northgate clinician → **Caseload**, **Milestone
+   adherence**, **Outcome measures**, **Devices**, each a row of stat
+   tiles plus horizontal bar breakdowns. Against the seed (Northgate):
+   Caseload **9 active / 1 inactive / 2 new (30d)**, involvement mix
+   **Amputation 7 · Congenital absence 1 · Orthotic need 1**.
+2. **Milestone adherence.** ~**70% on time**, ~11 completed late,
+   avg ~2.8 days late, **5 still overdue** (matches the dashboard's
+   Overdue count). The _Completed late_ tile is amber, _Still overdue_
+   red.
+3. **Outcome measures.** 18 records, 17 in the last 30 days, **6
+   flagged**, **5 patients with a flag**; "records by instrument" bars
+   for the four PROM scales.
+4. **Devices.** **14 total · 12 prostheses · 2 orthoses** (Northgate
+   only — Cape / Sunrise devices are excluded), with "by type" and "by
+   status" bars.
+5. **Period picker.** Switch to **last 7 days** → _new patients_ and
+   _recorded in period_ drop; switch to **last year** → they rise. The
+   other figures (totals, adherence, flags) don't move.
+6. **Practice isolation.** Log in as `clinician@capemobility.co.za` →
+   the numbers are Cape Mobility's only (2 active patients, its own
+   devices).
+7. **Role gating.** As `platform.admin@limbitless.co.za`, `/reports`
+   redirects to `/forbidden` (route guard). A direct API call as a
+   platform admin → 403, and the page would show _"Reports are only
+   available to clinical staff."_
+8. **Practice admin.** `admin@northgate-rehab.co.za` sees the same
+   Northgate report (read-only, nothing to interact with beyond the
+   period picker).
+
+---
+
 ## R-07 — Devices
 
 Devices now live **inside** an involvement card (R-15 §1–3, §12–14). This
 section is the device-mechanics checklist.
 
-1. **Panel.** Sipho Nkosi (39) → the single involvement card's **Devices**
+1. **Panel.** Sipho Nkosi (4) → the single involvement card's **Devices**
    sub-list has two rows: a _Replaced_ Ottobock 3R60 and an _Active_
    Ottobock 3R80. (Seeded as independent rows — the `replaces #…` link
    only appears after using **Replace**, §4.)
-2. **Add.** On Ayesha Patel (40)'s involvement card, **Add device** →
+2. **Add.** On Ayesha Patel (5)'s involvement card, **Add device** →
    choose _Passive cosmetic_ / _planned_, add a mount location, save → a
    new row appears under that card.
 3. **No active-limb conflict.** Add a second _active_ device to Thabo
-   Molefe (36)'s involvement → it is created, no 409. (Bongani (41) is
+   Molefe (1)'s involvement → it is created, no 409. (Bongani (6) is
    the seeded example of two active devices on one involvement.)
 4. **Replace.** On an active device → **Replace**. The form pre-fills
    device type + socket, resets status to _planned_, clears
@@ -351,7 +391,7 @@ section is the device-mechanics checklist.
 
 ## R-08 — Recovery milestones
 
-1. **Timeline panel.** Sipho Nkosi (39) → **Recovery pathway** shows
+1. **Timeline panel.** Sipho Nkosi (4) → **Recovery pathway** shows
    7 numbered milestones; three carry an **Overdue** chip (target in
    the past, not complete).
 2. **Complete a milestone.** On any non-complete milestone, **Mark
@@ -373,12 +413,12 @@ section is the device-mechanics checklist.
 
 ## R-09 — Outcome measures + trend
 
-1. **Trends.** Thabo Molefe (36) → **Outcome measures**: a trend chart
+1. **Trends.** Thabo Molefe (1) → **Outcome measures**: a trend chart
    for _Residual limb pain_ with a line across **2 points**, the recent
    one red (flagged, above the dashed "flag ≥ 7" line), plus a single
    _Socket Comfort Score_ point. Below, a newest-first table; the flagged
    row is tinted with a "Flagged" chip.
-2. **Single reading.** Ayesha Patel (40) has one PROM → its chart shows a
+2. **Single reading.** Ayesha Patel (5) has one PROM → its chart shows a
    single dot and no connecting line.
 3. **Record.** **Record measure** → pick _Socket Comfort Score_, enter
    `3`, save. It appears at the top of the table with a "Flagged" chip
@@ -394,7 +434,7 @@ section is the device-mechanics checklist.
 
 ## R-10 — Timeline + notes
 
-1. **Merged feed.** Sipho Nkosi (39) → **View timeline**. Newest first:
+1. **Merged feed.** Sipho Nkosi (4) → **View timeline**. Newest first:
    notes, then PROM entries (with flag reason), then milestone entries
    (with target / completed dates), on a vertical rail with colour-coded
    markers.
@@ -447,11 +487,11 @@ Log in as **`admin@northgate-rehab.co.za`** and open **Users** in the nav.
 
 ## R-13 — Orthoses & bilateral / no-limb-loss patients
 
-1. **Bilateral amputee.** Kagiso Sithole (46) → **two involvement
+1. **Bilateral amputee.** Kagiso Sithole (11) → **two involvement
    cards**, one per side (Left leg transfemoral, Right leg transtibial),
    each with its own active device. His **Recovery pathway** and
    **Outcome measures** work exactly like a single-limb patient.
-2. **Orthotics-only patient.** Refilwe Adams (49) → the header has **no**
+2. **Orthotics-only patient.** Refilwe Adams (14) → the header has **no**
    limb-loss rows at all. The involvements panel lists two _Orthotic
    need_ cards — _Left leg_ (Blatchford Carbon AFO) and _Spine_ (Aspen
    TLSO), both active, with no amputation level or cause.
@@ -502,13 +542,13 @@ Log in as **`platform.admin@limbitless.co.za`**.
 
 ## Cross-cutting
 
-- **Deep-link auth.** Paste `http://localhost:4200/patients/39/timeline`
+- **Deep-link auth.** Paste `http://localhost:4200/patients/4/timeline`
   while logged out → redirected to login with a return URL, then back
   after signing in.
 - **Writer-only routes.** As the practice admin, visiting
-  `/patients/40/involvements/new` or any device `/new` / `/edit` →
+  `/patients/5/involvements/new` or any device `/new` / `/edit` →
   redirected to `/forbidden`.
-- **Other practice.** As the Northgate clinician, `GET /patients/44`
+- **Other practice.** As the Northgate clinician, `GET /patients/9`
   (Zanele, Cape Mobility) → the detail page shows a "could not be loaded"
   error (404 from the API), never her data. The same holds for her
   involvements and devices.
