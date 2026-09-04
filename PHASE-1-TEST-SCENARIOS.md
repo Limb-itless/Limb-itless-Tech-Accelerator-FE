@@ -1,11 +1,12 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-22 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-23 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
-Patient portal). Runs against the local stack with the seeded clinical
-sample data. R-17 → R-22 are Phase 2 items.
+Patient portal, per-type device componentry). Runs against the local
+stack with the seeded clinical sample data. R-17 → R-23 are Phase 2
+items.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -469,6 +470,30 @@ patient logins and links them.
 
 ---
 
+## R-23 — Per-type device componentry _(Phase 2)_
+
+Needs `alembic upgrade head` (migration `b4c8d1f2e309` adds four
+`devices` columns) + a `--reset`.
+
+1. **Orthosis edit.** Refilwe Adams (14) → her AFO's **Edit** → the
+   **Componentry** section shows **Joint type / Trimline / Strap
+   configuration / Padding / lining** (seeded — "Articulated ankle…",
+   "Posterior, supramalleolar", …), and there is **no** Socket / Liner /
+   Suspension / Terminal device field.
+2. **Prosthesis add.** On any amputation involvement (e.g. Thabo, 1) →
+   **Add device** → the section shows **Socket / Liner / Suspension /
+   Terminal device** (the default; device type unset ⇒ prosthesis set).
+3. **Switch the type.** On the AFO edit form, change **Device type** to a
+   prosthesis → the four orthosis inputs disappear and the four
+   prosthesis inputs appear (and vice versa). Manufacturer / model /
+   serial / mount location stay throughout.
+4. **Save only the matching set.** Add an orthosis, fill a joint type,
+   save → the record has `joint_type` set and `socket_type` (etc.) null;
+   the reverse for a prosthesis. Nothing you typed in the hidden set is
+   sent.
+
+---
+
 ## R-07 — Devices
 
 Devices now live **inside** an involvement card (R-15 §1–3, §12–14). This
@@ -700,10 +725,11 @@ Log in as **`platform.admin@limbitless.co.za`**.
    (`orthotic_assessment → orthosis_casting → fitting → wear-in →
 function …`). Refilwe Adams is seeded on it. A bilateral case still
    picks lower- or upper-limb and is edited by hand.
-3. **The device form** shows prosthesis componentry fields (socket,
-   liner, suspension, terminal device) regardless of device type. They
-   are optional, so an orthosis leaves them blank; a future pass could
-   swap in orthosis-relevant fields (joint type, trimline, strap config).
+3. **~~The device form is prosthesis-centric~~** — R-23: the Componentry
+   set now swaps by device type (orthosis → joint type / trimline / strap
+   configuration / padding-lining; prosthesis → socket / liner /
+   suspension / terminal device), backed by four new `devices` columns
+   (migration `b4c8d1f2e309`).
 4. **Body map is region-level** (R-17). `mount_location` shows as a text
    label on the card, not a coordinate on the figure; precise placement
    would need a normalized x/y or a mount-point enum on the device.
