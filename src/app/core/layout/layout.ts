@@ -20,6 +20,7 @@ interface NavLink {
 const CLINICAL_LINKS: NavLink[] = [
   { path: '/dashboard', label: 'Dashboard' },
   { path: '/patients', label: 'Patients' },
+  { path: '/availability', label: 'Availability' },
   { path: '/reports', label: 'Reports' },
 ];
 

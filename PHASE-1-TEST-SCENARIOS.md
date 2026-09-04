@@ -1,12 +1,15 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-24 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-25 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
-Patient portal, per-type device componentry, medical-aid reviewer).
-Runs against the local stack with the seeded clinical sample data.
-R-17 → R-24 are Phase 2 items.
+Patient portal, per-type device componentry, medical-aid reviewer,
+availability management). Runs against the local stack with the seeded
+clinical sample data. R-17 → R-25 are Phase 2 items; R-25 is the first
+FE slice of the booking feature (BE R-35 → R-38 — availability slots,
+appointments, reschedule, coverage determination), all still awaiting
+their own FE.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -526,6 +529,54 @@ and Refilwe (14) with `reviewer@medscheme.co.za`.
    reviewer hitting `/patients` or `/portal` → `/forbidden`. Every review
    read lands in the **treating practice's** audit trail (R-21) as the
    reviewer reading a `patient`.
+
+---
+
+## R-25 — Availability management _(Phase 2 — booking, FE)_
+
+The first FE slice of the booking feature (BE R-35 → R-38 — availability
+slots, appointments, reschedule, coverage determination — none of which
+has any other FE screen yet; this section covers only the new
+**/availability** screen). Needs a `--reset` after `alembic upgrade
+head` (4 new migrations since R-24: `d6f3b8a2c541` medical-aid +
+availability slots, `e4f7a2c9b813` appointments, `f8a5c1e7d234`
+reschedule, `b2e9f4a17c65` coverage determination + reviewer
+`scheme_name`). The seed publishes 6 sample slots across the Northgate
+clinician and prosthetist (plus one Cape Mobility slot) and books 3
+appointments — Thabo's is confirmed and its coverage approved, Kagiso's
+was cancelled by the practitioner, Refilwe's coverage is still pending.
+
+1. **Nav.** Log in as `clinician@northgate-rehab.co.za` → **Availability**
+   appears between Patients and Reports (also visible to prosthetists
+   and practice administrators).
+2. **The schedule.** `/availability` lists every slot in the practice —
+   When / Practitioner / Type / Status / Notes. A practice administrator
+   sees the same table with **no** Publish / Edit / Block controls
+   anywhere (read-only).
+3. **Own vs. others'.** Only your own **non-booked** slots get **Edit**
+   / **Block** (or **Reopen**, if already blocked) — another
+   practitioner's slots, and your own once booked, show no actions.
+   Thabo's booked review slot vs. the open initial-assessment slot right
+   after it (both the clinician's own) are a good side-by-side.
+4. **Filters.** The Practitioner select (from the practice's clinical
+   staff roster) and Status select narrow the table; "All" clears each.
+5. **Publish a slot.** **Publish slot** → start date/time, duration in
+   minutes (this derives the end time — there's no separate end-time
+   picker), appointment type, status (Open or Blocked — never Booked,
+   that only happens by being booked into), optional notes. Save → back
+   on the list with the new row.
+6. **Overlap conflict.** Publish a second slot overlapping one you
+   already have → _"This overlaps a slot you already have."_
+7. **Block / Reopen inline.** **Block** on one of your open slots flips
+   it immediately, no navigation; **Reopen** reverses it.
+8. **Edit.** **Edit** on one of your own slots → the form prefills,
+   including a **duration derived from the existing start/end times**;
+   change the type or notes, Save → the list reflects it.
+9. **Role gating.** A patient or medical-aid reviewer never sees the
+   Availability nav link; visiting `/availability` directly →
+   `/forbidden`. `/availability/new` and `/availability/:id/edit` are
+   writer-only — a practice administrator visiting either →
+   `/forbidden`.
 
 ---
 

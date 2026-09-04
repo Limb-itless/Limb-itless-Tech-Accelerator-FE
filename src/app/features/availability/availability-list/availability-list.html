@@ -1,0 +1,89 @@
+<section class="availability">
+  <header class="availability__head">
+    <h1>Availability</h1>
+    @if (canWrite()) {
+      <a class="availability__new" routerLink="/availability/new">Publish slot</a>
+    }
+  </header>
+
+  <div class="availability__controls">
+    <label class="availability__filter">
+      <span class="availability__filter-label">Practitioner</span>
+      <select #practitionerSelect (change)="onPractitionerChange(practitionerSelect.value)">
+        <option value="">All practitioners</option>
+        @for (person of staff.value(); track person.id) {
+          <option [value]="person.id">{{ person.email }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="availability__filter">
+      <span class="availability__filter-label">Status</span>
+      <select #statusSelect (change)="onStatusChange(statusSelect.value)">
+        <option value="">All statuses</option>
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ slotStatusLabel(s) }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (toggleError()) {
+    <p class="availability__error" role="alert">Could not update that slot. Please try again.</p>
+  }
+
+  @if (slots.isLoading()) {
+    <p class="availability__status" role="status">Loading…</p>
+  } @else if (slots.error()) {
+    <p class="availability__status availability__status--error" role="alert">
+      Could not load availability. Please try again.
+    </p>
+  } @else if (slots.value(); as rows) {
+    @if (rows.length === 0) {
+      <p class="availability__status">No slots match these filters.</p>
+    } @else {
+      <table class="availability__table">
+        <caption class="visually-hidden">
+          Published availability
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">When</th>
+            <th scope="col">Practitioner</th>
+            <th scope="col">Type</th>
+            <th scope="col">Status</th>
+            <th scope="col">Notes</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (slot of rows; track slot.id) {
+            <tr>
+              <td>{{ timeRange(slot) }}</td>
+              <td>{{ slot.practitionerEmail }}</td>
+              <td>{{ appointmentTypeLabel(slot.appointmentType) }}</td>
+              <td>
+                <span class="availability__badge availability__badge--{{ slot.status }}">
+                  {{ slotStatusLabel(slot.status) }}
+                </span>
+              </td>
+              <td>{{ slot.notes ?? '—' }}</td>
+              <td class="availability__actions">
+                @if (isMine(slot) && slot.status !== 'booked') {
+                  <a [routerLink]="['/availability', slot.id, 'edit']">Edit</a>
+                  <button
+                    type="button"
+                    (click)="toggleBlock(slot)"
+                    [disabled]="toggling() === slot.id"
+                  >
+                    {{ slot.status === 'blocked' ? 'Reopen' : 'Block' }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</section>

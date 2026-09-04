@@ -33,6 +33,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/reports/reports').then((m) => m.Reports),
       },
       {
+        path: 'availability',
+        canActivate: [roleGuard('clinician', 'prosthetist', 'practice_administrator')],
+        loadChildren: () =>
+          import('./features/availability/availability.routes').then((m) => m.AVAILABILITY_ROUTES),
+      },
+      {
         path: 'users',
         canActivate: [roleGuard('practice_administrator')],
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),

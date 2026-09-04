@@ -1,0 +1,69 @@
+<section class="slot-form">
+  <a class="slot-form__back" routerLink="/availability">← Back to availability</a>
+
+  <h1>{{ heading() }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="slot-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="slot-form__field">
+      <label for="startTime">Starts</label>
+      <input
+        id="startTime"
+        type="datetime-local"
+        formControlName="startTime"
+        [attr.aria-invalid]="invalid('startTime') ? 'true' : null"
+      />
+      @if (invalid('startTime')) {
+        <p class="slot-form__hint">A start time is required.</p>
+      }
+    </div>
+
+    <div class="slot-form__field">
+      <label for="duration">Duration (minutes)</label>
+      <input
+        id="duration"
+        type="number"
+        formControlName="duration"
+        min="5"
+        max="480"
+        step="5"
+        [attr.aria-invalid]="invalid('duration') ? 'true' : null"
+      />
+      @if (invalid('duration')) {
+        <p class="slot-form__hint">Duration must be between 5 and 480 minutes.</p>
+      }
+    </div>
+
+    <div class="slot-form__field">
+      <label for="appointmentType">Appointment type</label>
+      <select id="appointmentType" formControlName="appointmentType">
+        @for (t of types; track t) {
+          <option [value]="t">{{ appointmentTypeLabel(t) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="slot-form__field">
+      <label for="status">Status</label>
+      <select id="status" formControlName="status">
+        <option value="open">Open — available to book</option>
+        <option value="blocked">Blocked — not for booking</option>
+      </select>
+    </div>
+
+    <div class="slot-form__field">
+      <label for="notes">Notes</label>
+      <textarea id="notes" formControlName="notes" rows="3"></textarea>
+    </div>
+
+    <div class="slot-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a routerLink="/availability">Cancel</a>
+    </div>
+  </form>
+</section>
