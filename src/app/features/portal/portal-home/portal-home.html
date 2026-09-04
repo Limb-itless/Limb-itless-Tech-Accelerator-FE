@@ -1,0 +1,79 @@
+<section class="portal">
+  @if (data.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (data.error()) {
+    <p role="alert" class="portal__error">
+      We couldn't load your details. If this keeps happening, please contact your clinic.
+    </p>
+  } @else if (data.value(); as d) {
+    <header class="portal__head">
+      <h1>Hello, {{ d.profile.firstName }}</h1>
+      <p class="portal__sub">
+        Your care at {{ d.profile.practiceName ?? 'your clinic' }}
+        @if (d.profile.siteName) {
+          · {{ d.profile.siteName }}
+        }
+      </p>
+    </header>
+
+    <section class="portal__card">
+      <h2>What we're treating</h2>
+      @if (d.involvements.length === 0) {
+        <p class="portal__muted">Nothing recorded yet.</p>
+      } @else {
+        <ul class="portal__list">
+          @for (inv of d.involvements; track inv.id) {
+            <li>
+              <h3>
+                {{ regionLabel(inv.region) }} — {{ kindLabel(inv.kind) }}
+                @if (inv.level) {
+                  <span class="portal__muted">({{ humanise(inv.level) }})</span>
+                }
+              </h3>
+              @if (inv.devices.length === 0) {
+                <p class="portal__muted">No device yet.</p>
+              } @else {
+                <ul class="portal__devices">
+                  @for (dev of inv.devices; track dev.id) {
+                    <li>
+                      {{ deviceTypeLabel(dev.deviceType) }}
+                      @if (dev.manufacturer) {
+                        — {{ dev.manufacturer }} {{ dev.model }}
+                      }
+                      <span class="portal__tag">{{ humanise(dev.status) }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="portal__card">
+      <h2>Your next steps</h2>
+      @if (nextSteps().length === 0) {
+        <p class="portal__muted">You're all caught up — nothing outstanding.</p>
+      } @else {
+        <ul class="portal__steps">
+          @for (m of nextSteps(); track m.id) {
+            <li>
+              <span class="portal__step-name">{{ humanise(m.milestoneType) }}</span>
+              @if (m.targetDate) {
+                <span class="portal__muted">by {{ m.targetDate }}</span>
+              }
+              @if (overdue(m)) {
+                <span class="portal__tag portal__tag--overdue">overdue</span>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <p class="portal__cta">
+      <a routerLink="/portal/measures">Record how you're doing →</a>
+    </p>
+  }
+</section>

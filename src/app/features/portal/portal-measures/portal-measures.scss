@@ -1,0 +1,112 @@
+.measures {
+  max-width: 40rem;
+
+  &__back {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    color: #1a56db;
+    text-decoration: none;
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+  }
+
+  h2 {
+    font-size: 1.0625rem;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  &__form {
+    border: 1px solid #e2e2e2;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: #fff;
+
+    h2 {
+      margin-top: 0;
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.875rem;
+
+    label {
+      font-weight: 600;
+      font-size: 0.9375rem;
+    }
+
+    input,
+    select,
+    textarea {
+      font: inherit;
+      padding: 0.5rem;
+      border: 1px solid #767676;
+      border-radius: 0.375rem;
+    }
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+
+  &__ok {
+    color: #166534;
+    font-weight: 600;
+  }
+
+  &__error {
+    color: #991b1b;
+    font-weight: 600;
+  }
+
+  &__muted {
+    color: #6b7280;
+  }
+
+  button[type='submit'] {
+    font: inherit;
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 0.375rem;
+    background: #1a56db;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__scroll {
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #e2e2e2;
+    }
+
+    th {
+      font-size: 0.875rem;
+      color: #374151;
+    }
+  }
+
+  &__row--flagged td {
+    background: #fef2f2;
+  }
+}

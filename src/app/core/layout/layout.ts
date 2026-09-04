@@ -28,7 +28,10 @@ const NAV_BY_ROLE: Record<UserRole, NavLink[]> = {
   prosthetist: CLINICAL_LINKS,
   practice_administrator: [...CLINICAL_LINKS, { path: '/users', label: 'Users' }],
   platform_administrator: [{ path: '/platform', label: 'Practices' }],
-  patient: [],
+  patient: [
+    { path: '/portal', label: 'My care' },
+    { path: '/portal/measures', label: 'My measures' },
+  ],
   medical_aid_reviewer: [],
 };
 

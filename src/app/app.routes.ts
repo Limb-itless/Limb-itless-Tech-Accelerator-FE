@@ -43,6 +43,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/platform/platform.routes').then((m) => m.PLATFORM_ROUTES),
       },
+      {
+        path: 'portal',
+        canActivate: [roleGuard('patient')],
+        loadChildren: () => import('./features/portal/portal.routes').then((m) => m.PORTAL_ROUTES),
+      },
     ],
   },
 ];

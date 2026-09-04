@@ -32,10 +32,14 @@ export class Dashboard {
   readonly view = signal<DashboardView>('practice');
 
   constructor() {
-    // Platform admins have no caseload; send them to their own area.
+    // Roles with no caseload land here from the static '' redirect; send
+    // them to their own area.
     effect(() => {
-      if (this.auth.currentUser()?.role === 'platform_administrator') {
+      const role = this.auth.currentUser()?.role;
+      if (role === 'platform_administrator') {
         void this.router.navigateByUrl('/platform');
+      } else if (role === 'patient') {
+        void this.router.navigateByUrl('/portal');
       }
     });
   }

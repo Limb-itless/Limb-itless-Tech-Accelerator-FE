@@ -1,0 +1,90 @@
+<section class="measures">
+  <a class="measures__back" routerLink="/portal">← Back</a>
+  <h1>How you're doing</h1>
+
+  @if (data.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (data.error()) {
+    <p role="alert" class="measures__error">We couldn't load your measures.</p>
+  } @else if (data.value(); as d) {
+    <form class="measures__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <h2>Record a new measure</h2>
+
+      @if (justSaved()) {
+        <p class="measures__ok" role="status">Thanks — that's been sent to your care team.</p>
+      }
+      @if (errorMessage(); as message) {
+        <p class="measures__error" role="alert">{{ message }}</p>
+      }
+
+      <div class="measures__field">
+        <label for="instrument">Measure</label>
+        <select
+          id="instrument"
+          formControlName="instrument"
+          [attr.aria-invalid]="invalid('instrument') ? 'true' : null"
+        >
+          <option value="">Choose…</option>
+          @for (i of d.instruments.instruments; track i) {
+            <option [value]="i">{{ meta[i].label }}</option>
+          }
+        </select>
+        @if (invalid('instrument')) {
+          <p class="measures__hint">Please choose a measure.</p>
+        }
+      </div>
+
+      <div class="measures__field">
+        <label for="score">Score</label>
+        <input
+          id="score"
+          type="number"
+          formControlName="score"
+          [attr.min]="selectedMeta()?.min ?? null"
+          [attr.max]="selectedMeta()?.max ?? null"
+        />
+        @if (selectedMeta(); as m) {
+          <p class="measures__hint">{{ m.min }}–{{ m.max }} · {{ m.scaleHint }}</p>
+        }
+        @if (invalid('score')) {
+          <p class="measures__hint">Please enter your score.</p>
+        }
+      </div>
+
+      <div class="measures__field">
+        <label for="notes">Anything to add? (optional)</label>
+        <textarea id="notes" rows="2" formControlName="notes"></textarea>
+      </div>
+
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Sending…' : 'Send' }}
+      </button>
+    </form>
+
+    <h2>Your history</h2>
+    @if (d.history.length === 0) {
+      <p class="measures__muted">You haven't recorded any measures yet.</p>
+    } @else {
+      <div class="measures__scroll">
+        <table class="measures__table">
+          <thead>
+            <tr>
+              <th scope="col">Measure</th>
+              <th scope="col">Score</th>
+              <th scope="col">When</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of d.history; track p.id) {
+              <tr [class.measures__row--flagged]="p.flagged">
+                <td>{{ humanise(p.instrument) }}</td>
+                <td>{{ p.score ?? '—' }}</td>
+                <td>{{ p.recordedAt.slice(0, 10) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>
