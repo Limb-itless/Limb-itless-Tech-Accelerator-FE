@@ -289,6 +289,41 @@ roster.
 
 ---
 
+## R-17 — Body map _(first Phase 2 item)_
+
+A full-page **Body map** route (`/patients/:id/body-map`), linked from
+the patient detail header next to **View timeline**. Read-only for every
+patient-visible role. It reads the existing involvements + devices
+endpoints — no new API.
+
+1. **Markers by region.** Kagiso Sithole (46) → an SVG figure with **two
+   red markers** on the legs — _Left leg_ on your **right**, _Right leg_
+   on your **left** (the caption: "as if facing the patient"). Beside it,
+   a card per involvement (region — kind (level), status badge) with the
+   mounted device listed underneath.
+2. **Kind colour.** Refilwe Adams (49) → **two blue markers** (orthotic
+   need) — one on the left leg, one centre-torso for _Spine_. Amputations
+   are red, congenital absence amber, orthotic need blue; the card swatch
+   matches its marker.
+3. **Mount location.** A device with a `mount_location` shows it after
+   the status badge (`· posterior strut`). Seed devices mostly have none;
+   add one via **Add device** (R-15 §12) and reload the map.
+4. **Select to link.** Click a card → it highlights and its marker grows
+   / gets a dark ring. Click the marker (or the card again) → clears.
+5. **Resolved involvement.** Mark an involvement _Resolved_ (R-15 §11) →
+   its marker draws faded on the next visit; the card still lists it.
+6. **Unmapped region.** An involvement whose region is _Other_ (or a
+   region with no anchor) is **not** drawn on the figure; its card shows
+   _"Not shown on the figure (region: Other)."_ and sits with a dashed
+   left border.
+7. **Empty state.** A patient with no involvements → _"No limb
+   involvements to map yet."_ and no figure.
+8. **Left / right.** Confirm the handedness against a known case: Kagiso's
+   _Left leg — Amputation (Transfemoral)_ marker is the one on the
+   **viewer's right**.
+
+---
+
 ## R-07 — Devices
 
 Devices now live **inside** an involvement card (R-15 §1–3, §12–14). This
