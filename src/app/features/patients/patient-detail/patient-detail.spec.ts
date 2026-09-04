@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 
 import { Auth } from '../../../core/auth/auth';
 import { PatientsService } from '../patients.service';
+import { AssignmentsService } from '../assignments/assignments.service';
 import { InvolvementsService } from '../involvements/involvements.service';
 import { DevicesService } from '../devices/devices.service';
 import { PatientDetail } from './patient-detail';
@@ -40,6 +41,7 @@ async function setup(role = 'clinician', overrides: Record<string, unknown> = {}
       provideRouter([]),
       { provide: PatientsService, useValue: service },
       { provide: Auth, useValue: { currentUser: signal({ role }) } },
+      { provide: AssignmentsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
       { provide: InvolvementsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
       {
         provide: DevicesService,
@@ -96,6 +98,7 @@ describe('PatientDetail', () => {
         provideRouter([]),
         { provide: PatientsService, useValue: service },
         { provide: Auth, useValue: { currentUser: signal({ role: 'clinician' }) } },
+        { provide: AssignmentsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
         { provide: InvolvementsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
         {
           provide: DevicesService,
