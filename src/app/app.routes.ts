@@ -48,6 +48,11 @@ export const routes: Routes = [
         canActivate: [roleGuard('patient')],
         loadChildren: () => import('./features/portal/portal.routes').then((m) => m.PORTAL_ROUTES),
       },
+      {
+        path: 'review',
+        canActivate: [roleGuard('medical_aid_reviewer')],
+        loadChildren: () => import('./features/review/review.routes').then((m) => m.REVIEW_ROUTES),
+      },
     ],
   },
 ];

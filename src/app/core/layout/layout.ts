@@ -32,7 +32,7 @@ const NAV_BY_ROLE: Record<UserRole, NavLink[]> = {
     { path: '/portal', label: 'My care' },
     { path: '/portal/measures', label: 'My measures' },
   ],
-  medical_aid_reviewer: [],
+  medical_aid_reviewer: [{ path: '/review', label: 'Reviews' }],
 };
 
 @Component({

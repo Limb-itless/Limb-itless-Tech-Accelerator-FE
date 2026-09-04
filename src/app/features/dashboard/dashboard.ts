@@ -40,6 +40,8 @@ export class Dashboard {
         void this.router.navigateByUrl('/platform');
       } else if (role === 'patient') {
         void this.router.navigateByUrl('/portal');
+      } else if (role === 'medical_aid_reviewer') {
+        void this.router.navigateByUrl('/review');
       }
     });
   }

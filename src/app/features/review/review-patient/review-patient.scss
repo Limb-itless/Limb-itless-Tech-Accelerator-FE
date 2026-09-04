@@ -1,0 +1,165 @@
+.review {
+  max-width: 46rem;
+
+  &__back {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    color: #1a56db;
+    text-decoration: none;
+  }
+
+  &__head h1 {
+    margin: 0;
+  }
+
+  &__sub {
+    color: #4b5563;
+    margin: 0.25rem 0 1.25rem;
+  }
+
+  &__error {
+    color: #991b1b;
+  }
+
+  &__muted {
+    color: #6b7280;
+    margin: 0.25rem 0 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 1rem;
+    margin: 0 0 1.25rem;
+
+    dt {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    dd {
+      margin: 0.125rem 0 0;
+      font-weight: 600;
+    }
+  }
+
+  &__card {
+    border: 1px solid #e2e2e2;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: #fff;
+    margin-bottom: 1rem;
+
+    h2 {
+      font-size: 1rem;
+      margin: 0 0 0.75rem;
+    }
+
+    h3 {
+      font-size: 0.9375rem;
+      margin: 0 0 0.25rem;
+    }
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__devices {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+  }
+
+  &__device-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.25rem 1rem;
+    margin: 0.375rem 0 0;
+
+    dt {
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: inline;
+    }
+
+    dd {
+      margin: 0;
+      display: inline;
+    }
+
+    div {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__milestones {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.375rem;
+    font-size: 0.9375rem;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+  }
+
+  &__tag {
+    display: inline-block;
+    padding: 0.0625rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: #e5e7eb;
+    color: #374151;
+
+    &--warn {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #e2e2e2;
+    }
+
+    th {
+      font-size: 0.875rem;
+      color: #374151;
+    }
+  }
+
+  &__row--flagged td {
+    background: #fef2f2;
+  }
+
+  &__notes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+
+    p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  }
+}

@@ -1,0 +1,162 @@
+<section class="review">
+  <a class="review__back" routerLink="/review">← All reviews</a>
+
+  @if (data.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (data.error()) {
+    <p role="alert" class="review__error">
+      This record could not be loaded. It may no longer be shared with you.
+    </p>
+  } @else if (data.value(); as d) {
+    <header class="review__head">
+      <h1>{{ d.patient.firstName }} {{ d.patient.lastName }}</h1>
+      <p class="review__sub">
+        {{ d.practiceName ?? '—' }}
+        @if (d.siteName) {
+          · {{ d.siteName }}
+        }
+        · shared for review, read-only
+      </p>
+    </header>
+
+    <dl class="review__grid">
+      <div>
+        <dt>Date of birth</dt>
+        <dd>{{ d.patient.dateOfBirth }}</dd>
+      </div>
+      <div>
+        <dt>National ID</dt>
+        <dd>{{ d.patient.nationalId ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Passport</dt>
+        <dd>{{ d.patient.passportNumber ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Status</dt>
+        <dd>{{ d.patient.isActive ? 'Active' : 'Inactive' }}</dd>
+      </div>
+    </dl>
+
+    @if (d.patient.medicalHistory || d.patient.comorbidities) {
+      <section class="review__card">
+        @if (d.patient.medicalHistory) {
+          <h2>Medical history</h2>
+          <p>{{ d.patient.medicalHistory }}</p>
+        }
+        @if (d.patient.comorbidities) {
+          <h2>Comorbidities</h2>
+          <p>{{ d.patient.comorbidities }}</p>
+        }
+      </section>
+    }
+
+    <section class="review__card">
+      <h2>Limb involvements</h2>
+      @if (d.involvements.length === 0) {
+        <p class="review__muted">None recorded.</p>
+      } @else {
+        <ul class="review__list">
+          @for (inv of d.involvements; track inv.id) {
+            <li>
+              <h3>
+                {{ regionLabel(inv.region) }} — {{ kindLabel(inv.kind) }}
+                @if (inv.level) {
+                  <span class="review__muted">({{ humanise(inv.level) }})</span>
+                }
+                <span class="review__tag">{{ humanise(inv.status) }}</span>
+              </h3>
+              @if (inv.cause) {
+                <p class="review__muted">Cause: {{ humanise(inv.cause) }}</p>
+              }
+              @if (inv.devices.length === 0) {
+                <p class="review__muted">No devices.</p>
+              } @else {
+                <ul class="review__devices">
+                  @for (dev of inv.devices; track dev.id) {
+                    <li>
+                      <strong>{{ deviceTypeLabel(dev.deviceType) }}</strong>
+                      <span class="review__tag">{{ humanise(dev.status) }}</span>
+                      <dl class="review__device-fields">
+                        @for (f of fields($any(dev)); track f.label) {
+                          <div>
+                            <dt>{{ f.label }}</dt>
+                            <dd>{{ f.value }}</dd>
+                          </div>
+                        }
+                      </dl>
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="review__card">
+      <h2>Recovery milestones</h2>
+      @if (d.milestones.length === 0) {
+        <p class="review__muted">None recorded.</p>
+      } @else {
+        <ol class="review__milestones">
+          @for (m of d.milestones; track m.id) {
+            <li>
+              <span>{{ humanise(m.milestoneType) }}</span>
+              <span class="review__tag">{{ humanise(m.status) }}</span>
+              @if (m.targetDate) {
+                <span class="review__muted">target {{ m.targetDate }}</span>
+              }
+              @if (overdue(m)) {
+                <span class="review__tag review__tag--warn">overdue</span>
+              }
+            </li>
+          }
+        </ol>
+      }
+    </section>
+
+    <section class="review__card">
+      <h2>Outcome measures ({{ flaggedProms() }} flagged)</h2>
+      @if (d.proms.length === 0) {
+        <p class="review__muted">None recorded.</p>
+      } @else {
+        <table class="review__table">
+          <thead>
+            <tr>
+              <th scope="col">Instrument</th>
+              <th scope="col">Score</th>
+              <th scope="col">Recorded</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of d.proms; track p.id) {
+              <tr [class.review__row--flagged]="p.flagged">
+                <td>{{ humanise(p.instrument) }}</td>
+                <td>{{ p.score ?? '—' }}</td>
+                <td>{{ p.recordedAt.slice(0, 10) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+    <section class="review__card">
+      <h2>Clinical notes</h2>
+      @if (d.notes.length === 0) {
+        <p class="review__muted">None recorded.</p>
+      } @else {
+        <ul class="review__notes">
+          @for (n of d.notes; track n.id) {
+            <li>
+              <p>{{ n.body }}</p>
+              <span class="review__muted">{{ n.createdAt.slice(0, 10) }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</section>

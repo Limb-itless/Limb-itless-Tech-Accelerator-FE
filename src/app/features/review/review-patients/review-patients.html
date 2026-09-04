@@ -1,0 +1,37 @@
+<section class="review-list">
+  <h1>Patient reviews</h1>
+  <p class="review-list__note">Records shared with you by the treating practice. Read-only.</p>
+
+  @if (patients.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (patients.error()) {
+    <p role="alert" class="review-list__error">The list could not be loaded.</p>
+  } @else if (patients.value(); as rows) {
+    @if (rows.length === 0) {
+      <p class="review-list__empty">No patient records have been shared with you.</p>
+    } @else {
+      <table class="review-list__table">
+        <thead>
+          <tr>
+            <th scope="col">Patient</th>
+            <th scope="col">Date of birth</th>
+            <th scope="col">Practice</th>
+            <th scope="col">Involvements</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of rows; track p.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/review', p.id]">{{ p.lastName }}, {{ p.firstName }}</a>
+              </td>
+              <td>{{ p.dateOfBirth }}</td>
+              <td>{{ p.practiceName ?? '—' }}</td>
+              <td>{{ p.involvementCount }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</section>
