@@ -72,9 +72,13 @@ describe('PatientDetail', () => {
     expect(service.setActive).toHaveBeenCalledWith(1, false);
   });
 
-  it('hides actions for a practice administrator', async () => {
+  it('hides edit / deactivate for a practice administrator but keeps the timeline link', async () => {
     const { fixture } = await setup('practice_administrator');
-    expect(fixture.nativeElement.querySelector('.patient__actions')).toBeNull();
+    const links = [...fixture.nativeElement.querySelectorAll('.patient__actions a')].map(
+      (a: HTMLAnchorElement) => a.textContent?.trim(),
+    );
+    expect(links).toEqual(['View timeline']);
+    expect(fixture.nativeElement.querySelector('.patient__actions button')).toBeNull();
   });
 
   it('shows an error state', async () => {
