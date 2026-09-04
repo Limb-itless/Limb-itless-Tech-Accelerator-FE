@@ -1,12 +1,12 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-23 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-24 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
-Patient portal, per-type device componentry). Runs against the local
-stack with the seeded clinical sample data. R-17 → R-23 are Phase 2
-items.
+Patient portal, per-type device componentry, medical-aid reviewer).
+Runs against the local stack with the seeded clinical sample data.
+R-17 → R-24 are Phase 2 items.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -48,6 +48,7 @@ items.
 | `platform.admin@limbitless.co.za`        | platform admin                      | no clinical dashboard                      |
 | `thabo.molefe@patient.limbitless.co.za`  | patient (portal)                    | own record only — Thabo Molefe (amputee)   |
 | `refilwe.adams@patient.limbitless.co.za` | patient (portal)                    | own record only — Refilwe Adams (orthotic) |
+| `reviewer@medscheme.co.za`               | medical-aid reviewer                | 3 shared records — Thabo, Kagiso, Refilwe  |
 
 ### Seeded patients (Northgate unless noted)
 
@@ -491,6 +492,40 @@ Needs `alembic upgrade head` (migration `b4c8d1f2e309` adds four
    save → the record has `joint_type` set and `socket_type` (etc.) null;
    the reverse for a prosthesis. Nothing you typed in the hidden set is
    sent.
+
+---
+
+## R-24 — Medical-aid reviewer _(Phase 2)_
+
+Needs `alembic upgrade head` (migration `c5e2a9b41f07` adds
+`review_grants`) + a `--reset`. The seed shares Thabo (1), Kagiso (11)
+and Refilwe (14) with `reviewer@medscheme.co.za`.
+
+1. **Landing.** Log in as **`reviewer@medscheme.co.za`** / `Password123!`
+   → you land on **/review**; the nav shows only **Reviews**.
+2. **Shared list.** A **Patient reviews** table — surname / DOB /
+   practice / involvement count — with the three shared patients
+   (Adams, Molefe, Sithole), each linking to the record. _"Read-only"_
+   is stated up front.
+3. **The record.** Open Refilwe → demographics, then **Limb
+   involvements** (each involvement + its devices, and for the orthoses
+   the joint / trimline / strap / lining fields from R-23), **Recovery
+   milestones** (with an _overdue_ tag), **Outcome measures** (flagged
+   count in the heading, flagged rows tinted), **Clinical notes**. There
+   are **no buttons or inputs** anywhere in the record.
+4. **Not shared → 404.** Navigate to `/review/2` (Lerato, not shared) →
+   _"This record could not be loaded. It may no longer be shared with
+   you."_
+5. **Grant / revoke (staff side).** As a clinician,
+   `POST /patients/{id}/review-access {reviewer_id}` shares a record
+   (400 if the id isn't an active reviewer, 409 if already shared);
+   `GET` the same path lists who has access; `DELETE
+/patients/{id}/review-access/{reviewer_id}` revokes it — the patient
+   then drops off that reviewer's list.
+6. **Role gating.** As any staff role, `/review` → `/forbidden`; a
+   reviewer hitting `/patients` or `/portal` → `/forbidden`. Every review
+   read lands in the **treating practice's** audit trail (R-21) as the
+   reviewer reading a `patient`.
 
 ---
 
