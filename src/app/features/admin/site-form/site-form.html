@@ -1,0 +1,45 @@
+<section class="site-form">
+  <a class="site-form__back" routerLink="/users/sites">← Back to sites</a>
+
+  <h1>{{ heading() }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="site-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="site-form__field">
+      <label for="name">Name</label>
+      <input
+        id="name"
+        formControlName="name"
+        autocomplete="off"
+        [attr.aria-invalid]="invalidName ? 'true' : null"
+      />
+      @if (invalidName) {
+        <p class="site-form__hint">A name is required.</p>
+      }
+    </div>
+
+    <div class="site-form__field">
+      <label for="type">Type</label>
+      <select id="type" formControlName="type">
+        @for (t of types; track t) {
+          <option [value]="t">{{ humanise(t) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="site-form__field">
+      <label for="address">Address</label>
+      <input id="address" formControlName="address" autocomplete="off" />
+    </div>
+
+    <div class="site-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a routerLink="/users/sites">Cancel</a>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,90 @@
+<section class="admin-users">
+  <header class="admin-users__head">
+    <h1>Practice administration</h1>
+    <a class="admin-users__new" routerLink="/users/new">New user</a>
+  </header>
+
+  <app-admin-nav />
+
+  <div class="admin-users__controls">
+    <label>
+      <span>Search email</span>
+      <input
+        #q
+        type="search"
+        [value]="search()"
+        (input)="onSearch(q.value)"
+        placeholder="name@practice.co.za"
+        autocomplete="off"
+      />
+    </label>
+
+    <label>
+      <span>Role</span>
+      <select #roleSelect [value]="role()" (change)="onRole(roleSelect.value)">
+        <option value="">All roles</option>
+        @for (r of roles; track r) {
+          <option [value]="r">{{ humanise(r) }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>Status</span>
+      <select #statusSelect [value]="status()" (change)="onStatus(statusSelect.value)">
+        <option value="all">All</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </label>
+  </div>
+
+  @if (page.isLoading()) {
+    <p role="status">Loading users…</p>
+  } @else if (page.error()) {
+    <p role="alert" class="admin-users__error">Users could not be loaded.</p>
+  } @else if (page.value(); as result) {
+    @if (result.items.length === 0) {
+      <p class="admin-users__empty">No users match these filters.</p>
+    } @else {
+      <table class="admin-users__table">
+        <caption class="visually-hidden">
+          Practice staff
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Role</th>
+            <th scope="col">Site</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of result.items; track user.id) {
+            <tr>
+              <td>{{ user.email }}</td>
+              <td>{{ humanise(user.role) }}</td>
+              <td>{{ user.siteName ?? '—' }}</td>
+              <td>
+                <span
+                  class="admin-users__badge"
+                  [class.admin-users__badge--inactive]="!user.isActive"
+                >
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td><a [routerLink]="['/users', user.id, 'edit']">Edit</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <nav class="admin-users__pager" aria-label="Pagination">
+        <button type="button" (click)="prev()" [disabled]="!hasPrev()">Previous</button>
+        <span aria-live="polite"> {{ rangeStart() }}–{{ rangeEnd() }} of {{ result.total }} </span>
+        <button type="button" (click)="next()" [disabled]="!hasNext()">Next</button>
+      </nav>
+    }
+  }
+</section>

@@ -33,8 +33,8 @@ export const routes: Routes = [
       },
       {
         path: 'users',
-        canActivate: [roleGuard('platform_administrator', 'practice_administrator')],
-        loadComponent: () => import('./features/users/users').then((m) => m.Users),
+        canActivate: [roleGuard('practice_administrator')],
+        loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
     ],
   },

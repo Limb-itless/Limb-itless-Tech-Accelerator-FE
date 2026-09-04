@@ -1,0 +1,52 @@
+<section class="admin-sites">
+  <header class="admin-sites__head">
+    <h1>Practice administration</h1>
+    <a class="admin-sites__new" routerLink="/users/sites/new">New site</a>
+  </header>
+
+  <app-admin-nav />
+
+  <label class="admin-sites__filter">
+    <span>Type</span>
+    <select #typeSelect [value]="typeFilter()" (change)="onType(typeSelect.value)">
+      <option value="">All types</option>
+      @for (t of types; track t) {
+        <option [value]="t">{{ humanise(t) }}</option>
+      }
+    </select>
+  </label>
+
+  @if (sites.isLoading()) {
+    <p role="status">Loading sites…</p>
+  } @else if (sites.error()) {
+    <p role="alert" class="admin-sites__error">Sites could not be loaded.</p>
+  } @else if (sites.value(); as list) {
+    @if (list.length === 0) {
+      <p class="admin-sites__empty">No sites match this filter.</p>
+    } @else {
+      <table class="admin-sites__table">
+        <caption class="visually-hidden">
+          Practice sites
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Address</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (site of list; track site.id) {
+            <tr>
+              <td>{{ site.name }}</td>
+              <td>{{ humanise(site.type) }}</td>
+              <td>{{ site.address ?? '—' }}</td>
+              <td><a [routerLink]="['/users/sites', site.id, 'edit']">Edit</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</section>
