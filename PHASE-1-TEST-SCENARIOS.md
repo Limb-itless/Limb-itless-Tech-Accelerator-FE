@@ -1,11 +1,11 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-19 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-21 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
-Care team, Body map, Reports, Orthotic PROMs & pathway). Runs against the
-local stack with the seeded clinical sample data. R-17 → R-19 are the
-first Phase 2 items.
+Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log). Runs
+against the local stack with the seeded clinical sample data. R-17 → R-21
+are Phase 2 items.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -30,8 +30,9 @@ first Phase 2 items.
    ```
    The seed adds **14 patients** across **3 practices** (10 Northgate,
    2 Cape Mobility, 2 Sunrise), each with **1–2 limb involvements**,
-   devices, milestones, PROMs and notes. Re-running without `--reset`
-   changes nothing.
+   devices, milestones, PROMs, notes and a sample **audit trail**
+   (~72 entries — R-31 seeds these so the audit view has content on a
+   fresh DB). Re-running without `--reset` changes nothing.
 2. **API**: `fastapi dev` (or `python -m uvicorn app.main:app --port 8000`).
 3. **App**: `npm start` in `Limb-itless-Tech-Accelerator-FE` → http://localhost:4200.
 
@@ -396,6 +397,36 @@ lower-limb template. Needs `alembic upgrade head` (migration
 6. **Trend + timeline.** Refilwe's **Outcome measures** panel shows three
    charts (Orthosis Comfort Score, QUEST, LCI-5); the timeline lists the
    orthotic PROM entries like any other.
+
+---
+
+## R-21 — Audit log _(Phase 2)_
+
+Log in as **`admin@northgate-rehab.co.za`** → **Users** → the third tab,
+**Audit** (`/users/audit`). Read-only; consumes `GET /admin/audit`.
+
+1. **Trail.** A newest-first table — **When / Actor / Action / Entity /
+   Ref** — paged 20 at a time (`1–20 of 54` for Northgate on the seed).
+   Rows with no actor render _"— (deleted user)"_; a list/search read
+   (e.g. `dashboard`) shows **Ref** as `—`. Action chips are colour-coded
+   (create green, update amber, delete red).
+2. **Filters from facets.** The **Actor** and **Entity** dropdowns are
+   populated from `/admin/audit/facets` — only values that actually
+   appear in this practice's trail (`clinician@` / `prosthetist@`;
+   `dashboard` / `device` / `patient` / `prom_record`). **Action** is the
+   fixed four. Pick **Entity = Device** → the list narrows to the 14
+   device-create rows (`1–14 of 14`); the offset resets to page 1 on any
+   filter change.
+3. **Date range.** Set **From** to ~10 days ago → older entries drop;
+   **To** is inclusive of that whole day. **Clear** resets every filter.
+4. **Practice isolation.** As `admin@capemobility.co.za` the trail shows
+   only Cape Mobility's entries and its own actors.
+5. **Role gating.** As `clinician@northgate-rehab.co.za` (or the platform
+   admin), `/users/audit` → `/forbidden` (the `/users` route guard); a
+   direct API call by a non-admin → **403**.
+6. **It is not self-logging.** Opening the Audit view repeatedly does not
+   add `read` / `audit` rows — the admin list endpoints don't record
+   their own reads.
 
 ---
 
