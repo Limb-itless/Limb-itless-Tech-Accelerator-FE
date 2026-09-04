@@ -14,16 +14,17 @@
         </span>
       </div>
 
-      @if (canEdit()) {
-        <div class="patient__actions">
+      <div class="patient__actions">
+        <a class="patient__edit" [routerLink]="['/patients', p.id, 'timeline']">View timeline</a>
+        @if (canEdit()) {
           <a class="patient__edit" [routerLink]="['/patients', p.id, 'edit']">Edit</a>
           @if (p.isActive) {
             <button type="button" (click)="setActive(false)" [disabled]="busy()">Deactivate</button>
           } @else {
             <button type="button" (click)="setActive(true)" [disabled]="busy()">Reactivate</button>
           }
-        </div>
-      }
+        }
+      </div>
     </header>
 
     <dl class="patient__grid">

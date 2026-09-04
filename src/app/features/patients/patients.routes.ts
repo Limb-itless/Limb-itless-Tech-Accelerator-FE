@@ -70,4 +70,20 @@ export const PATIENT_ROUTES: Routes = [
     data: { mode: 'edit' },
     loadComponent: () => import('./proms/prom-form/prom-form').then((m) => m.PromForm),
   },
+  {
+    path: ':id/timeline',
+    loadComponent: () =>
+      import('./timeline/patient-timeline/patient-timeline').then((m) => m.PatientTimeline),
+  },
+  {
+    path: ':id/notes/new',
+    canActivate: [writerRoles],
+    loadComponent: () => import('./notes/note-form/note-form').then((m) => m.NoteForm),
+  },
+  {
+    path: ':id/notes/:noteId/edit',
+    canActivate: [writerRoles],
+    data: { mode: 'edit' },
+    loadComponent: () => import('./notes/note-form/note-form').then((m) => m.NoteForm),
+  },
 ];

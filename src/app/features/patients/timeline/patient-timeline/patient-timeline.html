@@ -1,0 +1,96 @@
+<section class="timeline">
+  <a class="timeline__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <header class="timeline__head">
+    <h1>Patient timeline</h1>
+    @if (canEdit()) {
+      <a class="timeline__add" [routerLink]="['/patients', id(), 'notes', 'new']">Add note</a>
+    }
+  </header>
+
+  @if (events.isLoading()) {
+    <p role="status">Loading timeline…</p>
+  } @else if (events.error()) {
+    <p role="alert" class="timeline__error">The timeline could not be loaded.</p>
+  } @else if (events.value(); as all) {
+    <div class="timeline__filters" role="group" aria-label="Filter timeline by type">
+      <button
+        type="button"
+        class="timeline__chip"
+        [class.timeline__chip--active]="filter() === 'all'"
+        [attr.aria-pressed]="filter() === 'all'"
+        (click)="setFilter('all')"
+      >
+        All ({{ counts().all }})
+      </button>
+      @for (kind of kinds; track kind) {
+        <button
+          type="button"
+          class="timeline__chip"
+          [class.timeline__chip--active]="filter() === kind"
+          [attr.aria-pressed]="filter() === kind"
+          (click)="setFilter(kind)"
+        >
+          {{ kindLabel[kind] }} ({{ counts()[kind] }})
+        </button>
+      }
+    </div>
+
+    @if (all.length === 0) {
+      <p class="timeline__empty">Nothing has been recorded for this patient yet.</p>
+    } @else if (visible().length === 0) {
+      <p class="timeline__empty">No {{ filterLabel() }} events.</p>
+    } @else {
+      <ol class="timeline__list">
+        @for (event of visible(); track event.kind + '-' + event.refId) {
+          <li class="timeline__item timeline__item--{{ event.kind }}">
+            <div class="timeline__marker" aria-hidden="true"></div>
+            <div class="timeline__body">
+              <div class="timeline__meta">
+                <span class="timeline__kind timeline__kind--{{ event.kind }}">
+                  {{ kindLabel[event.kind] }}
+                </span>
+                <time [attr.datetime]="event.occurredAt">{{ event.occurredAt.slice(0, 10) }}</time>
+              </div>
+
+              @if (event.kind !== 'note') {
+                <p class="timeline__title">{{ event.title }}</p>
+              }
+
+              @if (event.kind === 'note' && event.note; as note) {
+                <p class="timeline__note-body">{{ note.body }}</p>
+                @if (canEdit()) {
+                  <a
+                    class="timeline__edit"
+                    [routerLink]="['/patients', id(), 'notes', note.id, 'edit']"
+                  >
+                    Edit note
+                  </a>
+                }
+              }
+
+              @if (event.kind === 'prom' && event.prom; as prom) {
+                @if (prom.flagged && prom.flagReason) {
+                  <p class="timeline__flag">{{ prom.flagReason }}</p>
+                }
+                @if (prom.notes) {
+                  <p class="timeline__sub">{{ prom.notes }}</p>
+                }
+              }
+
+              @if (event.kind === 'milestone' && event.milestone; as milestone) {
+                <p class="timeline__sub">
+                  Target {{ milestone.targetDate ?? '—' }} · Completed
+                  {{ milestone.completedDate ?? '—' }}
+                </p>
+                @if (milestone.notes) {
+                  <p class="timeline__sub">{{ milestone.notes }}</p>
+                }
+              }
+            </div>
+          </li>
+        }
+      </ol>
+    }
+  }
+</section>

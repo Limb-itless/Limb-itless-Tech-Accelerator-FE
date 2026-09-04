@@ -1,0 +1,171 @@
+.timeline {
+  max-width: 44rem;
+
+  &__back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: #1a56db;
+    text-decoration: none;
+  }
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    h1 {
+      margin: 0 0 0.5rem;
+    }
+  }
+
+  &__add {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #1a56db;
+    color: #1a56db;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  &__error {
+    color: #991b1b;
+  }
+
+  &__empty {
+    color: #4b5563;
+  }
+
+  &__filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0 1.5rem;
+  }
+
+  &__chip {
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.3125rem 0.75rem;
+    border: 1px solid #b3b3b3;
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+
+    &--active {
+      background: #1a56db;
+      border-color: #1a56db;
+      color: #fff;
+    }
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1rem 1fr;
+    gap: 0.75rem;
+    padding: 0 0 1.25rem 0;
+
+    &::before {
+      // vertical rail
+      content: '';
+      position: absolute;
+      left: 0.4375rem;
+      top: 0.25rem;
+      bottom: 0;
+      width: 2px;
+      background: #e2e2e2;
+    }
+
+    &:last-child::before {
+      display: none;
+    }
+  }
+
+  &__marker {
+    position: relative;
+    z-index: 1;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-top: 0.25rem;
+    border-radius: 999px;
+    background: #94a3b8;
+
+    .timeline__item--milestone & {
+      background: #1a56db;
+    }
+
+    .timeline__item--prom & {
+      background: #0891b2;
+    }
+
+    .timeline__item--note & {
+      background: #64748b;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+
+  &__kind {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.6875rem;
+
+    &--milestone {
+      color: #1a56db;
+    }
+
+    &--prom {
+      color: #0e7490;
+    }
+
+    &--note {
+      color: #475569;
+    }
+  }
+
+  &__title {
+    margin: 0.25rem 0 0;
+    font-weight: 600;
+  }
+
+  &__note-body,
+  &__sub {
+    margin: 0.375rem 0 0;
+    white-space: pre-wrap;
+  }
+
+  &__sub {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+
+  &__flag {
+    margin: 0.375rem 0 0;
+    font-size: 0.875rem;
+    color: #b91c1c;
+  }
+
+  &__edit {
+    display: inline-block;
+    margin-top: 0.375rem;
+    color: #1a56db;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+}

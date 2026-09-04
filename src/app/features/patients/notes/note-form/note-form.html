@@ -1,0 +1,32 @@
+<section class="note-form">
+  <a class="note-form__back" [routerLink]="['/patients', id(), 'timeline']">← Back to timeline</a>
+
+  <h1>{{ heading() }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="note-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="note-form__field">
+      <label for="body">Note</label>
+      <textarea
+        id="body"
+        rows="8"
+        formControlName="body"
+        [attr.aria-invalid]="invalidBody ? 'true' : null"
+        [attr.aria-describedby]="invalidBody ? 'body-error' : null"
+      ></textarea>
+      @if (invalidBody) {
+        <p id="body-error" class="note-form__hint">A note cannot be empty.</p>
+      }
+    </div>
+
+    <div class="note-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="['/patients', id(), 'timeline']">Cancel</a>
+    </div>
+  </form>
+</section>
