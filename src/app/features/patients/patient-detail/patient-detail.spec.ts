@@ -78,12 +78,12 @@ describe('PatientDetail', () => {
     expect(service.setActive).toHaveBeenCalledWith(1, false);
   });
 
-  it('hides edit / deactivate for a practice administrator but keeps the timeline link', async () => {
+  it('hides edit / deactivate for a practice administrator but keeps the read-only links', async () => {
     const { fixture } = await setup('practice_administrator');
     const links = [...fixture.nativeElement.querySelectorAll('.patient__actions a')].map(
       (a: HTMLAnchorElement) => a.textContent?.trim(),
     );
-    expect(links).toEqual(['View timeline']);
+    expect(links).toEqual(['View timeline', 'Body map']);
     expect(fixture.nativeElement.querySelector('.patient__actions button')).toBeNull();
   });
 
