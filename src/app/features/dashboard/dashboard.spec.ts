@@ -1,8 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
+import { Auth } from '../../core/auth/auth';
 import { DashboardSummary } from './dashboard.model';
 import { DashboardService } from './dashboard.service';
 import { Dashboard } from './dashboard';
@@ -38,11 +40,15 @@ const SUMMARY: DashboardSummary = {
   ],
 };
 
-async function setup(summary = vi.fn().mockReturnValue(of(SUMMARY))) {
+async function setup(summary = vi.fn().mockReturnValue(of(SUMMARY)), role = 'clinician') {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [Dashboard],
-    providers: [provideRouter([]), { provide: DashboardService, useValue: { summary } }],
+    providers: [
+      provideRouter([]),
+      { provide: DashboardService, useValue: { summary } },
+      { provide: Auth, useValue: { currentUser: signal({ role }) } },
+    ],
   }).compileComponents();
   const fixture = TestBed.createComponent(Dashboard);
   fixture.detectChanges();
@@ -94,5 +100,21 @@ describe('Dashboard', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(
       'could not be loaded',
     );
+  });
+
+  it('sends a platform administrator to /platform', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [Dashboard],
+      providers: [
+        provideRouter([]),
+        { provide: DashboardService, useValue: { summary: vi.fn().mockReturnValue(of(SUMMARY)) } },
+        { provide: Auth, useValue: { currentUser: signal({ role: 'platform_administrator' }) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(Dashboard);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    fixture.detectChanges();
+    expect(navigate).toHaveBeenCalledWith('/platform');
   });
 });

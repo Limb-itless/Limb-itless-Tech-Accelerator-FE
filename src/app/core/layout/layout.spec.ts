@@ -26,6 +26,7 @@ function fakeAuth(user: AuthenticatedUser | null) {
 }
 
 async function setup(user: AuthenticatedUser | null) {
+  TestBed.resetTestingModule();
   const auth = fakeAuth(user);
   await TestBed.configureTestingModule({
     imports: [Layout],
@@ -62,5 +63,19 @@ describe('Layout', () => {
 
     expect(fixture.componentInstance).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.app-header__user')).toBeNull();
+  });
+
+  it('shows nav links for the current role', async () => {
+    const clin = await setup({ ...USER, role: 'clinician' });
+    const clinLabels = [...clin.fixture.nativeElement.querySelectorAll('.app-header__nav a')].map(
+      (a: HTMLAnchorElement) => a.textContent?.trim(),
+    );
+    expect(clinLabels).toEqual(['Dashboard', 'Patients', 'Reports']);
+
+    const platform = await setup({ ...USER, role: 'platform_administrator' });
+    const platformLabels = [
+      ...platform.fixture.nativeElement.querySelectorAll('.app-header__nav a'),
+    ].map((a: HTMLAnchorElement) => a.textContent?.trim());
+    expect(platformLabels).toEqual(['Practices']);
   });
 });
