@@ -1,11 +1,11 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-21 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-22 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
-Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log). Runs
-against the local stack with the seeded clinical sample data. R-17 → R-21
-are Phase 2 items.
+Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
+Patient portal). Runs against the local stack with the seeded clinical
+sample data. R-17 → R-22 are Phase 2 items.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -38,13 +38,15 @@ are Phase 2 items.
 
 ### Logins (all share password `Password123!`)
 
-| Email                               | Role                                | Sees                                 |
-| ----------------------------------- | ----------------------------------- | ------------------------------------ |
-| `clinician@northgate-rehab.co.za`   | clinician (writer)                  | Northgate patients; assigned to most |
-| `prosthetist@northgate-rehab.co.za` | prosthetist (writer)                | Northgate patients                   |
-| `admin@northgate-rehab.co.za`       | practice admin (read-only clinical) | Northgate patients                   |
-| `clinician@capemobility.co.za`      | clinician (writer)                  | Cape Mobility patients only          |
-| `platform.admin@limbitless.co.za`   | platform admin                      | no clinical dashboard                |
+| Email                                    | Role                                | Sees                                       |
+| ---------------------------------------- | ----------------------------------- | ------------------------------------------ |
+| `clinician@northgate-rehab.co.za`        | clinician (writer)                  | Northgate patients; assigned to most       |
+| `prosthetist@northgate-rehab.co.za`      | prosthetist (writer)                | Northgate patients                         |
+| `admin@northgate-rehab.co.za`            | practice admin (read-only clinical) | Northgate patients                         |
+| `clinician@capemobility.co.za`           | clinician (writer)                  | Cape Mobility patients only                |
+| `platform.admin@limbitless.co.za`        | platform admin                      | no clinical dashboard                      |
+| `thabo.molefe@patient.limbitless.co.za`  | patient (portal)                    | own record only — Thabo Molefe (amputee)   |
+| `refilwe.adams@patient.limbitless.co.za` | patient (portal)                    | own record only — Refilwe Adams (orthotic) |
 
 ### Seeded patients (Northgate unless noted)
 
@@ -427,6 +429,43 @@ Log in as **`admin@northgate-rehab.co.za`** → **Users** → the third tab,
 6. **It is not self-logging.** Opening the Audit view repeatedly does not
    add `read` / `audit` rows — the admin list endpoints don't record
    their own reads.
+
+---
+
+## R-22 — Patient portal _(Phase 2)_
+
+Needs `alembic upgrade head` (migration `a7d0e2f16b93` adds
+`patients.user_id`) + a `--reset` — the seed creates two practice-bound
+patient logins and links them.
+
+1. **Landing.** Log in as **`thabo.molefe@patient.limbitless.co.za`** /
+   `Password123!` → you land on **/portal** (not the dashboard). The nav
+   shows only **My care** / **My measures**; there is no Patients /
+   Dashboard / Reports.
+2. **My care.** The page greets _"Hello, Thabo"_, names the clinic, then
+   **What we're treating** (his left-leg amputation + the myoelectric
+   device) and **Your next steps** (his incomplete milestones, earliest
+   first, an _overdue_ tag on any past-due one).
+3. **My measures — history.** **My measures** lists his recorded PROMs
+   newest-first (measure / score / date); flagged rows are tinted.
+4. **My measures — submit.** The **Measure** dropdown offers only the
+   scales for his involvement kind — for Thabo that's residual-limb pain,
+   phantom pain, Socket Comfort Score, LCI-5, QUEST (no _Orthosis
+   Comfort Score_). Pick one, the score field shows its bounds; submit →
+   _"Thanks — that's been sent to your care team."_ and the row appears
+   in the history. An out-of-range score → the backend message.
+5. **Orthotic patient.** Log in as
+   **`refilwe.adams@patient.limbitless.co.za`** → her **My measures**
+   dropdown offers _Orthosis Comfort Score_, QUEST and LCI-5 — **not**
+   the amputation scales.
+6. **Isolation + gating.** The portal only ever shows the logged-in
+   patient's own record. A staff member hitting `/portal/me` → **403**;
+   the generic `patient@limbitless.co.za` (no linked record) → the API
+   returns **404** and the page shows a "contact your clinic" message.
+7. **Linking (staff side).** As a clinician, `POST
+/patients/{id}/link-user {user_id}` ties a `patient`-role account to a
+   record (400 for a non-patient account, 409 if that login is already
+   linked elsewhere); `DELETE` the same path unlinks.
 
 ---
 
