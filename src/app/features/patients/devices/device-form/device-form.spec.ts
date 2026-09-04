@@ -165,4 +165,35 @@ describe('DeviceForm', () => {
     expect(fixture.componentInstance.errorMessage()).toContain('already has an active device');
     expect(fixture.componentInstance.submitting()).toBe(false);
   });
+
+  it('requires a limb level for a prosthesis but not for an orthosis', async () => {
+    const service = stub();
+    const navigate = await build(service);
+    const fixture = TestBed.createComponent(DeviceForm);
+    fixture.componentRef.setInput('id', '9');
+    fixture.detectChanges();
+
+    // prosthesis with no level -> blocked
+    fixture.componentInstance.form.patchValue({ limbSide: 'left', deviceType: 'myoelectric' });
+    expect(fixture.componentInstance.levelApplies()).toBe(true);
+    fixture.componentInstance.submit();
+    expect(service.create).not.toHaveBeenCalled();
+
+    // switch to an orthosis -> level no longer required, submits with null
+    fixture.componentInstance.form.patchValue({
+      limbSide: 'bilateral',
+      deviceType: 'orthosis_spinal',
+    });
+    expect(fixture.componentInstance.levelApplies()).toBe(false);
+    fixture.componentInstance.submit();
+    expect(service.create).toHaveBeenCalledWith(
+      9,
+      expect.objectContaining({
+        limbSide: 'bilateral',
+        deviceType: 'orthosis_spinal',
+        limbLevel: null,
+      }),
+    );
+    expect(navigate).toHaveBeenCalledWith(['/patients', 9]);
+  });
 });

@@ -9,11 +9,20 @@ import {
   signal,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
 import { LIMB_LOSS_LEVELS, humanise } from '../../patient.model';
-import { DEVICE_STATUSES, DEVICE_TYPES, DeviceCreate, LIMB_SIDES } from '../device.model';
+import {
+  DEVICE_STATUSES,
+  DeviceCreate,
+  DeviceType,
+  LIMB_SIDES,
+  ORTHOSIS_TYPES,
+  PROSTHESIS_TYPES,
+  deviceTypeLabel,
+  isOrthosis,
+} from '../device.model';
 import { DevicesService } from '../devices.service';
 
 type Mode = 'create' | 'edit' | 'replace';
@@ -31,9 +40,11 @@ export class DeviceForm {
   private readonly router = inject(Router);
 
   readonly humanise = humanise;
+  readonly deviceTypeLabel = deviceTypeLabel;
   readonly sides = LIMB_SIDES;
   readonly levels = LIMB_LOSS_LEVELS;
-  readonly types = DEVICE_TYPES;
+  readonly prosthesisTypes = PROSTHESIS_TYPES;
+  readonly orthosisTypes = ORTHOSIS_TYPES;
   readonly statuses = DEVICE_STATUSES;
 
   /** `:id` route parameter — the patient. */
@@ -59,7 +70,7 @@ export class DeviceForm {
 
   readonly form = this.fb.group({
     limbSide: ['', [Validators.required]],
-    limbLevel: ['', [Validators.required]],
+    limbLevel: [''],
     deviceType: ['', [Validators.required]],
     status: ['planned', [Validators.required]],
     manufacturer: ['', [Validators.maxLength(200)]],
@@ -77,6 +88,15 @@ export class DeviceForm {
     notes: [''],
   });
 
+  private readonly deviceTypeValue = toSignal(this.form.controls.deviceType.valueChanges, {
+    initialValue: '',
+  });
+
+  /** Orthoses have no amputation level; a prosthesis requires one. */
+  readonly levelApplies = computed(
+    () => !!this.deviceTypeValue() && !isOrthosis(this.deviceTypeValue() as DeviceType),
+  );
+
   private readonly existing = rxResource({
     params: () => {
       const deviceId = this.deviceId();
@@ -88,6 +108,13 @@ export class DeviceForm {
   });
 
   constructor() {
+    // An orthosis clears any pending "limb level required" error.
+    effect(() => {
+      if (!this.levelApplies() && this.form.controls.limbLevel.errors?.['required']) {
+        this.form.controls.limbLevel.setErrors(null);
+      }
+    });
+
     effect(() => {
       const device = this.existing.value();
       if (!device) {
@@ -98,7 +125,7 @@ export class DeviceForm {
       const replacing = this.mode() === 'replace';
       this.form.setValue({
         limbSide: device.limbSide,
-        limbLevel: device.limbLevel,
+        limbLevel: device.limbLevel ?? '',
         deviceType: device.deviceType,
         status: replacing ? 'planned' : device.status,
         manufacturer: replacing ? '' : (device.manufacturer ?? ''),
@@ -127,6 +154,15 @@ export class DeviceForm {
     if (this.submitting()) {
       return;
     }
+
+    const level = this.form.controls.limbLevel;
+    if (this.levelApplies() && !level.value) {
+      level.setErrors({ required: true });
+      level.markAsTouched();
+    } else if (level.errors?.['required']) {
+      level.setErrors(null);
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -139,7 +175,9 @@ export class DeviceForm {
     const blankToNull = (value: string): string | null => value.trim() || null;
     const payload: DeviceCreate = {
       limbSide: raw.limbSide as DeviceCreate['limbSide'],
-      limbLevel: raw.limbLevel as DeviceCreate['limbLevel'],
+      limbLevel: this.levelApplies()
+        ? (raw.limbLevel as NonNullable<DeviceCreate['limbLevel']>)
+        : null,
       deviceType: raw.deviceType as DeviceCreate['deviceType'],
       status: raw.status as DeviceCreate['status'],
       manufacturer: blankToNull(raw.manufacturer),

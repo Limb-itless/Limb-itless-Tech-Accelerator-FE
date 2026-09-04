@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { Auth } from '../../../../core/auth/auth';
 import { humanise } from '../../patient.model';
-import { DeviceStatus } from '../device.model';
+import { DeviceStatus, deviceTypeLabel } from '../device.model';
 import { DevicesService } from '../devices.service';
 
 /** Read-only panel of a patient's prosthetic devices, embedded in the
@@ -22,6 +22,7 @@ export class DeviceList {
   private readonly auth = inject(Auth);
 
   readonly humanise = humanise;
+  readonly deviceTypeLabel = deviceTypeLabel;
 
   readonly patientId = input.required<number>();
 

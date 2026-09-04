@@ -21,8 +21,9 @@
           <li class="devices__card">
             <div class="devices__card-head">
               <h3 class="devices__title">
-                {{ humanise(device.limbSide) }} {{ humanise(device.limbLevel) }} —
-                {{ humanise(device.deviceType) }}
+                {{ humanise(device.limbSide)
+                }}{{ device.limbLevel ? ' ' + humanise(device.limbLevel) : '' }} —
+                {{ deviceTypeLabel(device.deviceType) }}
               </h3>
               <span class="devices__badge" [class]="statusModifier(device.status)">
                 {{ humanise(device.status) }}

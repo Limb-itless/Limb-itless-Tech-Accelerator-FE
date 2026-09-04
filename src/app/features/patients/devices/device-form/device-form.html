@@ -40,11 +40,14 @@
           formControlName="limbLevel"
           [attr.aria-invalid]="invalid('limbLevel') ? 'true' : null"
         >
-          <option value="">Choose…</option>
+          <option value="">{{ levelApplies() ? 'Choose…' : 'Not applicable' }}</option>
           @for (level of levels; track level) {
             <option [value]="level">{{ humanise(level) }}</option>
           }
         </select>
+        <p class="device-form__hint">
+          {{ levelApplies() ? 'Required for a prosthesis.' : 'Orthoses have no amputation level.' }}
+        </p>
         @if (invalid('limbLevel')) {
           <p class="device-form__hint">Limb level is required.</p>
         }
@@ -60,9 +63,16 @@
           [attr.aria-invalid]="invalid('deviceType') ? 'true' : null"
         >
           <option value="">Choose…</option>
-          @for (type of types; track type) {
-            <option [value]="type">{{ humanise(type) }}</option>
-          }
+          <optgroup label="Prosthesis">
+            @for (type of prosthesisTypes; track type) {
+              <option [value]="type">{{ deviceTypeLabel(type) }}</option>
+            }
+          </optgroup>
+          <optgroup label="Orthosis">
+            @for (type of orthosisTypes; track type) {
+              <option [value]="type">{{ deviceTypeLabel(type) }}</option>
+            }
+          </optgroup>
         </select>
         @if (invalid('deviceType')) {
           <p class="device-form__hint">Device type is required.</p>
