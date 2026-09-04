@@ -53,8 +53,6 @@ export interface Patient {
   address: string | null;
   medicalHistory: string | null;
   comorbidities: string | null;
-  causeOfLimbLoss: CauseOfLimbLoss | null;
-  limbLossLevel: LimbLossLevel | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -78,8 +76,6 @@ export interface PatientCreate {
   address?: string | null;
   medicalHistory?: string | null;
   comorbidities?: string | null;
-  causeOfLimbLoss?: CauseOfLimbLoss | null;
-  limbLossLevel?: LimbLossLevel | null;
   siteId?: number | null;
 }
 

@@ -59,6 +59,7 @@ export const INSTRUMENT_META: Record<PromInstrument, InstrumentMeta> = {
 export interface Prom {
   id: number;
   patientId: number;
+  involvementId: number | null;
   deviceId: number | null;
   instrument: PromInstrument;
   responses: Record<string, unknown>;
@@ -75,6 +76,7 @@ export interface Prom {
 export interface PromCreate {
   instrument: PromInstrument;
   responses: Record<string, unknown>;
+  involvementId?: number | null;
   deviceId?: number | null;
   recordedAt?: string | null;
   notes?: string | null;

@@ -42,6 +42,7 @@ export const MILESTONE_STATUSES: readonly MilestoneStatus[] = [
 export interface Milestone {
   id: number;
   patientId: number;
+  involvementId: number | null;
   deviceId: number | null;
   carePathway: CarePathway;
   milestoneType: MilestoneType;
@@ -57,6 +58,7 @@ export interface Milestone {
 export interface MilestoneCreate {
   milestoneType: MilestoneType;
   carePathway?: CarePathway;
+  involvementId?: number | null;
   deviceId?: number | null;
   orderIndex?: number;
   status?: MilestoneStatus;
@@ -74,6 +76,7 @@ export interface MilestoneListParams {
 
 export interface PathwayApply {
   carePathway: CarePathway;
+  involvementId?: number | null;
   deviceId?: number | null;
   startDate?: string | null;
   intervalDays?: number;
