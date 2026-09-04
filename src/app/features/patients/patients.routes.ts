@@ -102,6 +102,11 @@ export const PATIENT_ROUTES: Routes = [
       import('./timeline/patient-timeline/patient-timeline').then((m) => m.PatientTimeline),
   },
   {
+    path: ':id/body-map',
+    loadComponent: () =>
+      import('./body-map/patient-body-map/patient-body-map').then((m) => m.PatientBodyMap),
+  },
+  {
     path: ':id/notes/new',
     canActivate: [writerRoles],
     loadComponent: () => import('./notes/note-form/note-form').then((m) => m.NoteForm),

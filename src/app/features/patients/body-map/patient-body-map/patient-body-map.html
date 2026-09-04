@@ -1,0 +1,121 @@
+<section class="body-map">
+  <a class="body-map__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <h1>Body map</h1>
+
+  @if (data.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (data.error()) {
+    <p role="alert" class="body-map__error">The body map could not be loaded.</p>
+  } @else if (placed().length === 0) {
+    <p class="body-map__empty">
+      No limb involvements to map yet. Add one from the
+      <a [routerLink]="['/patients', id()]">patient page</a>.
+    </p>
+  } @else {
+    <div class="body-map__layout">
+      <figure class="body-map__figure">
+        <svg
+          viewBox="0 0 240 360"
+          role="img"
+          aria-label="Body diagram with a marker per limb involvement"
+        >
+          <g class="body-map__silhouette" fill="#e5e7eb" stroke="#cbd5e1" stroke-width="1.5">
+            <circle cx="120" cy="32" r="22" />
+            <rect x="92" y="56" width="56" height="124" rx="20" />
+            <rect x="58" y="62" width="20" height="122" rx="10" />
+            <rect x="162" y="62" width="20" height="122" rx="10" />
+            <rect x="96" y="176" width="22" height="162" rx="11" />
+            <rect x="122" y="176" width="22" height="162" rx="11" />
+          </g>
+
+          <!-- side guides: the figure faces the viewer -->
+          <text x="14" y="20" class="body-map__guide">R</text>
+          <text x="226" y="20" class="body-map__guide" text-anchor="end">L</text>
+
+          @for (m of markers(); track m.involvement.id) {
+            <circle
+              class="body-map__marker"
+              [class.body-map__marker--selected]="selected() === m.involvement.id"
+              [attr.cx]="m.anchor.x + m.dx"
+              [attr.cy]="m.anchor.y"
+              [attr.r]="markerRadius(m)"
+              [attr.fill]="m.color"
+              [attr.fill-opacity]="markerOpacity(m)"
+              tabindex="0"
+              role="button"
+              [attr.aria-label]="
+                regionLabel(m.involvement.region) + ' — ' + kindLabel(m.involvement.kind)
+              "
+              (click)="select(m.involvement.id)"
+              (keydown.enter)="select(m.involvement.id)"
+              (keydown.space)="select(m.involvement.id)"
+            >
+              <title>
+                {{ regionLabel(m.involvement.region) }} — {{ kindLabel(m.involvement.kind) }}
+              </title>
+            </circle>
+          }
+        </svg>
+        <figcaption>
+          Shown as if facing the patient — the patient's left limbs are on your right. Markers are
+          positioned by body region, not exact placement.
+        </figcaption>
+      </figure>
+
+      <ul class="body-map__list">
+        @for (p of placed(); track p.involvement.id) {
+          <li
+            class="body-map__card"
+            [class.body-map__card--selected]="selected() === p.involvement.id"
+            [class.body-map__card--unmapped]="p.anchor === null"
+            (click)="select(p.involvement.id)"
+          >
+            <div class="body-map__card-head">
+              <span
+                class="body-map__swatch"
+                [style.background]="markerColor(p.involvement.kind)"
+              ></span>
+              <h2>
+                {{ regionLabel(p.involvement.region) }} — {{ kindLabel(p.involvement.kind) }}
+                @if (p.involvement.level) {
+                  <span class="body-map__level">({{ humanise(p.involvement.level) }})</span>
+                }
+              </h2>
+              <span class="body-map__badge" [attr.data-status]="p.involvement.status">
+                {{ humanise(p.involvement.status) }}
+              </span>
+            </div>
+
+            @if (p.anchor === null) {
+              <p class="body-map__muted">
+                Not shown on the figure (region: {{ humanise(p.involvement.region) }}).
+              </p>
+            }
+
+            @if (p.devices.length === 0) {
+              <p class="body-map__muted">No devices on this involvement.</p>
+            } @else {
+              <ul class="body-map__devices">
+                @for (d of p.devices; track d.id) {
+                  <li>
+                    <span class="body-map__device-name">{{ deviceTypeLabel(d.deviceType) }}</span>
+                    @if (d.manufacturer) {
+                      — {{ d.manufacturer }} {{ d.model }}
+                    }
+                    <span class="body-map__badge" [attr.data-status]="d.status">
+                      {{ humanise(d.status) }}
+                    </span>
+                    @if (d.mountLocation) {
+                      <span class="body-map__mount">· {{ d.mountLocation }}</span>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</section>
