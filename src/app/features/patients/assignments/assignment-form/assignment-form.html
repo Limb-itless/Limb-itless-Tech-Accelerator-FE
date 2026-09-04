@@ -1,0 +1,66 @@
+<section class="assignment-form">
+  <a class="assignment-form__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <h1>Assign staff</h1>
+  <p class="assignment-form__note">
+    Add a clinician or prosthetist to this patient's care team. Their role is taken from their
+    account.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="assignment-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="assignment-form__field">
+      <label for="userId">Staff member</label>
+      @if (staff.isLoading()) {
+        <p role="status">Loading staff…</p>
+      } @else if (staff.error()) {
+        <p class="assignment-form__error" role="alert">The staff list could not be loaded.</p>
+      } @else {
+        <select
+          id="userId"
+          formControlName="userId"
+          [attr.aria-invalid]="invalid('userId') ? 'true' : null"
+        >
+          <option value="">Choose…</option>
+          @for (person of staff.value() ?? []; track person.id) {
+            <option [value]="person.id">
+              {{ person.email }} — {{ roleLabel(person.role) }}
+              @if (person.siteName) {
+                ({{ person.siteName }})
+              }
+            </option>
+          }
+        </select>
+        @if ((staff.value() ?? []).length === 0) {
+          <p class="assignment-form__hint">
+            No active clinicians or prosthetists in this practice yet.
+          </p>
+        }
+        @if (invalid('userId')) {
+          <p class="assignment-form__hint">Choose a staff member.</p>
+        }
+      }
+    </div>
+
+    <div class="assignment-form__field">
+      <label for="startDate">Start date</label>
+      <input id="startDate" type="date" formControlName="startDate" />
+      <p class="assignment-form__hint">Defaults to today.</p>
+    </div>
+
+    <div class="assignment-form__field">
+      <label for="notes">Notes</label>
+      <textarea id="notes" rows="3" formControlName="notes"></textarea>
+    </div>
+
+    <div class="assignment-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="['/patients', id()]">Cancel</a>
+    </div>
+  </form>
+</section>

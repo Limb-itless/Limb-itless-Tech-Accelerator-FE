@@ -1,0 +1,64 @@
+<section class="care-team">
+  <header class="care-team__head">
+    <h2>Care team</h2>
+    @if (canEdit()) {
+      <a class="care-team__add" [routerLink]="['/patients', patientId(), 'assignments', 'new']">
+        Assign staff
+      </a>
+    }
+  </header>
+
+  @if (data.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (data.error()) {
+    <p role="alert" class="care-team__error">The care team could not be loaded.</p>
+  } @else {
+    @if (endError()) {
+      <p role="alert" class="care-team__error">That assignment could not be ended. Please retry.</p>
+    }
+
+    @if (current().length === 0) {
+      <p class="care-team__empty">
+        No one is currently assigned.
+        @if (canEdit()) {
+          Use <strong>Assign staff</strong> to add a clinician or prosthetist.
+        }
+      </p>
+    } @else {
+      <ul class="care-team__list">
+        @for (a of current(); track a.id) {
+          <li class="care-team__row">
+            <span class="care-team__role">{{ roleLabel(a.role) }}</span>
+            <span class="care-team__who">{{ a.userEmail }}</span>
+            <span class="care-team__since">since {{ a.startDate }}</span>
+            @if (canEdit()) {
+              <button
+                type="button"
+                class="care-team__end"
+                (click)="end(a)"
+                [disabled]="ending() !== null"
+              >
+                {{ ending() === a.id ? 'Ending…' : 'End' }}
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+
+    @if (past().length > 0) {
+      <details class="care-team__past">
+        <summary>Past assignments ({{ past().length }})</summary>
+        <ul class="care-team__list">
+          @for (a of past(); track a.id) {
+            <li class="care-team__row care-team__row--past">
+              <span class="care-team__role">{{ roleLabel(a.role) }}</span>
+              <span class="care-team__who">{{ a.userEmail }}</span>
+              <span class="care-team__since">{{ a.startDate }} – {{ a.endDate }}</span>
+            </li>
+          }
+        </ul>
+      </details>
+    }
+  }
+</section>

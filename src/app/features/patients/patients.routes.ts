@@ -24,6 +24,12 @@ export const PATIENT_ROUTES: Routes = [
     loadComponent: () => import('./patient-form/patient-form').then((m) => m.PatientForm),
   },
   {
+    path: ':id/assignments/new',
+    canActivate: [writerRoles],
+    loadComponent: () =>
+      import('./assignments/assignment-form/assignment-form').then((m) => m.AssignmentForm),
+  },
+  {
     path: ':id/involvements/new',
     canActivate: [writerRoles],
     loadComponent: () =>

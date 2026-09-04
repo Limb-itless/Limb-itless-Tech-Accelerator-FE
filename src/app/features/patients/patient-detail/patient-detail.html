@@ -62,6 +62,8 @@
       <p>{{ p.comorbidities || 'None recorded.' }}</p>
     </section>
 
+    <app-assignment-list [patientId]="p.id" />
+
     <app-involvement-list [patientId]="p.id" />
 
     <app-milestone-list [patientId]="p.id" />
