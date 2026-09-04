@@ -133,4 +133,20 @@ describe('Dashboard', () => {
     fixture.detectChanges();
     expect(navigate).toHaveBeenCalledWith('/portal');
   });
+
+  it('sends a medical-aid reviewer to /review', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [Dashboard],
+      providers: [
+        provideRouter([]),
+        { provide: DashboardService, useValue: { summary: vi.fn().mockReturnValue(of(SUMMARY)) } },
+        { provide: Auth, useValue: { currentUser: signal({ role: 'medical_aid_reviewer' }) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(Dashboard);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    fixture.detectChanges();
+    expect(navigate).toHaveBeenCalledWith('/review');
+  });
 });
