@@ -1,0 +1,154 @@
+<section class="involvements">
+  <header class="involvements__head">
+    <h2>Limb involvements</h2>
+    @if (canEdit()) {
+      <a class="involvements__add" [routerLink]="['/patients', patientId(), 'involvements', 'new']">
+        Add involvement
+      </a>
+    }
+  </header>
+
+  @if (data.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (data.error()) {
+    <p role="alert" class="involvements__error">Involvements could not be loaded.</p>
+  } @else if (rows(); as list) {
+    @if (list.length === 0) {
+      <p class="involvements__empty">
+        No limb involvements recorded yet.
+        @if (canEdit()) {
+          Use <strong>Add involvement</strong> to record an amputation or an orthotic need.
+        }
+      </p>
+    } @else {
+      <ul class="involvements__list">
+        @for (row of list; track row.involvement.id) {
+          <li class="involvements__card">
+            <div class="involvements__card-head">
+              <h3 class="involvements__title">
+                {{ regionLabel(row.involvement.region) }} — {{ kindLabel(row.involvement.kind) }}
+                @if (row.involvement.level) {
+                  <span class="involvements__level">({{ humanise(row.involvement.level) }})</span>
+                }
+              </h3>
+              <span class="involvements__badge" [class]="statusModifier(row.involvement.status)">
+                {{ humanise(row.involvement.status) }}
+              </span>
+            </div>
+
+            <dl class="involvements__meta">
+              @if (row.involvement.cause) {
+                <div>
+                  <dt>Cause</dt>
+                  <dd>{{ humanise(row.involvement.cause) }}</dd>
+                </div>
+              }
+              <div>
+                <dt>Onset</dt>
+                <dd>{{ row.involvement.onsetDate ?? '—' }}</dd>
+              </div>
+            </dl>
+
+            @if (row.involvement.notes) {
+              <p class="involvements__notes">{{ row.involvement.notes }}</p>
+            }
+
+            <div class="involvements__devices">
+              <div class="involvements__devices-head">
+                <h4>Devices</h4>
+                @if (canEdit()) {
+                  <a
+                    [routerLink]="[
+                      '/patients',
+                      patientId(),
+                      'involvements',
+                      row.involvement.id,
+                      'devices',
+                      'new',
+                    ]"
+                  >
+                    Add device
+                  </a>
+                }
+              </div>
+
+              @if (row.devices.length === 0) {
+                <p class="involvements__muted">No devices for this involvement.</p>
+              } @else {
+                <ul class="involvements__device-list">
+                  @for (device of row.devices; track device.id) {
+                    <li>
+                      <span class="involvements__device-name">
+                        {{ deviceTypeLabel(device.deviceType) }}
+                        @if (device.manufacturer) {
+                          — {{ device.manufacturer }} {{ device.model }}
+                        }
+                      </span>
+                      <span
+                        class="involvements__device-badge"
+                        [class]="deviceStatusModifier(device.status)"
+                      >
+                        {{ humanise(device.status) }}
+                      </span>
+                      @if (device.replacesDeviceId) {
+                        <span class="involvements__muted"
+                          >replaces #{{ device.replacesDeviceId }}</span
+                        >
+                      }
+                      @if (canEdit()) {
+                        <a
+                          class="involvements__device-link"
+                          [routerLink]="[
+                            '/patients',
+                            patientId(),
+                            'involvements',
+                            row.involvement.id,
+                            'devices',
+                            device.id,
+                            'edit',
+                          ]"
+                        >
+                          Edit
+                        </a>
+                        <a
+                          class="involvements__device-link"
+                          [routerLink]="[
+                            '/patients',
+                            patientId(),
+                            'involvements',
+                            row.involvement.id,
+                            'devices',
+                            device.id,
+                            'replace',
+                          ]"
+                        >
+                          Replace
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+
+            @if (canEdit()) {
+              <div class="involvements__actions">
+                <a
+                  [routerLink]="[
+                    '/patients',
+                    patientId(),
+                    'involvements',
+                    row.involvement.id,
+                    'edit',
+                  ]"
+                >
+                  Edit involvement
+                </a>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>

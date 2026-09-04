@@ -47,7 +47,6 @@
             <th scope="col">Name</th>
             <th scope="col">Date of birth</th>
             <th scope="col">Identifier</th>
-            <th scope="col">Limb loss level</th>
             <th scope="col">Status</th>
           </tr>
         </thead>
@@ -61,9 +60,6 @@
               </td>
               <td>{{ patient.dateOfBirth }}</td>
               <td>{{ patient.nationalId ?? patient.passportNumber ?? '—' }}</td>
-              <td>
-                {{ patient.limbLossLevel ? humanise(patient.limbLossLevel) : '—' }}
-              </td>
               <td>
                 <span class="patients__badge" [class.patients__badge--inactive]="!patient.isActive">
                   {{ patient.isActive ? 'Active' : 'Inactive' }}

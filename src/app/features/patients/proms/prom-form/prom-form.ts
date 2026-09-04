@@ -14,6 +14,8 @@ import { Router, RouterLink } from '@angular/router';
 
 import { humanise } from '../../patient.model';
 import { DevicesService } from '../../devices/devices.service';
+import { kindLabel, regionLabel } from '../../involvements/involvement.model';
+import { InvolvementsService } from '../../involvements/involvements.service';
 import { INSTRUMENT_META, PROM_INSTRUMENTS, PromCreate, PromInstrument } from '../prom.model';
 import { PromsService } from '../proms.service';
 
@@ -30,9 +32,12 @@ export class PromForm {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly service = inject(PromsService);
   private readonly devices = inject(DevicesService);
+  private readonly involvementsService = inject(InvolvementsService);
   private readonly router = inject(Router);
 
   readonly humanise = humanise;
+  readonly kindLabel = kindLabel;
+  readonly regionLabel = regionLabel;
   readonly instruments = PROM_INSTRUMENTS;
   readonly meta = INSTRUMENT_META;
 
@@ -54,6 +59,7 @@ export class PromForm {
     instrument: ['', [Validators.required]],
     score: ['', [Validators.required]],
     recordedAt: [''],
+    involvementId: [''],
     deviceId: [''],
     notes: [''],
   });
@@ -66,7 +72,12 @@ export class PromForm {
 
   readonly deviceOptions = rxResource({
     params: () => ({ patientId: Number(this.id()) }),
-    stream: ({ params }) => this.devices.list(params.patientId),
+    stream: ({ params }) => this.devices.listForPatient(params.patientId),
+  });
+
+  readonly involvementOptions = rxResource({
+    params: () => ({ patientId: Number(this.id()) }),
+    stream: ({ params }) => this.involvementsService.list(params.patientId),
   });
 
   private readonly existing = rxResource({
@@ -90,6 +101,7 @@ export class PromForm {
         instrument: prom.instrument,
         score: rawScore === null || rawScore === undefined ? '' : String(rawScore),
         recordedAt: prom.recordedAt ? prom.recordedAt.slice(0, 16) : '',
+        involvementId: prom.involvementId === null ? '' : String(prom.involvementId),
         deviceId: prom.deviceId === null ? '' : String(prom.deviceId),
         notes: prom.notes ?? '',
       });
@@ -117,6 +129,7 @@ export class PromForm {
     const payload: PromCreate = {
       instrument: raw.instrument as PromInstrument,
       responses: { score: Number(raw.score) },
+      involvementId: raw.involvementId ? Number(raw.involvementId) : null,
       deviceId: raw.deviceId ? Number(raw.deviceId) : null,
       recordedAt: raw.recordedAt.trim() ? new Date(raw.recordedAt).toISOString() : null,
       notes: raw.notes.trim() || null,

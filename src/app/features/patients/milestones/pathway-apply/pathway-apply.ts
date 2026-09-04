@@ -1,9 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
 import { humanise } from '../../patient.model';
+import { kindLabel, regionLabel } from '../../involvements/involvement.model';
+import { InvolvementsService } from '../../involvements/involvements.service';
 import { PathwayApply as PathwayApplyPayload, TEMPLATED_PATHWAYS } from '../milestone.model';
 import { MilestonesService } from '../milestones.service';
 
@@ -19,9 +22,12 @@ import { MilestonesService } from '../milestones.service';
 export class PathwayApply {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly service = inject(MilestonesService);
+  private readonly involvementsService = inject(InvolvementsService);
   private readonly router = inject(Router);
 
   readonly humanise = humanise;
+  readonly kindLabel = kindLabel;
+  readonly regionLabel = regionLabel;
   readonly pathways = TEMPLATED_PATHWAYS;
 
   /** `:id` route parameter — the patient. */
@@ -32,8 +38,14 @@ export class PathwayApply {
 
   readonly form = this.fb.group({
     carePathway: ['lower_limb', [Validators.required]],
+    involvementId: [''],
     startDate: [''],
     intervalDays: [14, [Validators.required, Validators.min(1), Validators.max(365)]],
+  });
+
+  readonly involvementOptions = rxResource({
+    params: () => ({ patientId: Number(this.id()) }),
+    stream: ({ params }) => this.involvementsService.list(params.patientId),
   });
 
   invalid(control: string): boolean {
@@ -56,6 +68,7 @@ export class PathwayApply {
     const raw = this.form.getRawValue();
     const payload: PathwayApplyPayload = {
       carePathway: raw.carePathway as PathwayApplyPayload['carePathway'],
+      involvementId: raw.involvementId ? Number(raw.involvementId) : null,
       startDate: raw.startDate.trim() || null,
       intervalDays: Number(raw.intervalDays) || 14,
     };

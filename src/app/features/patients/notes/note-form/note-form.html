@@ -22,6 +22,18 @@
       }
     </div>
 
+    <div class="note-form__field">
+      <label for="involvementId">Limb involvement (optional)</label>
+      <select id="involvementId" formControlName="involvementId">
+        <option value="">None — a general note</option>
+        @for (inv of involvementOptions.value() ?? []; track inv.id) {
+          <option [value]="inv.id">
+            {{ regionLabel(inv.region) }} — {{ kindLabel(inv.kind) }}
+          </option>
+        }
+      </select>
+    </div>
+
     <div class="note-form__actions">
       <button type="submit" [disabled]="submitting()">
         {{ submitting() ? 'Saving…' : 'Save' }}

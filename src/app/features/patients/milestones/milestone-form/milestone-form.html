@@ -52,16 +52,30 @@
       </div>
     </div>
 
-    <div class="milestone-form__field">
-      <label for="deviceId">Related device (optional)</label>
-      <select id="deviceId" formControlName="deviceId">
-        <option value="">None</option>
-        @for (device of deviceOptions.value() ?? []; track device.id) {
-          <option [value]="device.id">
-            #{{ device.id }} — {{ humanise(device.limbSide) }} {{ humanise(device.deviceType) }}
-          </option>
-        }
-      </select>
+    <div class="milestone-form__row">
+      <div class="milestone-form__field">
+        <label for="involvementId">Limb involvement (optional)</label>
+        <select id="involvementId" formControlName="involvementId">
+          <option value="">None</option>
+          @for (inv of involvementOptions.value() ?? []; track inv.id) {
+            <option [value]="inv.id">
+              {{ regionLabel(inv.region) }} — {{ kindLabel(inv.kind) }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="milestone-form__field">
+        <label for="deviceId">Related device (optional)</label>
+        <select id="deviceId" formControlName="deviceId">
+          <option value="">None</option>
+          @for (device of deviceOptions.value() ?? []; track device.id) {
+            <option [value]="device.id">
+              #{{ device.id }} — {{ humanise(device.deviceType) }}
+            </option>
+          }
+        </select>
+      </div>
     </div>
 
     <div class="milestone-form__row">

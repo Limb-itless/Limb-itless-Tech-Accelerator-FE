@@ -93,26 +93,11 @@
       <input id="address" formControlName="address" autocomplete="off" />
     </div>
 
-    <div class="patient-form__row">
-      <div class="patient-form__field">
-        <label for="causeOfLimbLoss">Cause of limb loss</label>
-        <select id="causeOfLimbLoss" formControlName="causeOfLimbLoss">
-          <option value="">Not recorded</option>
-          @for (cause of causes; track cause) {
-            <option [value]="cause">{{ humanise(cause) }}</option>
-          }
-        </select>
-      </div>
-      <div class="patient-form__field">
-        <label for="limbLossLevel">Limb loss level</label>
-        <select id="limbLossLevel" formControlName="limbLossLevel">
-          <option value="">Not recorded</option>
-          @for (level of levels; track level) {
-            <option [value]="level">{{ humanise(level) }}</option>
-          }
-        </select>
-      </div>
-    </div>
+    @if (mode() === 'create') {
+      <p class="patient-form__hint">
+        After saving you can record what is being treated (an amputation or an orthotic need).
+      </p>
+    }
 
     <div class="patient-form__field">
       <label for="medicalHistory">Medical history</label>

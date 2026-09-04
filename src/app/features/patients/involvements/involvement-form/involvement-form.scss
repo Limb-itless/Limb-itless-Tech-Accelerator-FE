@@ -1,5 +1,5 @@
-.device-form {
-  max-width: 44rem;
+.involvement-form {
+  max-width: 40rem;
 
   &__back {
     display: inline-block;
@@ -9,34 +9,19 @@
   }
 
   &__note {
-    background: #f3f4f6;
+    background: #eef2ff;
     border-radius: 0.375rem;
     padding: 0.75rem 1rem;
     margin: 0 0 1rem;
 
-    &--muted {
-      background: none;
-      padding: 0;
-      color: #6b7280;
-      font-size: 0.875rem;
+    a {
+      color: #1a56db;
     }
   }
 
   &__error {
     color: #991b1b;
     font-weight: 600;
-  }
-
-  &__group {
-    border: 1px solid #e2e2e2;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin: 1rem 0;
-
-    legend {
-      font-weight: 600;
-      padding: 0 0.375rem;
-    }
   }
 
   &__row {
@@ -66,16 +51,15 @@
       border-radius: 0.375rem;
     }
 
-    input[aria-invalid='true'],
     select[aria-invalid='true'] {
       border-color: #991b1b;
     }
   }
 
   &__hint {
-    margin: 0;
+    margin: 0 0 0.75rem;
     font-size: 0.8125rem;
-    color: #991b1b;
+    color: #6b7280;
   }
 
   &__actions {

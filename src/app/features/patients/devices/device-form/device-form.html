@@ -15,44 +15,9 @@
       <p class="device-form__error" role="alert">{{ message }}</p>
     }
 
-    <div class="device-form__row">
-      <div class="device-form__field">
-        <label for="limbSide">Limb side</label>
-        <select
-          id="limbSide"
-          formControlName="limbSide"
-          [attr.aria-invalid]="invalid('limbSide') ? 'true' : null"
-        >
-          <option value="">Choose…</option>
-          @for (side of sides; track side) {
-            <option [value]="side">{{ humanise(side) }}</option>
-          }
-        </select>
-        @if (invalid('limbSide')) {
-          <p class="device-form__hint">Limb side is required.</p>
-        }
-      </div>
-
-      <div class="device-form__field">
-        <label for="limbLevel">Limb level</label>
-        <select
-          id="limbLevel"
-          formControlName="limbLevel"
-          [attr.aria-invalid]="invalid('limbLevel') ? 'true' : null"
-        >
-          <option value="">{{ levelApplies() ? 'Choose…' : 'Not applicable' }}</option>
-          @for (level of levels; track level) {
-            <option [value]="level">{{ humanise(level) }}</option>
-          }
-        </select>
-        <p class="device-form__hint">
-          {{ levelApplies() ? 'Required for a prosthesis.' : 'Orthoses have no amputation level.' }}
-        </p>
-        @if (invalid('limbLevel')) {
-          <p class="device-form__hint">Limb level is required.</p>
-        }
-      </div>
-    </div>
+    <p class="device-form__note device-form__note--muted">
+      The limb / region and amputation level come from the involvement this device belongs to.
+    </p>
 
     <div class="device-form__row">
       <div class="device-form__field">
@@ -110,6 +75,15 @@
           <label for="terminalDevice">Terminal device</label>
           <input id="terminalDevice" formControlName="terminalDevice" autocomplete="off" />
         </div>
+      </div>
+      <div class="device-form__field">
+        <label for="mountLocation">Mount location (optional)</label>
+        <input
+          id="mountLocation"
+          formControlName="mountLocation"
+          autocomplete="off"
+          placeholder="e.g. posterior, lateral strut"
+        />
       </div>
       <div class="device-form__row">
         <div class="device-form__field">

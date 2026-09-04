@@ -5,13 +5,13 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/auth/auth';
 import { humanise } from '../patient.model';
 import { PatientsService } from '../patients.service';
-import { DeviceList } from '../devices/device-list/device-list';
+import { InvolvementList } from '../involvements/involvement-list/involvement-list';
 import { MilestoneList } from '../milestones/milestone-list/milestone-list';
 import { PromList } from '../proms/prom-list/prom-list';
 
 @Component({
   selector: 'app-patient-detail',
-  imports: [RouterLink, DeviceList, MilestoneList, PromList],
+  imports: [RouterLink, InvolvementList, MilestoneList, PromList],
   templateUrl: './patient-detail.html',
   styleUrl: './patient-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

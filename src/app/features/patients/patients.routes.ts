@@ -24,18 +24,38 @@ export const PATIENT_ROUTES: Routes = [
     loadComponent: () => import('./patient-form/patient-form').then((m) => m.PatientForm),
   },
   {
-    path: ':id/devices/new',
+    path: ':id/involvements/new',
+    canActivate: [writerRoles],
+    loadComponent: () =>
+      import('./involvements/involvement-form/involvement-form').then((m) => m.InvolvementForm),
+  },
+  {
+    path: ':id/involvements/first',
+    canActivate: [writerRoles],
+    data: { mode: 'first' },
+    loadComponent: () =>
+      import('./involvements/involvement-form/involvement-form').then((m) => m.InvolvementForm),
+  },
+  {
+    path: ':id/involvements/:involvementId/edit',
+    canActivate: [writerRoles],
+    data: { mode: 'edit' },
+    loadComponent: () =>
+      import('./involvements/involvement-form/involvement-form').then((m) => m.InvolvementForm),
+  },
+  {
+    path: ':id/involvements/:involvementId/devices/new',
     canActivate: [writerRoles],
     loadComponent: () => import('./devices/device-form/device-form').then((m) => m.DeviceForm),
   },
   {
-    path: ':id/devices/:deviceId/edit',
+    path: ':id/involvements/:involvementId/devices/:deviceId/edit',
     canActivate: [writerRoles],
     data: { mode: 'edit' },
     loadComponent: () => import('./devices/device-form/device-form').then((m) => m.DeviceForm),
   },
   {
-    path: ':id/devices/:deviceId/replace',
+    path: ':id/involvements/:involvementId/devices/:deviceId/replace',
     canActivate: [writerRoles],
     data: { mode: 'replace' },
     loadComponent: () => import('./devices/device-form/device-form').then((m) => m.DeviceForm),

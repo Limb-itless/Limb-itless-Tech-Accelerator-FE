@@ -4,6 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { DevicesService } from '../../devices/devices.service';
+import { InvolvementsService } from '../../involvements/involvements.service';
 import { PromsService } from '../proms.service';
 import { PromForm } from './prom-form';
 
@@ -24,6 +25,7 @@ function stub(): ServiceStub {
 const EXISTING = {
   id: 9,
   patientId: 3,
+  involvementId: null,
   deviceId: null,
   instrument: 'socket_comfort_score',
   responses: { score: 3 },
@@ -44,7 +46,11 @@ async function build(service: ServiceStub) {
     providers: [
       provideRouter([]),
       { provide: PromsService, useValue: service },
-      { provide: DevicesService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
+      {
+        provide: DevicesService,
+        useValue: { listForPatient: vi.fn().mockReturnValue(of([])) },
+      },
+      { provide: InvolvementsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
     ],
   }).compileComponents();
   return vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);

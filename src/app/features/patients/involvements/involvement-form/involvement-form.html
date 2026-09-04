@@ -1,0 +1,108 @@
+<section class="involvement-form">
+  <a class="involvement-form__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+
+  <h1>{{ heading() }}</h1>
+
+  @if (mode() === 'first') {
+    <p class="involvement-form__note">
+      Step 2 of 2 — record what is being treated. You can
+      <a [routerLink]="['/patients', id()]">skip this for now</a> and add it later.
+    </p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="involvement-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="involvement-form__row">
+      <div class="involvement-form__field">
+        <label for="kind">Kind</label>
+        <select id="kind" formControlName="kind">
+          @for (k of kinds; track k) {
+            <option [value]="k">{{ kindLabel(k) }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="involvement-form__field">
+        <label for="region">Body region</label>
+        <select
+          id="region"
+          formControlName="region"
+          [attr.aria-invalid]="invalid('region') ? 'true' : null"
+        >
+          <option value="">Choose…</option>
+          @for (r of regions; track r) {
+            <option [value]="r">{{ regionLabel(r) }}</option>
+          }
+        </select>
+        @if (invalid('region')) {
+          <p class="involvement-form__hint">A body region is required.</p>
+        }
+      </div>
+    </div>
+
+    @if (levelApplies()) {
+      <div class="involvement-form__row">
+        <div class="involvement-form__field">
+          <label for="level">Amputation level</label>
+          <select id="level" formControlName="level">
+            <option value="">Not recorded</option>
+            @for (level of levels; track level) {
+              <option [value]="level">{{ humanise(level) }}</option>
+            }
+          </select>
+        </div>
+
+        @if (causeApplies()) {
+          <div class="involvement-form__field">
+            <label for="cause">Cause</label>
+            <select id="cause" formControlName="cause">
+              <option value="">Not recorded</option>
+              @for (cause of causes; track cause) {
+                <option [value]="cause">{{ humanise(cause) }}</option>
+              }
+            </select>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="involvement-form__hint">
+        An amputation level and cause do not apply to an orthotic need.
+      </p>
+    }
+
+    <div class="involvement-form__row">
+      <div class="involvement-form__field">
+        <label for="onsetDate">Onset date</label>
+        <input id="onsetDate" type="date" formControlName="onsetDate" />
+      </div>
+
+      @if (mode() === 'edit') {
+        <div class="involvement-form__field">
+          <label for="status">Status</label>
+          <select id="status" formControlName="status">
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ humanise(status) }}</option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+
+    <div class="involvement-form__field">
+      <label for="notes">Notes</label>
+      <textarea id="notes" rows="3" formControlName="notes"></textarea>
+    </div>
+
+    <div class="involvement-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="['/patients', id()]">
+        {{ mode() === 'first' ? 'Skip' : 'Cancel' }}
+      </a>
+    </div>
+  </form>
+</section>

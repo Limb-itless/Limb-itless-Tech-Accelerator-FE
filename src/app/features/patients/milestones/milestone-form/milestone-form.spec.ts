@@ -3,6 +3,7 @@ import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { DevicesService } from '../../devices/devices.service';
+import { InvolvementsService } from '../../involvements/involvements.service';
 import { MilestonesService } from '../milestones.service';
 import { MilestoneForm } from './milestone-form';
 
@@ -23,6 +24,7 @@ function stub(): ServiceStub {
 const EXISTING = {
   id: 4,
   patientId: 7,
+  involvementId: null,
   deviceId: null,
   carePathway: 'lower_limb',
   milestoneType: 'gait_functional_training',
@@ -42,7 +44,11 @@ async function build(service: ServiceStub) {
     providers: [
       provideRouter([]),
       { provide: MilestonesService, useValue: service },
-      { provide: DevicesService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
+      {
+        provide: DevicesService,
+        useValue: { listForPatient: vi.fn().mockReturnValue(of([])) },
+      },
+      { provide: InvolvementsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
     ],
   }).compileComponents();
   return vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);

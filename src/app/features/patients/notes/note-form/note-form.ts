@@ -12,6 +12,8 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
+import { kindLabel, regionLabel } from '../../involvements/involvement.model';
+import { InvolvementsService } from '../../involvements/involvements.service';
 import { NoteCreate } from '../note.model';
 import { NotesService } from '../notes.service';
 
@@ -27,7 +29,11 @@ type Mode = 'create' | 'edit';
 export class NoteForm {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly service = inject(NotesService);
+  private readonly involvementsService = inject(InvolvementsService);
   private readonly router = inject(Router);
+
+  readonly kindLabel = kindLabel;
+  readonly regionLabel = regionLabel;
 
   /** `:id` route parameter — the patient. */
   readonly id = input.required<string>();
@@ -43,6 +49,12 @@ export class NoteForm {
 
   readonly form = this.fb.group({
     body: ['', [Validators.required, Validators.minLength(1)]],
+    involvementId: [''],
+  });
+
+  readonly involvementOptions = rxResource({
+    params: () => ({ patientId: Number(this.id()) }),
+    stream: ({ params }) => this.involvementsService.list(params.patientId),
   });
 
   private readonly existing = rxResource({
@@ -59,7 +71,10 @@ export class NoteForm {
     effect(() => {
       const note = this.existing.value();
       if (note) {
-        this.form.setValue({ body: note.body });
+        this.form.setValue({
+          body: note.body,
+          involvementId: note.involvementId === null ? '' : String(note.involvementId),
+        });
       }
     });
   }
@@ -81,7 +96,11 @@ export class NoteForm {
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    const payload: NoteCreate = { body: this.form.controls.body.value.trim() };
+    const raw = this.form.getRawValue();
+    const payload: NoteCreate = {
+      body: raw.body.trim(),
+      involvementId: raw.involvementId ? Number(raw.involvementId) : null,
+    };
     const patientId = Number(this.id());
     const noteId = this.noteId() ? Number(this.noteId()) : null;
     const request$ =

@@ -14,6 +14,8 @@ import { Router, RouterLink } from '@angular/router';
 
 import { humanise } from '../../patient.model';
 import { DevicesService } from '../../devices/devices.service';
+import { kindLabel, regionLabel } from '../../involvements/involvement.model';
+import { InvolvementsService } from '../../involvements/involvements.service';
 import {
   CARE_PATHWAYS,
   MILESTONE_STATUSES,
@@ -35,9 +37,12 @@ export class MilestoneForm {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly service = inject(MilestonesService);
   private readonly devices = inject(DevicesService);
+  private readonly involvementsService = inject(InvolvementsService);
   private readonly router = inject(Router);
 
   readonly humanise = humanise;
+  readonly kindLabel = kindLabel;
+  readonly regionLabel = regionLabel;
   readonly types = MILESTONE_TYPES;
   readonly pathways = CARE_PATHWAYS;
   readonly statuses = MILESTONE_STATUSES;
@@ -57,6 +62,7 @@ export class MilestoneForm {
   readonly form = this.fb.group({
     milestoneType: ['', [Validators.required]],
     carePathway: ['other', [Validators.required]],
+    involvementId: [''],
     deviceId: [''],
     orderIndex: [0, [Validators.min(0)]],
     status: ['not_started', [Validators.required]],
@@ -67,7 +73,12 @@ export class MilestoneForm {
 
   readonly deviceOptions = rxResource({
     params: () => ({ patientId: Number(this.id()) }),
-    stream: ({ params }) => this.devices.list(params.patientId),
+    stream: ({ params }) => this.devices.listForPatient(params.patientId),
+  });
+
+  readonly involvementOptions = rxResource({
+    params: () => ({ patientId: Number(this.id()) }),
+    stream: ({ params }) => this.involvementsService.list(params.patientId),
   });
 
   private readonly existing = rxResource({
@@ -89,6 +100,7 @@ export class MilestoneForm {
       this.form.setValue({
         milestoneType: milestone.milestoneType,
         carePathway: milestone.carePathway,
+        involvementId: milestone.involvementId === null ? '' : String(milestone.involvementId),
         deviceId: milestone.deviceId === null ? '' : String(milestone.deviceId),
         orderIndex: milestone.orderIndex,
         status: milestone.status,
@@ -120,6 +132,7 @@ export class MilestoneForm {
     const payload: MilestoneCreate = {
       milestoneType: raw.milestoneType as MilestoneCreate['milestoneType'],
       carePathway: raw.carePathway as MilestoneCreate['carePathway'],
+      involvementId: raw.involvementId ? Number(raw.involvementId) : null,
       deviceId: raw.deviceId ? Number(raw.deviceId) : null,
       orderIndex: Number(raw.orderIndex) || 0,
       status: raw.status as MilestoneCreate['status'],

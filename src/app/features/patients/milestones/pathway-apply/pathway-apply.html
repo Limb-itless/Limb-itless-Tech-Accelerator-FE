@@ -21,6 +21,18 @@
       </select>
     </div>
 
+    <div class="pathway-apply__field">
+      <label for="involvementId">Limb involvement (optional)</label>
+      <select id="involvementId" formControlName="involvementId">
+        <option value="">None</option>
+        @for (inv of involvementOptions.value() ?? []; track inv.id) {
+          <option [value]="inv.id">
+            {{ regionLabel(inv.region) }} — {{ kindLabel(inv.kind) }}
+          </option>
+        }
+      </select>
+    </div>
+
     <div class="pathway-apply__row">
       <div class="pathway-apply__field">
         <label for="startDate">Start date</label>

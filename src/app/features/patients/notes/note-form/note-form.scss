@@ -24,11 +24,15 @@
       font-size: 0.875rem;
     }
 
-    textarea {
+    textarea,
+    select {
       font: inherit;
       padding: 0.5rem;
       border: 1px solid #767676;
       border-radius: 0.375rem;
+    }
+
+    textarea {
       resize: vertical;
 
       &[aria-invalid='true'] {

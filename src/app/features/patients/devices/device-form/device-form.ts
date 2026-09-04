@@ -9,19 +9,16 @@ import {
   signal,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
-import { LIMB_LOSS_LEVELS, humanise } from '../../patient.model';
+import { humanise } from '../../patient.model';
 import {
   DEVICE_STATUSES,
   DeviceCreate,
-  DeviceType,
-  LIMB_SIDES,
   ORTHOSIS_TYPES,
   PROSTHESIS_TYPES,
   deviceTypeLabel,
-  isOrthosis,
 } from '../device.model';
 import { DevicesService } from '../devices.service';
 
@@ -41,14 +38,14 @@ export class DeviceForm {
 
   readonly humanise = humanise;
   readonly deviceTypeLabel = deviceTypeLabel;
-  readonly sides = LIMB_SIDES;
-  readonly levels = LIMB_LOSS_LEVELS;
   readonly prosthesisTypes = PROSTHESIS_TYPES;
   readonly orthosisTypes = ORTHOSIS_TYPES;
   readonly statuses = DEVICE_STATUSES;
 
   /** `:id` route parameter — the patient. */
   readonly id = input.required<string>();
+  /** `:involvementId` route parameter — the involvement the device is for. */
+  readonly involvementId = input.required<string>();
   /** `:deviceId` route parameter — absent when creating. */
   readonly deviceId = input<string>();
   /** Set from route `data`; defaults to create. */
@@ -69,13 +66,12 @@ export class DeviceForm {
   });
 
   readonly form = this.fb.group({
-    limbSide: ['', [Validators.required]],
-    limbLevel: [''],
     deviceType: ['', [Validators.required]],
     status: ['planned', [Validators.required]],
     manufacturer: ['', [Validators.maxLength(200)]],
     model: ['', [Validators.maxLength(200)]],
     serialNumber: ['', [Validators.maxLength(120)]],
+    mountLocation: ['', [Validators.maxLength(200)]],
     socketType: ['', [Validators.maxLength(200)]],
     linerType: ['', [Validators.maxLength(200)]],
     suspensionType: ['', [Validators.maxLength(200)]],
@@ -88,49 +84,37 @@ export class DeviceForm {
     notes: [''],
   });
 
-  private readonly deviceTypeValue = toSignal(this.form.controls.deviceType.valueChanges, {
-    initialValue: '',
-  });
-
-  /** Orthoses have no amputation level; a prosthesis requires one. */
-  readonly levelApplies = computed(
-    () => !!this.deviceTypeValue() && !isOrthosis(this.deviceTypeValue() as DeviceType),
-  );
-
   private readonly existing = rxResource({
     params: () => {
       const deviceId = this.deviceId();
       return deviceId && this.mode() !== 'create'
-        ? { patientId: Number(this.id()), deviceId: Number(deviceId) }
+        ? {
+            patientId: Number(this.id()),
+            involvementId: Number(this.involvementId()),
+            deviceId: Number(deviceId),
+          }
         : undefined;
     },
-    stream: ({ params }) => this.service.get(params.patientId, params.deviceId),
+    stream: ({ params }) =>
+      this.service.get(params.patientId, params.involvementId, params.deviceId),
   });
 
   constructor() {
-    // An orthosis clears any pending "limb level required" error.
-    effect(() => {
-      if (!this.levelApplies() && this.form.controls.limbLevel.errors?.['required']) {
-        this.form.controls.limbLevel.setErrors(null);
-      }
-    });
-
     effect(() => {
       const device = this.existing.value();
       if (!device) {
         return;
       }
       // A replacement starts as a fresh, planned device that inherits the
-      // limb and clinical details of the one it supersedes.
+      // clinical details of the one it supersedes.
       const replacing = this.mode() === 'replace';
       this.form.setValue({
-        limbSide: device.limbSide,
-        limbLevel: device.limbLevel ?? '',
         deviceType: device.deviceType,
         status: replacing ? 'planned' : device.status,
         manufacturer: replacing ? '' : (device.manufacturer ?? ''),
         model: replacing ? '' : (device.model ?? ''),
         serialNumber: replacing ? '' : (device.serialNumber ?? ''),
+        mountLocation: device.mountLocation ?? '',
         socketType: device.socketType ?? '',
         linerType: device.linerType ?? '',
         suspensionType: device.suspensionType ?? '',
@@ -154,15 +138,6 @@ export class DeviceForm {
     if (this.submitting()) {
       return;
     }
-
-    const level = this.form.controls.limbLevel;
-    if (this.levelApplies() && !level.value) {
-      level.setErrors({ required: true });
-      level.markAsTouched();
-    } else if (level.errors?.['required']) {
-      level.setErrors(null);
-    }
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -174,15 +149,12 @@ export class DeviceForm {
     const raw = this.form.getRawValue();
     const blankToNull = (value: string): string | null => value.trim() || null;
     const payload: DeviceCreate = {
-      limbSide: raw.limbSide as DeviceCreate['limbSide'],
-      limbLevel: this.levelApplies()
-        ? (raw.limbLevel as NonNullable<DeviceCreate['limbLevel']>)
-        : null,
       deviceType: raw.deviceType as DeviceCreate['deviceType'],
       status: raw.status as DeviceCreate['status'],
       manufacturer: blankToNull(raw.manufacturer),
       model: blankToNull(raw.model),
       serialNumber: blankToNull(raw.serialNumber),
+      mountLocation: blankToNull(raw.mountLocation),
       socketType: blankToNull(raw.socketType),
       linerType: blankToNull(raw.linerType),
       suspensionType: blankToNull(raw.suspensionType),
@@ -196,15 +168,16 @@ export class DeviceForm {
     };
 
     const patientId = Number(this.id());
+    const involvementId = Number(this.involvementId());
     const deviceId = this.deviceId() ? Number(this.deviceId()) : null;
 
     let request$;
     if (this.mode() === 'edit' && deviceId !== null) {
-      request$ = this.service.update(patientId, deviceId, payload);
+      request$ = this.service.update(patientId, involvementId, deviceId, payload);
     } else if (this.mode() === 'replace' && deviceId !== null) {
-      request$ = this.service.replace(patientId, deviceId, payload);
+      request$ = this.service.replace(patientId, involvementId, deviceId, payload);
     } else {
-      request$ = this.service.create(patientId, payload);
+      request$ = this.service.create(patientId, involvementId, payload);
     }
 
     request$.subscribe({
@@ -218,9 +191,6 @@ export class DeviceForm {
 
   private messageFor(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
-      if (error.status === 409) {
-        return 'That limb already has an active device. Set the existing device to replaced or retired first.';
-      }
       const detail = (error.error as { detail?: string } | null)?.detail;
       if (typeof detail === 'string') {
         return detail;

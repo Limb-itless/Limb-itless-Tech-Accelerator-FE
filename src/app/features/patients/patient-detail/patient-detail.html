@@ -41,14 +41,6 @@
         <dd>{{ p.passportNumber ?? '—' }}</dd>
       </div>
       <div>
-        <dt>Cause of limb loss</dt>
-        <dd>{{ p.causeOfLimbLoss ? humanise(p.causeOfLimbLoss) : '—' }}</dd>
-      </div>
-      <div>
-        <dt>Limb loss level</dt>
-        <dd>{{ p.limbLossLevel ? humanise(p.limbLossLevel) : '—' }}</dd>
-      </div>
-      <div>
         <dt>Email</dt>
         <dd>{{ p.contactEmail ?? '—' }}</dd>
       </div>
@@ -70,7 +62,7 @@
       <p>{{ p.comorbidities || 'None recorded.' }}</p>
     </section>
 
-    <app-device-list [patientId]="p.id" />
+    <app-involvement-list [patientId]="p.id" />
 
     <app-milestone-list [patientId]="p.id" />
 

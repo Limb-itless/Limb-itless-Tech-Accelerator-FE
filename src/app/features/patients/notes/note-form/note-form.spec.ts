@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 
+import { InvolvementsService } from '../../involvements/involvements.service';
 import { NotesService } from '../notes.service';
 import { NoteForm } from './note-form';
 
@@ -23,7 +24,11 @@ async function build(service: ServiceStub) {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [NoteForm],
-    providers: [provideRouter([]), { provide: NotesService, useValue: service }],
+    providers: [
+      provideRouter([]),
+      { provide: NotesService, useValue: service },
+      { provide: InvolvementsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
+    ],
   }).compileComponents();
   return vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 }
@@ -46,17 +51,25 @@ describe('NoteForm', () => {
     fixture.componentRef.setInput('id', '4');
     fixture.detectChanges();
 
-    fixture.componentInstance.form.setValue({ body: '  Reviewed today  ' });
+    fixture.componentInstance.form.patchValue({ body: '  Reviewed today  ' });
     fixture.componentInstance.submit();
 
-    expect(service.create).toHaveBeenCalledWith(4, { body: 'Reviewed today' });
+    expect(service.create).toHaveBeenCalledWith(4, { body: 'Reviewed today', involvementId: null });
     expect(navigate).toHaveBeenCalledWith(['/patients', 4, 'timeline']);
   });
 
-  it('prefills and updates in edit mode', async () => {
+  it('prefills and updates in edit mode, keeping the involvement link', async () => {
     const service = stub();
     service.get.mockReturnValue(
-      of({ id: 7, patientId: 4, authorId: 1, body: 'Old body', createdAt: '', updatedAt: '' }),
+      of({
+        id: 7,
+        patientId: 4,
+        involvementId: 5,
+        authorId: 1,
+        body: 'Old body',
+        createdAt: '',
+        updatedAt: '',
+      }),
     );
     const navigate = await build(service);
     const fixture = TestBed.createComponent(NoteForm);
@@ -68,10 +81,11 @@ describe('NoteForm', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.form.controls.body.value).toBe('Old body');
+    expect(fixture.componentInstance.form.controls.involvementId.value).toBe('5');
 
-    fixture.componentInstance.form.setValue({ body: 'New body' });
+    fixture.componentInstance.form.patchValue({ body: 'New body' });
     fixture.componentInstance.submit();
-    expect(service.update).toHaveBeenCalledWith(4, 7, { body: 'New body' });
+    expect(service.update).toHaveBeenCalledWith(4, 7, { body: 'New body', involvementId: 5 });
     expect(navigate).toHaveBeenCalledWith(['/patients', 4, 'timeline']);
   });
 });

@@ -18,7 +18,7 @@ import {
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
-import { CAUSE_OF_LIMB_LOSS, LIMB_LOSS_LEVELS, PatientCreate, humanise } from '../patient.model';
+import { PatientCreate } from '../patient.model';
 import { PatientsService } from '../patients.service';
 
 function identityRequired(group: AbstractControl): ValidationErrors | null {
@@ -39,10 +39,6 @@ export class PatientForm {
   private readonly service = inject(PatientsService);
   private readonly router = inject(Router);
 
-  readonly humanise = humanise;
-  readonly causes = CAUSE_OF_LIMB_LOSS;
-  readonly levels = LIMB_LOSS_LEVELS;
-
   /** `:id` route parameter; absent when creating. */
   readonly id = input<string>();
   readonly mode = computed<'create' | 'edit'>(() => (this.id() ? 'edit' : 'create'));
@@ -60,8 +56,6 @@ export class PatientForm {
       contactEmail: ['', [Validators.email]],
       contactPhone: ['', [Validators.maxLength(40)]],
       address: ['', [Validators.maxLength(500)]],
-      causeOfLimbLoss: [''],
-      limbLossLevel: [''],
       medicalHistory: [''],
       comorbidities: [''],
     },
@@ -91,8 +85,6 @@ export class PatientForm {
         contactEmail: patient.contactEmail ?? '',
         contactPhone: patient.contactPhone ?? '',
         address: patient.address ?? '',
-        causeOfLimbLoss: patient.causeOfLimbLoss ?? '',
-        limbLossLevel: patient.limbLossLevel ?? '',
         medicalHistory: patient.medicalHistory ?? '',
         comorbidities: patient.comorbidities ?? '',
       });
@@ -133,15 +125,18 @@ export class PatientForm {
       address: blankToNull(raw.address),
       medicalHistory: blankToNull(raw.medicalHistory),
       comorbidities: blankToNull(raw.comorbidities),
-      causeOfLimbLoss: (raw.causeOfLimbLoss || null) as PatientCreate['causeOfLimbLoss'],
-      limbLossLevel: (raw.limbLossLevel || null) as PatientCreate['limbLossLevel'],
     };
 
     const id = this.id();
     const request$ = id ? this.service.update(Number(id), payload) : this.service.create(payload);
 
     request$.subscribe({
-      next: (patient) => this.router.navigate(['/patients', patient.id]),
+      next: (patient) =>
+        // New patients go to step 2 (add a limb involvement, skippable);
+        // edits return to the detail page.
+        this.router.navigate(
+          id ? ['/patients', patient.id] : ['/patients', patient.id, 'involvements', 'first'],
+        ),
       error: (error: unknown) => {
         this.submitting.set(false);
         this.errorMessage.set(this.messageFor(error));

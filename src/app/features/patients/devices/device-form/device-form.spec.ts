@@ -24,15 +24,14 @@ function stub(): ServiceStub {
 
 const EXISTING = {
   id: 3,
-  patientId: 9,
-  limbSide: 'right',
-  limbLevel: 'transfemoral',
+  involvementId: 4,
   deviceType: 'body_powered',
   status: 'active',
   replacesDeviceId: null,
   manufacturer: 'Blatchford',
   model: 'Orion',
   serialNumber: 'SN-9',
+  mountLocation: null,
   socketType: 'Ischial containment',
   linerType: null,
   suspensionType: null,
@@ -54,45 +53,35 @@ async function build(service: ServiceStub) {
     providers: [provideRouter([]), { provide: DevicesService, useValue: service }],
   }).compileComponents();
   const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-  return navigate;
-}
-
-function fillRequired(component: DeviceForm): void {
-  component.form.patchValue({
-    limbSide: 'left',
-    limbLevel: 'transtibial',
-    deviceType: 'myoelectric',
-  });
+  const fixture = TestBed.createComponent(DeviceForm);
+  fixture.componentRef.setInput('id', '9');
+  fixture.componentRef.setInput('involvementId', '4');
+  return { fixture, navigate };
 }
 
 describe('DeviceForm', () => {
-  it('does not submit until the required fields are set', async () => {
+  it('does not submit until the device type is set', async () => {
     const service = stub();
-    await build(service);
-    const fixture = TestBed.createComponent(DeviceForm);
-    fixture.componentRef.setInput('id', '9');
+    const { fixture } = await build(service);
     fixture.detectChanges();
 
     fixture.componentInstance.submit();
     expect(service.create).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.form.controls.limbSide.touched).toBe(true);
+    expect(fixture.componentInstance.form.controls.deviceType.touched).toBe(true);
   });
 
-  it('creates a device and returns to the patient', async () => {
+  it('creates a device under the involvement and returns to the patient', async () => {
     const service = stub();
-    const navigate = await build(service);
-    const fixture = TestBed.createComponent(DeviceForm);
-    fixture.componentRef.setInput('id', '9');
+    const { fixture, navigate } = await build(service);
     fixture.detectChanges();
 
-    fillRequired(fixture.componentInstance);
+    fixture.componentInstance.form.patchValue({ deviceType: 'myoelectric' });
     fixture.componentInstance.submit();
 
     expect(service.create).toHaveBeenCalledWith(
       9,
+      4,
       expect.objectContaining({
-        limbSide: 'left',
-        limbLevel: 'transtibial',
         deviceType: 'myoelectric',
         status: 'planned',
         manufacturer: null,
@@ -104,9 +93,7 @@ describe('DeviceForm', () => {
   it('prefills and updates in edit mode', async () => {
     const service = stub();
     service.get.mockReturnValue(of(EXISTING));
-    const navigate = await build(service);
-    const fixture = TestBed.createComponent(DeviceForm);
-    fixture.componentRef.setInput('id', '9');
+    const { fixture, navigate } = await build(service);
     fixture.componentRef.setInput('deviceId', '3');
     fixture.componentRef.setInput('mode', 'edit');
     fixture.detectChanges();
@@ -120,80 +107,48 @@ describe('DeviceForm', () => {
 
     expect(service.update).toHaveBeenCalledWith(
       9,
+      4,
       3,
       expect.objectContaining({ status: 'in_repair' }),
     );
     expect(navigate).toHaveBeenCalledWith(['/patients', 9]);
   });
 
-  it('calls replace and resets status to planned when replacing', async () => {
+  it('replaces, resetting status and clearing the manufacturer', async () => {
     const service = stub();
     service.get.mockReturnValue(of(EXISTING));
-    await build(service);
-    const fixture = TestBed.createComponent(DeviceForm);
-    fixture.componentRef.setInput('id', '9');
+    const { fixture } = await build(service);
     fixture.componentRef.setInput('deviceId', '3');
     fixture.componentRef.setInput('mode', 'replace');
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    // limb details inherited, status reset, manufacturer cleared
-    expect(fixture.componentInstance.form.controls.limbLevel.value).toBe('transfemoral');
+    expect(fixture.componentInstance.form.controls.deviceType.value).toBe('body_powered');
     expect(fixture.componentInstance.form.controls.status.value).toBe('planned');
     expect(fixture.componentInstance.form.controls.manufacturer.value).toBe('');
 
     fixture.componentInstance.submit();
     expect(service.replace).toHaveBeenCalledWith(
       9,
+      4,
       3,
-      expect.objectContaining({ limbSide: 'right' }),
+      expect.objectContaining({ deviceType: 'body_powered' }),
     );
   });
 
-  it('shows the conflict message on 409', async () => {
+  it('surfaces a backend error detail', async () => {
     const service = stub();
-    service.create.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 409 })));
-    await build(service);
-    const fixture = TestBed.createComponent(DeviceForm);
-    fixture.componentRef.setInput('id', '9');
+    service.create.mockReturnValueOnce(
+      throwError(() => new HttpErrorResponse({ status: 400, error: { detail: 'bad device' } })),
+    );
+    const { fixture } = await build(service);
     fixture.detectChanges();
 
-    fillRequired(fixture.componentInstance);
+    fixture.componentInstance.form.patchValue({ deviceType: 'myoelectric' });
     fixture.componentInstance.submit();
 
-    expect(fixture.componentInstance.errorMessage()).toContain('already has an active device');
+    expect(fixture.componentInstance.errorMessage()).toContain('bad device');
     expect(fixture.componentInstance.submitting()).toBe(false);
-  });
-
-  it('requires a limb level for a prosthesis but not for an orthosis', async () => {
-    const service = stub();
-    const navigate = await build(service);
-    const fixture = TestBed.createComponent(DeviceForm);
-    fixture.componentRef.setInput('id', '9');
-    fixture.detectChanges();
-
-    // prosthesis with no level -> blocked
-    fixture.componentInstance.form.patchValue({ limbSide: 'left', deviceType: 'myoelectric' });
-    expect(fixture.componentInstance.levelApplies()).toBe(true);
-    fixture.componentInstance.submit();
-    expect(service.create).not.toHaveBeenCalled();
-
-    // switch to an orthosis -> level no longer required, submits with null
-    fixture.componentInstance.form.patchValue({
-      limbSide: 'bilateral',
-      deviceType: 'orthosis_spinal',
-    });
-    expect(fixture.componentInstance.levelApplies()).toBe(false);
-    fixture.componentInstance.submit();
-    expect(service.create).toHaveBeenCalledWith(
-      9,
-      expect.objectContaining({
-        limbSide: 'bilateral',
-        deviceType: 'orthosis_spinal',
-        limbLevel: null,
-      }),
-    );
-    expect(navigate).toHaveBeenCalledWith(['/patients', 9]);
   });
 });
