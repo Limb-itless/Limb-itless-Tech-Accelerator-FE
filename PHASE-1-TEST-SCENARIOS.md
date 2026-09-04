@@ -1,10 +1,10 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-18 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-19 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
-Care team, Body map, Reports). Runs against the local stack with the
-seeded clinical sample data. R-17 (body map) and R-18 (reports) are the
+Care team, Body map, Reports, Orthotic PROMs & pathway). Runs against the
+local stack with the seeded clinical sample data. R-17 → R-19 are the
 first Phase 2 items.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
@@ -52,22 +52,22 @@ puts the clinical patients on **ids 1–14** every time. (On an older DB the
 ids will be higher — the **National ID** column is stable, so search by
 name and read the id off the URL.)
 
-| ID  | Name             | Involvement(s) → device(s)                                                                                                            | Notable for                                                                                                                            |
-| --- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Thabo Molefe     | Left leg amputation (transfemoral, trauma) → Ottobock Genium X3 _active_                                                              | mid-pathway, 1 overdue + 1 upcoming milestone, flagged residual-limb pain (8), 2 notes, 2 PROM points → trend line                     |
-| 2   | Lerato Dlamini   | Right leg amputation (transtibial, dysvascular) → Blatchford Elan _active_                                                            | **upcoming** milestone in ~4 days, flagged Socket Comfort Score (3), 3 PROMs incl. LCI                                                 |
-| 3   | Naledi Khumalo   | Left arm amputation (transhumeral, tumour) → Ossur i-Limb Quantum _in fitting_                                                        | upper-limb pathway, device _in fitting_, flagged phantom pain (7)                                                                      |
-| 4   | Sipho Nkosi      | Right leg amputation (transfemoral, dysvascular) → Ottobock 3R60 _replaced_ + Ottobock 3R80 _active_ (one involvement)                | **worst case**: 3 overdue milestones (one 38 days), 2 flagged PROMs (pain 9, LCI 18), a replaced+active device pair on one involvement |
-| 5   | Ayesha Patel     | Left arm **congenital absence** (transradial) → Steeper Realistic Hand _planned_                                                      | brand-new upper-limb patient, pathway just started, device _planned_, no flags; involvement has a level but **no cause**               |
-| 6   | Bongani Zulu     | Left leg amputation (transtibial, trauma) → Ottobock 1C30 _active_ + Ossur Cheetah Xtend _active_ (one involvement)                   | discharged/annual-review: all 7 milestones complete; **two active devices on one involvement** (everyday leg + running blade)          |
-| 7   | Michelle van Wyk | Right leg amputation (knee disarticulation, infection) → Blatchford KX06 _in fitting_                                                 | 1 overdue + 1 upcoming milestone, borderline flagged SCS (4)                                                                           |
-| 8   | Johannes Botha   | Left leg amputation (transtibial, dysvascular) → Ottobock 1C30 _retired_                                                              | **inactive** patient (records closed), retired device                                                                                  |
-| 9   | Zanele Mthembu   | Left leg amputation (transfemoral, trauma) → Ossur Power Knee _active_                                                                | **Cape Mobility** — must NOT appear for Northgate users                                                                                |
-| 10  | David Fourie     | Right arm amputation (transradial, trauma) → Hosmer Hook 5XA _active_                                                                 | **Cape Mobility** — upper limb, no flags                                                                                               |
-| 11  | Kagiso Sithole   | **Two amputation involvements**: Left leg (transfemoral) → Ottobock 3R80 _active_; Right leg (transtibial) → Ottobock Triton _active_ | **bilateral amputee** — one involvement per side, one active device each                                                               |
-| 12  | Precious Ndlovu  | Right leg amputation (transtibial, trauma) → Blatchford Avalon _active_                                                               | **Sunrise** — gives the third practice a caseload                                                                                      |
-| 13  | Themba Cele      | Left leg amputation (transfemoral, dysvascular) → Ossur Rheo Knee XC _active_                                                         | **Sunrise** — 1 overdue milestone                                                                                                      |
-| 14  | Refilwe Adams    | **Two orthotic-need involvements**: Left leg → Blatchford Carbon AFO _active_; Spine → Aspen TLSO _active_                            | **no limb loss** — post-stroke foot drop + a spinal brace; involvements carry no level or cause                                        |
+| ID  | Name             | Involvement(s) → device(s)                                                                                                            | Notable for                                                                                                                                |
+| --- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Thabo Molefe     | Left leg amputation (transfemoral, trauma) → Ottobock Genium X3 _active_                                                              | mid-pathway, 1 overdue + 1 upcoming milestone, flagged residual-limb pain (8), 2 notes, 2 PROM points → trend line                         |
+| 2   | Lerato Dlamini   | Right leg amputation (transtibial, dysvascular) → Blatchford Elan _active_                                                            | **upcoming** milestone in ~4 days, flagged Socket Comfort Score (3), 3 PROMs incl. LCI                                                     |
+| 3   | Naledi Khumalo   | Left arm amputation (transhumeral, tumour) → Ossur i-Limb Quantum _in fitting_                                                        | upper-limb pathway, device _in fitting_, flagged phantom pain (7)                                                                          |
+| 4   | Sipho Nkosi      | Right leg amputation (transfemoral, dysvascular) → Ottobock 3R60 _replaced_ + Ottobock 3R80 _active_ (one involvement)                | **worst case**: 3 overdue milestones (one 38 days), 2 flagged PROMs (pain 9, LCI 18), a replaced+active device pair on one involvement     |
+| 5   | Ayesha Patel     | Left arm **congenital absence** (transradial) → Steeper Realistic Hand _planned_                                                      | brand-new upper-limb patient, pathway just started, device _planned_, no flags; involvement has a level but **no cause**                   |
+| 6   | Bongani Zulu     | Left leg amputation (transtibial, trauma) → Ottobock 1C30 _active_ + Ossur Cheetah Xtend _active_ (one involvement)                   | discharged/annual-review: all 7 milestones complete; **two active devices on one involvement** (everyday leg + running blade)              |
+| 7   | Michelle van Wyk | Right leg amputation (knee disarticulation, infection) → Blatchford KX06 _in fitting_                                                 | 1 overdue + 1 upcoming milestone, borderline flagged SCS (4)                                                                               |
+| 8   | Johannes Botha   | Left leg amputation (transtibial, dysvascular) → Ottobock 1C30 _retired_                                                              | **inactive** patient (records closed), retired device                                                                                      |
+| 9   | Zanele Mthembu   | Left leg amputation (transfemoral, trauma) → Ossur Power Knee _active_                                                                | **Cape Mobility** — must NOT appear for Northgate users                                                                                    |
+| 10  | David Fourie     | Right arm amputation (transradial, trauma) → Hosmer Hook 5XA _active_                                                                 | **Cape Mobility** — upper limb, no flags                                                                                                   |
+| 11  | Kagiso Sithole   | **Two amputation involvements**: Left leg (transfemoral) → Ottobock 3R80 _active_; Right leg (transtibial) → Ottobock Triton _active_ | **bilateral amputee** — one involvement per side, one active device each                                                                   |
+| 12  | Precious Ndlovu  | Right leg amputation (transtibial, trauma) → Blatchford Avalon _active_                                                               | **Sunrise** — gives the third practice a caseload                                                                                          |
+| 13  | Themba Cele      | Left leg amputation (transfemoral, dysvascular) → Ossur Rheo Knee XC _active_                                                         | **Sunrise** — 1 overdue milestone                                                                                                          |
+| 14  | Refilwe Adams    | **Two orthotic-need involvements**: Left leg → Blatchford Carbon AFO _active_; Spine → Aspen TLSO _active_                            | **no limb loss** — post-stroke foot drop + a spinal brace; on the **orthotic pathway**, flagged Orthosis Comfort Score (3) + a QUEST score |
 
 Extra Northgate staff exist for the admin screens:
 `nomvula.clinician@`, `thandi.clinician@`, `pieter.prosthetist@` (all
@@ -364,6 +364,41 @@ drives the "new" / "in period" figures.
 
 ---
 
+## R-19 — Orthotic PROMs & pathway _(Phase 2)_
+
+Orthotics patients no longer borrow amputation instruments and the
+lower-limb template. Needs `alembic upgrade head` (migration
+`e2f9c7d34a10` adds enum values) + a `--reset`.
+
+1. **Orthotic pathway on the patient page.** Refilwe Adams (14) →
+   **Recovery pathway** reads _Pathway: Orthotic_ for every row, and the
+   steps are **Orthotic assessment → Orthosis casting → Initial fitting
+   delivery → Wear schedule desensitization → Gait functional training →
+   Independent ambulation adl → Community reintegration followup** (no
+   "pre-prosthetic assessment" / "cast socket fabrication").
+2. **Apply the orthotic pathway.** On a fresh patient, **Apply pathway**
+   → the **Pathway** select offers **Lower limb / Upper limb /
+   Orthotic**. Pick _Orthotic_, interval 14 → 7 orthotic milestones,
+   dates spaced 14 days.
+3. **Grouped instrument picker.** Refilwe → **Record measure** → the
+   **Instrument** `<select>` is grouped into `<optgroup>`s:
+   _Amputation_ (Residual limb pain, Phantom pain, Socket Comfort Score),
+   _Orthotic_ (Orthosis Comfort Score), _General_ (LCI-5, Device
+   satisfaction (QUEST 2.0)). Any group is still selectable for any
+   patient — the grouping is a hint, not a restriction.
+4. **Orthosis Comfort Score.** Pick _Orthosis Comfort Score_ → hint
+   _"0–10, higher is better · flags ≤ 4"_. Enter `3`, save → flagged,
+   reason _"Orthosis Comfort Score 4 or below out of 10"_, red point on
+   its own trend chart. (Refilwe already has one seeded.)
+5. **QUEST 2.0.** Pick _Device satisfaction (QUEST 2.0)_ → the score
+   bounds become **1–5** (not 0–10); `5` → save, `0` → the backend
+   rejects it (_"'score' must be between 1 and 5"_); `3` → flagged.
+6. **Trend + timeline.** Refilwe's **Outcome measures** panel shows three
+   charts (Orthosis Comfort Score, QUEST, LCI-5); the timeline lists the
+   orthotic PROM entries like any other.
+
+---
+
 ## R-07 — Devices
 
 Devices now live **inside** an involvement card (R-15 §1–3, §12–14). This
@@ -587,18 +622,17 @@ Log in as **`platform.admin@limbitless.co.za`**.
 1. **`ProstheticDevice` is a misnomer** — it holds orthoses too. The
    rename to `Device` (table, model, router path, FE feature) is a
    deferred cosmetic change; the model docstring notes it.
-2. **PROM instruments are amputation-centric.** Residual-limb pain,
-   phantom pain and Socket Comfort Score do not apply to an
-   orthotic-need involvement; only LCI-5 (general mobility) fits.
-   Refilwe Adams's seed data uses only LCI-5 for that reason. An
-   orthotic instrument set + pathway template is not built.
-3. **Pathway templates** are `lower_limb` / `upper_limb` only. Applying a
-   pathway to an orthotic-need or bilateral case still picks the closest
-   template; milestones are then edited by hand.
-4. **The device form** shows prosthesis componentry fields (socket,
+2. **~~PROM instruments are amputation-centric~~** — addressed in R-19:
+   `orthosis_comfort_score` and `quest_satisfaction` (QUEST 2.0) were
+   added, the picker groups instruments Amputation / Orthotic / General,
+   and there is now an **orthotic pathway template**
+   (`orthotic_assessment → orthosis_casting → fitting → wear-in →
+function …`). Refilwe Adams is seeded on it. A bilateral case still
+   picks lower- or upper-limb and is edited by hand.
+3. **The device form** shows prosthesis componentry fields (socket,
    liner, suspension, terminal device) regardless of device type. They
    are optional, so an orthosis leaves them blank; a future pass could
    swap in orthosis-relevant fields (joint type, trimline, strap config).
-5. **No body-image view yet.** `region` + `mount_location` are captured
-   so a future body-map screen can place each device; that screen is not
-   built.
+4. **Body map is region-level** (R-17). `mount_location` shows as a text
+   label on the card, not a coordinate on the figure; precise placement
+   would need a normalized x/y or a mount-point enum on the device.
