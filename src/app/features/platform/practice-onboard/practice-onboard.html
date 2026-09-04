@@ -1,0 +1,112 @@
+<section class="onboard">
+  <a class="onboard__back" routerLink="/platform">← Back to practices</a>
+
+  <h1>Onboard a practice</h1>
+  <p class="onboard__note">
+    This creates the practice, its first site, and its first practice administrator in one step. If
+    the administrator email is already taken, nothing is created.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="onboard__error" role="alert">{{ message }}</p>
+    }
+
+    <fieldset class="onboard__group">
+      <legend>Practice</legend>
+      <div class="onboard__field">
+        <label for="practiceName">Name</label>
+        <input
+          id="practiceName"
+          formControlName="practiceName"
+          [attr.aria-invalid]="invalid('practiceName') ? 'true' : null"
+        />
+        @if (invalid('practiceName')) {
+          <p class="onboard__hint">A name is required.</p>
+        }
+      </div>
+      <div class="onboard__row">
+        <div class="onboard__field">
+          <label for="practiceType">Type</label>
+          <select id="practiceType" formControlName="practiceType">
+            @for (t of practiceTypes; track t) {
+              <option [value]="t">{{ humanise(t) }}</option>
+            }
+          </select>
+        </div>
+        <div class="onboard__field">
+          <label for="practiceAddress">Address</label>
+          <input id="practiceAddress" formControlName="practiceAddress" autocomplete="off" />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="onboard__group">
+      <legend>First site</legend>
+      <div class="onboard__row">
+        <div class="onboard__field">
+          <label for="siteName">Name</label>
+          <input
+            id="siteName"
+            formControlName="siteName"
+            [attr.aria-invalid]="invalid('siteName') ? 'true' : null"
+          />
+          @if (invalid('siteName')) {
+            <p class="onboard__hint">A name is required.</p>
+          }
+        </div>
+        <div class="onboard__field">
+          <label for="siteType">Type</label>
+          <select id="siteType" formControlName="siteType">
+            @for (t of siteTypes; track t) {
+              <option [value]="t">{{ humanise(t) }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="onboard__field">
+        <label for="siteAddress">Address</label>
+        <input id="siteAddress" formControlName="siteAddress" autocomplete="off" />
+      </div>
+    </fieldset>
+
+    <fieldset class="onboard__group">
+      <legend>First administrator</legend>
+      <div class="onboard__row">
+        <div class="onboard__field">
+          <label for="adminEmail">Email</label>
+          <input
+            id="adminEmail"
+            type="email"
+            formControlName="adminEmail"
+            autocomplete="off"
+            [attr.aria-invalid]="invalid('adminEmail') ? 'true' : null"
+          />
+          @if (invalid('adminEmail')) {
+            <p class="onboard__hint">Enter a valid email address.</p>
+          }
+        </div>
+        <div class="onboard__field">
+          <label for="adminPassword">Temporary password</label>
+          <input
+            id="adminPassword"
+            type="password"
+            formControlName="adminPassword"
+            autocomplete="new-password"
+            [attr.aria-invalid]="invalid('adminPassword') ? 'true' : null"
+          />
+          @if (invalid('adminPassword')) {
+            <p class="onboard__hint">At least 8 characters.</p>
+          }
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="onboard__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Onboarding…' : 'Onboard practice' }}
+      </button>
+      <a routerLink="/platform">Cancel</a>
+    </div>
+  </form>
+</section>

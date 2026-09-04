@@ -1,0 +1,90 @@
+<section class="practices">
+  <header class="practices__head">
+    <h1>Practices</h1>
+    <a class="practices__new" routerLink="/platform/onboard">Onboard a practice</a>
+  </header>
+
+  <label class="practices__search">
+    <span>Search by name</span>
+    <input
+      #q
+      type="search"
+      [value]="search()"
+      (input)="onSearch(q.value)"
+      placeholder="Practice name"
+      autocomplete="off"
+    />
+  </label>
+
+  @if (page.isLoading()) {
+    <p role="status">Loading practices…</p>
+  } @else if (page.error()) {
+    <p role="alert" class="practices__error">Practices could not be loaded.</p>
+  } @else if (page.value(); as result) {
+    @if (result.items.length === 0) {
+      <p class="practices__empty">No practices match your search.</p>
+    } @else {
+      <table class="practices__table">
+        <caption class="visually-hidden">
+          Practices on the platform
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Sites</th>
+            <th scope="col">Users</th>
+            <th scope="col">Patients</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (practice of result.items; track practice.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/platform', practice.id]">{{ practice.name }}</a>
+              </td>
+              <td>{{ humanise(practice.type) }}</td>
+              <td>{{ practice.siteCount }}</td>
+              <td>{{ practice.userCount }}</td>
+              <td>{{ practice.patientCount }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <nav class="practices__pager" aria-label="Pagination">
+        <button type="button" (click)="prev()" [disabled]="!hasPrev()">Previous</button>
+        <span aria-live="polite"> {{ rangeStart() }}–{{ rangeEnd() }} of {{ result.total }} </span>
+        <button type="button" (click)="next()" [disabled]="!hasNext()">Next</button>
+      </nav>
+    }
+  }
+
+  <section class="practices__admins">
+    <h2>Add a platform administrator</h2>
+    <form [formGroup]="adminForm" (ngSubmit)="addPlatformAdmin()" novalidate>
+      @if (adminMessage(); as message) {
+        <p
+          class="practices__notice"
+          [class.practices__notice--error]="adminError()"
+          [attr.role]="adminError() ? 'alert' : 'status'"
+        >
+          {{ message }}
+        </p>
+      }
+      <div class="practices__admin-row">
+        <label>
+          <span>Email</span>
+          <input type="email" formControlName="email" autocomplete="off" />
+        </label>
+        <label>
+          <span>Temporary password</span>
+          <input type="password" formControlName="password" autocomplete="new-password" />
+        </label>
+        <button type="submit" [disabled]="adminBusy()">
+          {{ adminBusy() ? 'Adding…' : 'Add' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</section>

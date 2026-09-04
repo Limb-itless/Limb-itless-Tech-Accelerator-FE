@@ -1,8 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
+import { Auth } from '../../core/auth/auth';
 import { humanise } from '../patients/patient.model';
 import { DashboardView, phaseBreakdown } from './dashboard.model';
 import { DashboardService } from './dashboard.service';
@@ -16,10 +24,21 @@ import { DashboardService } from './dashboard.service';
 })
 export class Dashboard {
   private readonly service = inject(DashboardService);
+  private readonly auth = inject(Auth);
+  private readonly router = inject(Router);
 
   readonly humanise = humanise;
 
   readonly view = signal<DashboardView>('practice');
+
+  constructor() {
+    // Platform admins have no caseload; send them to their own area.
+    effect(() => {
+      if (this.auth.currentUser()?.role === 'platform_administrator') {
+        void this.router.navigateByUrl('/platform');
+      }
+    });
+  }
 
   readonly summary = rxResource({
     params: () => ({ view: this.view() }),

@@ -1,0 +1,45 @@
+<section class="practice-form">
+  <a class="practice-form__back" [routerLink]="['/platform', id()]">← Back to practice</a>
+
+  <h1>Edit practice</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="practice-form__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="practice-form__field">
+      <label for="name">Name</label>
+      <input
+        id="name"
+        formControlName="name"
+        autocomplete="off"
+        [attr.aria-invalid]="invalidName ? 'true' : null"
+      />
+      @if (invalidName) {
+        <p class="practice-form__hint">A name is required.</p>
+      }
+    </div>
+
+    <div class="practice-form__field">
+      <label for="type">Type</label>
+      <select id="type" formControlName="type">
+        @for (t of types; track t) {
+          <option [value]="t">{{ humanise(t) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="practice-form__field">
+      <label for="address">Address</label>
+      <input id="address" formControlName="address" autocomplete="off" />
+    </div>
+
+    <div class="practice-form__actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Saving…' : 'Save' }}
+      </button>
+      <a [routerLink]="['/platform', id()]">Cancel</a>
+    </div>
+  </form>
+</section>

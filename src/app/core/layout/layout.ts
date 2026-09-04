@@ -12,6 +12,26 @@ const ROLE_LABELS: Record<UserRole, string> = {
   medical_aid_reviewer: 'Medical aid reviewer',
 };
 
+interface NavLink {
+  path: string;
+  label: string;
+}
+
+const CLINICAL_LINKS: NavLink[] = [
+  { path: '/dashboard', label: 'Dashboard' },
+  { path: '/patients', label: 'Patients' },
+  { path: '/reports', label: 'Reports' },
+];
+
+const NAV_BY_ROLE: Record<UserRole, NavLink[]> = {
+  clinician: CLINICAL_LINKS,
+  prosthetist: CLINICAL_LINKS,
+  practice_administrator: [...CLINICAL_LINKS, { path: '/users', label: 'Users' }],
+  platform_administrator: [{ path: '/platform', label: 'Practices' }],
+  patient: [],
+  medical_aid_reviewer: [],
+};
+
 @Component({
   selector: 'app-layout',
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
@@ -27,6 +47,10 @@ export class Layout {
   readonly roleLabel = computed(() => {
     const role = this.user()?.role;
     return role ? ROLE_LABELS[role] : '';
+  });
+  readonly navLinks = computed(() => {
+    const role = this.user()?.role;
+    return role ? NAV_BY_ROLE[role] : [];
   });
 
   signOut(): void {

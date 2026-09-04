@@ -36,6 +36,12 @@ export const routes: Routes = [
         canActivate: [roleGuard('practice_administrator')],
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
+      {
+        path: 'platform',
+        canActivate: [roleGuard('platform_administrator')],
+        loadChildren: () =>
+          import('./features/platform/platform.routes').then((m) => m.PLATFORM_ROUTES),
+      },
     ],
   },
 ];
