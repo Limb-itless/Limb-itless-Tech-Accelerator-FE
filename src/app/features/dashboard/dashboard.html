@@ -1,0 +1,135 @@
+<section class="dashboard">
+  <header class="dashboard__head">
+    <h1>Dashboard</h1>
+    <div class="dashboard__views" role="group" aria-label="Dashboard scope">
+      <button
+        type="button"
+        class="dashboard__view"
+        [class.dashboard__view--active]="view() === 'practice'"
+        [attr.aria-pressed]="view() === 'practice'"
+        (click)="setView('practice')"
+      >
+        Whole practice
+      </button>
+      <button
+        type="button"
+        class="dashboard__view"
+        [class.dashboard__view--active]="view() === 'mine'"
+        [attr.aria-pressed]="view() === 'mine'"
+        (click)="setView('mine')"
+      >
+        My caseload
+      </button>
+    </div>
+  </header>
+
+  @if (summary.isLoading()) {
+    <p role="status">Loading dashboard…</p>
+  } @else if (forbidden()) {
+    <p role="alert" class="dashboard__error">
+      The caseload dashboard is only available to clinical staff.
+    </p>
+  } @else if (summary.error()) {
+    <p role="alert" class="dashboard__error">The dashboard could not be loaded.</p>
+  } @else if (summary.value(); as data) {
+    <div class="dashboard__stats">
+      <div class="dashboard__stat">
+        <span class="dashboard__stat-value">{{ data.activePatients }}</span>
+        <span class="dashboard__stat-label">Active patients</span>
+      </div>
+      <div class="dashboard__stat" [class.dashboard__stat--warn]="data.overdueCount > 0">
+        <span class="dashboard__stat-value">{{ data.overdueCount }}</span>
+        <span class="dashboard__stat-label">Overdue milestones</span>
+      </div>
+      <div class="dashboard__stat">
+        <span class="dashboard__stat-value">{{ data.upcomingCount }}</span>
+        <span class="dashboard__stat-label">Upcoming milestones</span>
+      </div>
+      <div class="dashboard__stat" [class.dashboard__stat--alert]="data.flaggedPromCount > 0">
+        <span class="dashboard__stat-value">{{ data.flaggedPromCount }}</span>
+        <span class="dashboard__stat-label">Flagged outcome measures</span>
+      </div>
+    </div>
+
+    <div class="dashboard__grid">
+      <section class="dashboard__card">
+        <h2>Patients by phase</h2>
+        @if (phases().length === 0) {
+          <p class="dashboard__muted">No patients have an in-progress milestone.</p>
+        } @else {
+          <ul class="dashboard__phases">
+            @for (row of phases(); track row.phase) {
+              <li class="dashboard__phase">
+                <span class="dashboard__phase-name">{{ humanise(row.phase) }}</span>
+                <span class="dashboard__phase-bar" aria-hidden="true">
+                  <span class="dashboard__phase-fill" [style.width]="barWidth(row.count)"></span>
+                </span>
+                <span class="dashboard__phase-count">{{ row.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="dashboard__card">
+        <h2>Overdue milestones</h2>
+        @if (data.overdue.length === 0) {
+          <p class="dashboard__muted">Nothing overdue.</p>
+        } @else {
+          <ul class="dashboard__list">
+            @for (item of data.overdue; track item.milestoneId) {
+              <li>
+                <a [routerLink]="['/patients', item.patientId]">{{ item.patientName }}</a>
+                <span class="dashboard__list-detail">
+                  {{ humanise(item.milestoneType) }} · due {{ item.targetDate }}
+                </span>
+                <span class="dashboard__pill dashboard__pill--warn">
+                  {{ item.daysOverdue }}d overdue
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="dashboard__card">
+        <h2>Upcoming milestones</h2>
+        @if (data.upcoming.length === 0) {
+          <p class="dashboard__muted">Nothing due soon.</p>
+        } @else {
+          <ul class="dashboard__list">
+            @for (item of data.upcoming; track item.milestoneId) {
+              <li>
+                <a [routerLink]="['/patients', item.patientId]">{{ item.patientName }}</a>
+                <span class="dashboard__list-detail">
+                  {{ humanise(item.milestoneType) }} · due {{ item.targetDate }}
+                </span>
+                <span class="dashboard__pill">in {{ item.daysUntil }}d</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="dashboard__card">
+        <h2>Flagged outcome measures</h2>
+        @if (data.flaggedProms.length === 0) {
+          <p class="dashboard__muted">No flagged results.</p>
+        } @else {
+          <ul class="dashboard__list">
+            @for (item of data.flaggedProms; track item.promId) {
+              <li>
+                <a [routerLink]="['/patients', item.patientId]">{{ item.patientName }}</a>
+                <span class="dashboard__list-detail">
+                  {{ humanise(item.instrument) }}: {{ item.score ?? '—' }} ·
+                  {{ item.recordedAt.slice(0, 10) }}
+                </span>
+                <span class="dashboard__pill dashboard__pill--alert">{{ item.flagReason }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</section>
