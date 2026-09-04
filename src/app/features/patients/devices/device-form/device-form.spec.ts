@@ -137,6 +137,63 @@ describe('DeviceForm', () => {
     );
   });
 
+  it('shows orthosis componentry for an orthosis type and nulls the prosthesis set', async () => {
+    const service = stub();
+    const { fixture } = await build(service);
+    fixture.detectChanges();
+
+    // prosthesis by default
+    expect(fixture.nativeElement.querySelector('#socketType')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#jointType')).toBeNull();
+
+    fixture.componentInstance.form.patchValue({ deviceType: 'orthosis_afo' });
+    fixture.detectChanges();
+    expect(fixture.componentInstance.showOrthosisFields()).toBe(true);
+    expect(fixture.nativeElement.querySelector('#socketType')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#jointType')).not.toBeNull();
+
+    fixture.componentInstance.form.patchValue({
+      jointType: 'Articulated ankle',
+      socketType: 'stale',
+    });
+    fixture.componentInstance.submit();
+
+    expect(service.create).toHaveBeenCalledWith(
+      9,
+      4,
+      expect.objectContaining({
+        deviceType: 'orthosis_afo',
+        jointType: 'Articulated ankle',
+        socketType: null,
+        trimline: null,
+      }),
+    );
+  });
+
+  it('prefills orthosis componentry in edit mode', async () => {
+    const service = stub();
+    service.get.mockReturnValue(
+      of({
+        ...EXISTING,
+        deviceType: 'orthosis_afo',
+        socketType: null,
+        jointType: 'Free motion',
+        trimline: 'Posterior',
+        strapConfiguration: '3-strap',
+        paddingLiner: null,
+      }),
+    );
+    const { fixture } = await build(service);
+    fixture.componentRef.setInput('deviceId', '3');
+    fixture.componentRef.setInput('mode', 'edit');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.form.controls.jointType.value).toBe('Free motion');
+    expect(fixture.nativeElement.querySelector('#jointType').value).toBe('Free motion');
+  });
+
   it('surfaces a backend error detail', async () => {
     const service = stub();
     service.create.mockReturnValueOnce(
