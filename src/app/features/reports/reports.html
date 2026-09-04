@@ -1,0 +1,189 @@
+<section class="reports">
+  <header class="reports__head">
+    <h1>Reports</h1>
+    <label class="reports__period">
+      Period
+      <select [value]="sinceDays()" (change)="setWindow($any($event.target).value)">
+        @for (w of windows; track w) {
+          <option [value]="w">{{ windowLabel(w) }}</option>
+        }
+      </select>
+    </label>
+  </header>
+
+  @if (summary.isLoading()) {
+    <p role="status">Loading reports…</p>
+  } @else if (forbidden()) {
+    <p role="alert" class="reports__error">Reports are only available to clinical staff.</p>
+  } @else if (summary.error()) {
+    <p role="alert" class="reports__error">The reports could not be loaded.</p>
+  } @else if (summary.value(); as data) {
+    <div class="reports__grid">
+      <section class="reports__card">
+        <h2>Caseload</h2>
+        <div class="reports__stats">
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.caseload.activePatients }}</span>
+            <span class="reports__stat-label">Active patients</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.caseload.inactivePatients }}</span>
+            <span class="reports__stat-label">Inactive</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.caseload.newPatients }}</span>
+            <span class="reports__stat-label">New ({{ windowLabel(data.sinceDays) }})</span>
+          </div>
+        </div>
+        <h3>Active patients by involvement</h3>
+        @if (data.caseload.byInvolvementKind.length === 0) {
+          <p class="reports__muted">No involvements recorded.</p>
+        } @else {
+          <ul class="reports__bars">
+            @for (row of data.caseload.byInvolvementKind; track row.key) {
+              <li>
+                <span class="reports__bar-name">{{ humanise(row.key) }}</span>
+                <span class="reports__bar" aria-hidden="true">
+                  <span
+                    class="reports__bar-fill"
+                    [style.width]="barWidth(row.count, data.caseload.byInvolvementKind)"
+                  ></span>
+                </span>
+                <span class="reports__bar-count">{{ row.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="reports__card">
+        <h2>Milestone adherence</h2>
+        <div class="reports__stats">
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.milestones.completed }}</span>
+            <span class="reports__stat-label">Completed</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">
+              {{ onTimeRate(data.milestones) === null ? '—' : onTimeRate(data.milestones) + '%' }}
+            </span>
+            <span class="reports__stat-label">On time</span>
+          </div>
+          <div
+            class="reports__stat"
+            [class.reports__stat--warn]="data.milestones.completedLate > 0"
+          >
+            <span class="reports__stat-value">{{ data.milestones.completedLate }}</span>
+            <span class="reports__stat-label">Completed late</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">
+              {{ data.milestones.avgDaysLate === null ? '—' : data.milestones.avgDaysLate }}
+            </span>
+            <span class="reports__stat-label">Avg days late</span>
+          </div>
+          <div class="reports__stat" [class.reports__stat--alert]="data.milestones.openOverdue > 0">
+            <span class="reports__stat-value">{{ data.milestones.openOverdue }}</span>
+            <span class="reports__stat-label">Still overdue</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="reports__card">
+        <h2>Outcome measures</h2>
+        <div class="reports__stats">
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.outcomeMeasures.records }}</span>
+            <span class="reports__stat-label">Records</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.outcomeMeasures.recordedInPeriod }}</span>
+            <span class="reports__stat-label">In {{ windowLabel(data.sinceDays) }}</span>
+          </div>
+          <div
+            class="reports__stat"
+            [class.reports__stat--alert]="data.outcomeMeasures.flagged > 0"
+          >
+            <span class="reports__stat-value">{{ data.outcomeMeasures.flagged }}</span>
+            <span class="reports__stat-label">Flagged</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.outcomeMeasures.patientsWithFlag }}</span>
+            <span class="reports__stat-label">Patients with a flag</span>
+          </div>
+        </div>
+        <h3>Records by instrument</h3>
+        @if (data.outcomeMeasures.byInstrument.length === 0) {
+          <p class="reports__muted">No outcome measures recorded.</p>
+        } @else {
+          <ul class="reports__bars">
+            @for (row of data.outcomeMeasures.byInstrument; track row.key) {
+              <li>
+                <span class="reports__bar-name">{{ humanise(row.key) }}</span>
+                <span class="reports__bar" aria-hidden="true">
+                  <span
+                    class="reports__bar-fill"
+                    [style.width]="barWidth(row.count, data.outcomeMeasures.byInstrument)"
+                  ></span>
+                </span>
+                <span class="reports__bar-count">{{ row.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="reports__card">
+        <h2>Devices</h2>
+        <div class="reports__stats">
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.devices.total }}</span>
+            <span class="reports__stat-label">Total</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.devices.prostheses }}</span>
+            <span class="reports__stat-label">Prostheses</span>
+          </div>
+          <div class="reports__stat">
+            <span class="reports__stat-value">{{ data.devices.orthoses }}</span>
+            <span class="reports__stat-label">Orthoses</span>
+          </div>
+        </div>
+        <h3>By type</h3>
+        @if (data.devices.byType.length === 0) {
+          <p class="reports__muted">No devices recorded.</p>
+        } @else {
+          <ul class="reports__bars">
+            @for (row of data.devices.byType; track row.key) {
+              <li>
+                <span class="reports__bar-name">{{ humanise(row.key) }}</span>
+                <span class="reports__bar" aria-hidden="true">
+                  <span
+                    class="reports__bar-fill"
+                    [style.width]="barWidth(row.count, data.devices.byType)"
+                  ></span>
+                </span>
+                <span class="reports__bar-count">{{ row.count }}</span>
+              </li>
+            }
+          </ul>
+          <h3>By status</h3>
+          <ul class="reports__bars">
+            @for (row of data.devices.byStatus; track row.key) {
+              <li>
+                <span class="reports__bar-name">{{ humanise(row.key) }}</span>
+                <span class="reports__bar" aria-hidden="true">
+                  <span
+                    class="reports__bar-fill"
+                    [style.width]="barWidth(row.count, data.devices.byStatus)"
+                  ></span>
+                </span>
+                <span class="reports__bar-count">{{ row.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</section>

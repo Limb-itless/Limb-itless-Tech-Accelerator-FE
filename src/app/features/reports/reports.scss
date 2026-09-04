@@ -1,5 +1,141 @@
-.page {
-  h1 {
-    margin: 0 0 0.5rem;
+.reports {
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    h1 {
+      margin: 0 0 0.5rem;
+    }
+  }
+
+  &__period {
+    font-size: 0.875rem;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    select {
+      font: inherit;
+      padding: 0.3125rem 0.5rem;
+      border: 1px solid #b3b3b3;
+      border-radius: 0.375rem;
+    }
+  }
+
+  &__error {
+    color: #991b1b;
+  }
+
+  &__muted {
+    color: #6b7280;
+    margin: 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  &__card {
+    border: 1px solid #e2e2e2;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: #fff;
+
+    h2 {
+      font-size: 1rem;
+      margin: 0 0 0.75rem;
+    }
+
+    h3 {
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #6b7280;
+      margin: 1rem 0 0.5rem;
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 0.75rem;
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #e2e2e2;
+    border-radius: 0.5rem;
+
+    &--warn {
+      border-color: #fcd34d;
+      background: #fffbeb;
+    }
+
+    &--alert {
+      border-color: #fca5a5;
+      background: #fef2f2;
+    }
+  }
+
+  &__stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__stat-label {
+    font-size: 0.75rem;
+    color: #4b5563;
+  }
+
+  &__bars {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+
+    li {
+      display: grid;
+      grid-template-columns: 10rem 1fr 2.5rem;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  &__bar-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__bar {
+    height: 0.5rem;
+    border-radius: 999px;
+    background: #eef2ff;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    display: block;
+    height: 100%;
+    background: #1a56db;
+  }
+
+  &__bar-count {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    text-align: right;
   }
 }
