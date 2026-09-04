@@ -16,8 +16,14 @@
         [attr.aria-invalid]="invalid('instrument') ? 'true' : null"
       >
         <option value="">Choose…</option>
-        @for (instrument of instruments; track instrument) {
-          <option [value]="instrument">{{ meta[instrument].label }}</option>
+        @for (group of instrumentGroups; track group.label) {
+          @if (group.instruments.length) {
+            <optgroup [label]="group.label">
+              @for (instrument of group.instruments; track instrument) {
+                <option [value]="instrument">{{ meta[instrument].label }}</option>
+              }
+            </optgroup>
+          }
         }
       </select>
       @if (invalid('instrument')) {

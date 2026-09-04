@@ -1,12 +1,23 @@
 export type PromInstrument =
-  'pain_residual_limb' | 'pain_phantom' | 'socket_comfort_score' | 'locomotor_capabilities_index';
+  | 'pain_residual_limb'
+  | 'pain_phantom'
+  | 'socket_comfort_score'
+  | 'locomotor_capabilities_index'
+  | 'orthosis_comfort_score'
+  | 'quest_satisfaction';
 
 export const PROM_INSTRUMENTS: readonly PromInstrument[] = [
   'pain_residual_limb',
   'pain_phantom',
   'socket_comfort_score',
   'locomotor_capabilities_index',
+  'orthosis_comfort_score',
+  'quest_satisfaction',
 ];
+
+/** Which involvement kind an instrument is aimed at — drives the picker
+ * grouping only; any instrument can still be recorded for any patient. */
+export type InstrumentCategory = 'amputation' | 'orthotic' | 'general';
 
 export interface InstrumentMeta {
   label: string;
@@ -19,6 +30,7 @@ export interface InstrumentMeta {
   flagWhen: 'gte' | 'lte';
   /** Short human hint about the scale direction. */
   scaleHint: string;
+  category: InstrumentCategory;
 }
 
 export const INSTRUMENT_META: Record<PromInstrument, InstrumentMeta> = {
@@ -29,6 +41,7 @@ export const INSTRUMENT_META: Record<PromInstrument, InstrumentMeta> = {
     threshold: 7,
     flagWhen: 'gte',
     scaleHint: '0–10, higher is worse',
+    category: 'amputation',
   },
   pain_phantom: {
     label: 'Phantom pain (NRS)',
@@ -37,6 +50,7 @@ export const INSTRUMENT_META: Record<PromInstrument, InstrumentMeta> = {
     threshold: 7,
     flagWhen: 'gte',
     scaleHint: '0–10, higher is worse',
+    category: 'amputation',
   },
   socket_comfort_score: {
     label: 'Socket Comfort Score',
@@ -45,6 +59,7 @@ export const INSTRUMENT_META: Record<PromInstrument, InstrumentMeta> = {
     threshold: 4,
     flagWhen: 'lte',
     scaleHint: '0–10, higher is better',
+    category: 'amputation',
   },
   locomotor_capabilities_index: {
     label: 'Locomotor Capabilities Index (LCI-5)',
@@ -53,8 +68,36 @@ export const INSTRUMENT_META: Record<PromInstrument, InstrumentMeta> = {
     threshold: 21,
     flagWhen: 'lte',
     scaleHint: '0–56, higher is better',
+    category: 'general',
+  },
+  orthosis_comfort_score: {
+    label: 'Orthosis Comfort Score',
+    min: 0,
+    max: 10,
+    threshold: 4,
+    flagWhen: 'lte',
+    scaleHint: '0–10, higher is better',
+    category: 'orthotic',
+  },
+  quest_satisfaction: {
+    label: 'Device satisfaction (QUEST 2.0)',
+    min: 1,
+    max: 5,
+    threshold: 3,
+    flagWhen: 'lte',
+    scaleHint: '1–5, higher is better',
+    category: 'general',
   },
 };
+
+/** Instruments grouped for the picker's `<optgroup>`s, in a sensible
+ * clinical order. */
+export const INSTRUMENT_GROUPS: { label: string; instruments: PromInstrument[] }[] = (
+  ['amputation', 'orthotic', 'general'] as const
+).map((category) => ({
+  label: { amputation: 'Amputation', orthotic: 'Orthotic', general: 'General' }[category],
+  instruments: PROM_INSTRUMENTS.filter((i) => INSTRUMENT_META[i].category === category),
+}));
 
 export interface Prom {
   id: number;

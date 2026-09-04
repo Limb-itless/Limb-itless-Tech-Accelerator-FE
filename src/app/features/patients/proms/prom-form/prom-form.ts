@@ -16,7 +16,13 @@ import { humanise } from '../../patient.model';
 import { DevicesService } from '../../devices/devices.service';
 import { kindLabel, regionLabel } from '../../involvements/involvement.model';
 import { InvolvementsService } from '../../involvements/involvements.service';
-import { INSTRUMENT_META, PROM_INSTRUMENTS, PromCreate, PromInstrument } from '../prom.model';
+import {
+  INSTRUMENT_GROUPS,
+  INSTRUMENT_META,
+  PROM_INSTRUMENTS,
+  PromCreate,
+  PromInstrument,
+} from '../prom.model';
 import { PromsService } from '../proms.service';
 
 type Mode = 'create' | 'edit';
@@ -39,6 +45,7 @@ export class PromForm {
   readonly kindLabel = kindLabel;
   readonly regionLabel = regionLabel;
   readonly instruments = PROM_INSTRUMENTS;
+  readonly instrumentGroups = INSTRUMENT_GROUPS;
   readonly meta = INSTRUMENT_META;
 
   /** `:id` route parameter — the patient. */

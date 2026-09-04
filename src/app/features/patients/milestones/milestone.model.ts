@@ -1,4 +1,4 @@
-export type CarePathway = 'lower_limb' | 'upper_limb' | 'other';
+export type CarePathway = 'lower_limb' | 'upper_limb' | 'orthotic' | 'other';
 
 export type MilestoneType =
   | 'pre_prosthetic_assessment'
@@ -10,14 +10,21 @@ export type MilestoneType =
   | 'community_reintegration_followup'
   | 'prosthetic_use_training'
   | 'myoelectric_training'
+  | 'orthotic_assessment'
+  | 'orthosis_casting'
   | 'other';
 
 export type MilestoneStatus = 'not_started' | 'in_progress' | 'complete' | 'delayed';
 
-export const CARE_PATHWAYS: readonly CarePathway[] = ['lower_limb', 'upper_limb', 'other'];
+export const CARE_PATHWAYS: readonly CarePathway[] = [
+  'lower_limb',
+  'upper_limb',
+  'orthotic',
+  'other',
+];
 
 /** Pathways that have a standard milestone template on the backend. */
-export const TEMPLATED_PATHWAYS: readonly CarePathway[] = ['lower_limb', 'upper_limb'];
+export const TEMPLATED_PATHWAYS: readonly CarePathway[] = ['lower_limb', 'upper_limb', 'orthotic'];
 
 export const MILESTONE_TYPES: readonly MilestoneType[] = [
   'pre_prosthetic_assessment',
@@ -29,6 +36,8 @@ export const MILESTONE_TYPES: readonly MilestoneType[] = [
   'community_reintegration_followup',
   'prosthetic_use_training',
   'myoelectric_training',
+  'orthotic_assessment',
+  'orthosis_casting',
   'other',
 ];
 
