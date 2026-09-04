@@ -30,6 +30,7 @@ const FEED: TimelineEvent[] = [
     note: {
       id: 1,
       patientId: 5,
+      involvementId: null,
       authorId: 9,
       body: 'Full note body here',
       createdAt: '',
@@ -44,6 +45,7 @@ const FEED: TimelineEvent[] = [
     prom: {
       id: 9,
       patientId: 5,
+      involvementId: null,
       deviceId: null,
       instrument: 'pain_residual_limb',
       responses: { score: 8 },

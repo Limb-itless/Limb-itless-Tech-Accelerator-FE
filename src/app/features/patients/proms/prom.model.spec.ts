@@ -4,6 +4,7 @@ function prom(overrides: Partial<Prom>): Prom {
   return {
     id: 1,
     patientId: 1,
+    involvementId: null,
     deviceId: null,
     instrument: 'pain_residual_limb',
     responses: {},

@@ -6,6 +6,8 @@ import { of, throwError } from 'rxjs';
 
 import { Auth } from '../../../core/auth/auth';
 import { PatientsService } from '../patients.service';
+import { InvolvementsService } from '../involvements/involvements.service';
+import { DevicesService } from '../devices/devices.service';
 import { PatientDetail } from './patient-detail';
 
 const patient = {
@@ -22,8 +24,6 @@ const patient = {
   address: null,
   medicalHistory: 'PVD',
   comorbidities: null,
-  causeOfLimbLoss: 'dysvascular',
-  limbLossLevel: 'transtibial',
   isActive: true,
   createdAt: '2026-01-01T00:00:00',
   updatedAt: '2026-01-01T00:00:00',
@@ -40,6 +40,11 @@ async function setup(role = 'clinician', overrides: Record<string, unknown> = {}
       provideRouter([]),
       { provide: PatientsService, useValue: service },
       { provide: Auth, useValue: { currentUser: signal({ role }) } },
+      { provide: InvolvementsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
+      {
+        provide: DevicesService,
+        useValue: { listForPatient: vi.fn().mockReturnValue(of([])) },
+      },
     ],
   }).compileComponents();
 
@@ -56,7 +61,6 @@ describe('PatientDetail', () => {
     const { fixture } = await setup();
     const text: string = fixture.nativeElement.textContent;
     expect(text).toContain('Ann Bell');
-    expect(text).toContain('Dysvascular');
     expect(text).toContain('PVD');
     expect(text).toContain('ann@example.com');
   });
@@ -92,6 +96,11 @@ describe('PatientDetail', () => {
         provideRouter([]),
         { provide: PatientsService, useValue: service },
         { provide: Auth, useValue: { currentUser: signal({ role: 'clinician' }) } },
+        { provide: InvolvementsService, useValue: { list: vi.fn().mockReturnValue(of([])) } },
+        {
+          provide: DevicesService,
+          useValue: { listForPatient: vi.fn().mockReturnValue(of([])) },
+        },
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(PatientDetail);

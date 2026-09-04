@@ -79,7 +79,7 @@ describe('PatientForm', () => {
         passportNumber: null,
       }),
     );
-    expect(navigate).toHaveBeenCalledWith(['/patients', 7]);
+    expect(navigate).toHaveBeenCalledWith(['/patients', 7, 'involvements', 'first']);
   });
 
   it('shows the conflict message on 409', async () => {
@@ -106,8 +106,6 @@ describe('PatientForm', () => {
         contactEmail: null,
         contactPhone: null,
         address: null,
-        causeOfLimbLoss: null,
-        limbLossLevel: null,
         medicalHistory: null,
         comorbidities: null,
       }),

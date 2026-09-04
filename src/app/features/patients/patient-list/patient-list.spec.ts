@@ -16,7 +16,6 @@ const page = {
       dateOfBirth: '1990-01-01',
       nationalId: '900',
       passportNumber: null,
-      limbLossLevel: 'transtibial',
       isActive: true,
     },
     {
@@ -26,7 +25,6 @@ const page = {
       dateOfBirth: '1980-02-02',
       nationalId: null,
       passportNumber: 'P1',
-      limbLossLevel: null,
       isActive: false,
     },
   ],
@@ -64,7 +62,6 @@ describe('PatientList', () => {
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
     expect(rows.length).toBe(2);
     expect(fixture.nativeElement.textContent).toContain('Bell, Ann');
-    expect(fixture.nativeElement.textContent).toContain('Transtibial');
   });
 
   it('shows the New patient link only to writers', async () => {

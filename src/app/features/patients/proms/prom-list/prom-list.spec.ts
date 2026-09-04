@@ -12,6 +12,7 @@ function prom(overrides: Partial<Prom>): Prom {
   return {
     id: 1,
     patientId: 3,
+    involvementId: null,
     deviceId: null,
     instrument: 'pain_residual_limb',
     responses: { score: 8 },
