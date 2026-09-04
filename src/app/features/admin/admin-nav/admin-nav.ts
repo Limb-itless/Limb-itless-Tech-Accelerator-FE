@@ -15,6 +15,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         Staff
       </a>
       <a routerLink="/users/sites" routerLinkActive="admin-nav__link--active">Sites</a>
+      <a routerLink="/users/audit" routerLinkActive="admin-nav__link--active">Audit</a>
     </nav>
   `,
   styleUrl: './admin-nav.scss',

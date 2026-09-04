@@ -19,6 +19,10 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () => import('./admin-sites/admin-sites').then((m) => m.AdminSites),
   },
   {
+    path: 'audit',
+    loadComponent: () => import('./admin-audit/admin-audit').then((m) => m.AdminAudit),
+  },
+  {
     path: 'sites/new',
     loadComponent: () => import('./site-form/site-form').then((m) => m.SiteForm),
   },

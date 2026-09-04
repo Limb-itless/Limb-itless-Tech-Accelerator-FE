@@ -1,0 +1,103 @@
+<section class="admin-audit">
+  <header class="admin-audit__head">
+    <h1>Practice administration</h1>
+  </header>
+
+  <app-admin-nav />
+
+  <p class="admin-audit__note">
+    A read-only record of who read or changed data in this practice. Newest first.
+  </p>
+
+  <div class="admin-audit__controls">
+    <label>
+      <span>Actor</span>
+      <select #actor [value]="actorId()" (change)="onActor(actor.value)">
+        <option value="">Anyone</option>
+        @for (a of facets.value()?.actors ?? []; track a.id) {
+          <option [value]="a.id">{{ a.email }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>Action</span>
+      <select #act [value]="action()" (change)="onAction(act.value)">
+        <option value="">Any</option>
+        @for (a of actions; track a) {
+          <option [value]="a">{{ humanise(a) }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>Entity</span>
+      <select #ent [value]="entityType()" (change)="onEntityType(ent.value)">
+        <option value="">Any</option>
+        @for (t of facets.value()?.entityTypes ?? []; track t) {
+          <option [value]="t">{{ humanise(t) }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      <span>From</span>
+      <input #from type="date" [value]="dateFrom()" (change)="onDateFrom(from.value)" />
+    </label>
+
+    <label>
+      <span>To</span>
+      <input #to type="date" [value]="dateTo()" (change)="onDateTo(to.value)" />
+    </label>
+
+    <button type="button" class="admin-audit__clear" (click)="clearFilters()">Clear</button>
+  </div>
+
+  @if (page.isLoading()) {
+    <p role="status">Loading audit trail…</p>
+  } @else if (page.error()) {
+    <p role="alert" class="admin-audit__error">The audit trail could not be loaded.</p>
+  } @else if (page.value(); as result) {
+    @if (result.items.length === 0) {
+      <p class="admin-audit__empty">No audit entries match these filters.</p>
+    } @else {
+      <div class="admin-audit__scroll">
+        <table class="admin-audit__table">
+          <caption class="visually-hidden">
+            Audit trail
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">When</th>
+              <th scope="col">Actor</th>
+              <th scope="col">Action</th>
+              <th scope="col">Entity</th>
+              <th scope="col">Ref</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of result.items; track e.id) {
+              <tr>
+                <td class="admin-audit__when">{{ when(e.timestamp) }}</td>
+                <td>{{ e.actorEmail ?? '— (deleted user)' }}</td>
+                <td>
+                  <span class="admin-audit__action" [attr.data-action]="e.action">
+                    {{ humanise(e.action) }}
+                  </span>
+                </td>
+                <td>{{ humanise(e.entityType) }}</td>
+                <td>{{ e.entityId ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <nav class="admin-audit__pager" aria-label="Pagination">
+        <button type="button" (click)="prev()" [disabled]="!hasPrev()">Previous</button>
+        <span aria-live="polite"> {{ rangeStart() }}–{{ rangeEnd() }} of {{ result.total }} </span>
+        <button type="button" (click)="next()" [disabled]="!hasNext()">Next</button>
+      </nav>
+    }
+  }
+</section>
