@@ -72,33 +72,73 @@
           <input id="serialNumber" formControlName="serialNumber" autocomplete="off" />
         </div>
         <div class="device-form__field">
-          <label for="terminalDevice">Terminal device</label>
-          <input id="terminalDevice" formControlName="terminalDevice" autocomplete="off" />
+          <label for="mountLocation">Mount location (optional)</label>
+          <input
+            id="mountLocation"
+            formControlName="mountLocation"
+            autocomplete="off"
+            placeholder="e.g. posterior, lateral strut"
+          />
         </div>
       </div>
-      <div class="device-form__field">
-        <label for="mountLocation">Mount location (optional)</label>
-        <input
-          id="mountLocation"
-          formControlName="mountLocation"
-          autocomplete="off"
-          placeholder="e.g. posterior, lateral strut"
-        />
-      </div>
-      <div class="device-form__row">
-        <div class="device-form__field">
-          <label for="socketType">Socket type</label>
-          <input id="socketType" formControlName="socketType" autocomplete="off" />
+
+      @if (showOrthosisFields()) {
+        <div class="device-form__row">
+          <div class="device-form__field">
+            <label for="jointType">Joint type</label>
+            <input
+              id="jointType"
+              formControlName="jointType"
+              autocomplete="off"
+              placeholder="e.g. articulated ankle, free knee"
+            />
+          </div>
+          <div class="device-form__field">
+            <label for="trimline">Trimline</label>
+            <input
+              id="trimline"
+              formControlName="trimline"
+              autocomplete="off"
+              placeholder="e.g. posterior leaf spring"
+            />
+          </div>
         </div>
-        <div class="device-form__field">
-          <label for="linerType">Liner type</label>
-          <input id="linerType" formControlName="linerType" autocomplete="off" />
+        <div class="device-form__row">
+          <div class="device-form__field">
+            <label for="strapConfiguration">Strap configuration</label>
+            <input
+              id="strapConfiguration"
+              formControlName="strapConfiguration"
+              autocomplete="off"
+            />
+          </div>
+          <div class="device-form__field">
+            <label for="paddingLiner">Padding / lining</label>
+            <input id="paddingLiner" formControlName="paddingLiner" autocomplete="off" />
+          </div>
         </div>
-      </div>
-      <div class="device-form__field">
-        <label for="suspensionType">Suspension type</label>
-        <input id="suspensionType" formControlName="suspensionType" autocomplete="off" />
-      </div>
+      } @else {
+        <div class="device-form__row">
+          <div class="device-form__field">
+            <label for="socketType">Socket type</label>
+            <input id="socketType" formControlName="socketType" autocomplete="off" />
+          </div>
+          <div class="device-form__field">
+            <label for="linerType">Liner type</label>
+            <input id="linerType" formControlName="linerType" autocomplete="off" />
+          </div>
+        </div>
+        <div class="device-form__row">
+          <div class="device-form__field">
+            <label for="suspensionType">Suspension type</label>
+            <input id="suspensionType" formControlName="suspensionType" autocomplete="off" />
+          </div>
+          <div class="device-form__field">
+            <label for="terminalDevice">Terminal device</label>
+            <input id="terminalDevice" formControlName="terminalDevice" autocomplete="off" />
+          </div>
+        </div>
+      }
     </fieldset>
 
     <fieldset class="device-form__group">

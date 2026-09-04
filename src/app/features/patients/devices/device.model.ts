@@ -70,6 +70,10 @@ export interface Device {
   linerType: string | null;
   suspensionType: string | null;
   terminalDevice: string | null;
+  jointType: string | null;
+  trimline: string | null;
+  strapConfiguration: string | null;
+  paddingLiner: string | null;
   mountLocation: string | null;
   castScanDate: string | null;
   deliveryDate: string | null;
@@ -91,6 +95,10 @@ export interface DeviceCreate {
   linerType?: string | null;
   suspensionType?: string | null;
   terminalDevice?: string | null;
+  jointType?: string | null;
+  trimline?: string | null;
+  strapConfiguration?: string | null;
+  paddingLiner?: string | null;
   mountLocation?: string | null;
   castScanDate?: string | null;
   deliveryDate?: string | null;

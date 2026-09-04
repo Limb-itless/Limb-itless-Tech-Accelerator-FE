@@ -9,16 +9,18 @@ import {
   signal,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
 import { humanise } from '../../patient.model';
 import {
   DEVICE_STATUSES,
   DeviceCreate,
+  DeviceType,
   ORTHOSIS_TYPES,
   PROSTHESIS_TYPES,
   deviceTypeLabel,
+  isOrthosis,
 } from '../device.model';
 import { DevicesService } from '../devices.service';
 
@@ -76,12 +78,25 @@ export class DeviceForm {
     linerType: ['', [Validators.maxLength(200)]],
     suspensionType: ['', [Validators.maxLength(200)]],
     terminalDevice: ['', [Validators.maxLength(200)]],
+    jointType: ['', [Validators.maxLength(200)]],
+    trimline: ['', [Validators.maxLength(200)]],
+    strapConfiguration: ['', [Validators.maxLength(200)]],
+    paddingLiner: ['', [Validators.maxLength(200)]],
     castScanDate: [''],
     deliveryDate: [''],
     fittedDate: [''],
     warrantyStart: [''],
     warrantyExpiry: [''],
     notes: [''],
+  });
+
+  private readonly deviceTypeValue = toSignal(this.form.controls.deviceType.valueChanges, {
+    initialValue: '',
+  });
+  /** Show the orthosis componentry set instead of the prosthesis one. */
+  readonly showOrthosisFields = computed(() => {
+    const type = this.deviceTypeValue();
+    return !!type && isOrthosis(type as DeviceType);
   });
 
   private readonly existing = rxResource({
@@ -119,6 +134,10 @@ export class DeviceForm {
         linerType: device.linerType ?? '',
         suspensionType: device.suspensionType ?? '',
         terminalDevice: device.terminalDevice ?? '',
+        jointType: device.jointType ?? '',
+        trimline: device.trimline ?? '',
+        strapConfiguration: device.strapConfiguration ?? '',
+        paddingLiner: device.paddingLiner ?? '',
         castScanDate: replacing ? '' : (device.castScanDate ?? ''),
         deliveryDate: replacing ? '' : (device.deliveryDate ?? ''),
         fittedDate: replacing ? '' : (device.fittedDate ?? ''),
@@ -148,6 +167,9 @@ export class DeviceForm {
 
     const raw = this.form.getRawValue();
     const blankToNull = (value: string): string | null => value.trim() || null;
+    // Keep only the componentry set that matches the device type; the
+    // other set is stored as null.
+    const orthosis = this.showOrthosisFields();
     const payload: DeviceCreate = {
       deviceType: raw.deviceType as DeviceCreate['deviceType'],
       status: raw.status as DeviceCreate['status'],
@@ -155,10 +177,14 @@ export class DeviceForm {
       model: blankToNull(raw.model),
       serialNumber: blankToNull(raw.serialNumber),
       mountLocation: blankToNull(raw.mountLocation),
-      socketType: blankToNull(raw.socketType),
-      linerType: blankToNull(raw.linerType),
-      suspensionType: blankToNull(raw.suspensionType),
-      terminalDevice: blankToNull(raw.terminalDevice),
+      socketType: orthosis ? null : blankToNull(raw.socketType),
+      linerType: orthosis ? null : blankToNull(raw.linerType),
+      suspensionType: orthosis ? null : blankToNull(raw.suspensionType),
+      terminalDevice: orthosis ? null : blankToNull(raw.terminalDevice),
+      jointType: orthosis ? blankToNull(raw.jointType) : null,
+      trimline: orthosis ? blankToNull(raw.trimline) : null,
+      strapConfiguration: orthosis ? blankToNull(raw.strapConfiguration) : null,
+      paddingLiner: orthosis ? blankToNull(raw.paddingLiner) : null,
       castScanDate: blankToNull(raw.castScanDate),
       deliveryDate: blankToNull(raw.deliveryDate),
       fittedDate: blankToNull(raw.fittedDate),
