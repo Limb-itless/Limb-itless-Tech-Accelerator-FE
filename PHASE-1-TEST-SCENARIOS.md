@@ -603,7 +603,8 @@ Log in as **`platform.admin@limbitless.co.za`**.
   level) and `cause` are nullable and only meaningful for an amputation
   (level also for congenital absence); `status` (`active` / `resolved`)
   is **informational only**.
-- **`ProstheticDevice`** now has `involvement_id` instead of
+- **`Device`** (the `devices` table — renamed from `ProstheticDevice` /
+  `prosthetic_devices` in R-30) has `involvement_id` instead of
   `patient_id`, dropped `limb_side` / `limb_level`, and gained a
   free-text `mount_location`. A patient's devices are read across all of
   their involvements via `GET /patients/{id}/devices`.
@@ -619,9 +620,9 @@ Log in as **`platform.admin@limbitless.co.za`**.
 
 **Known limitations / future work (not done):**
 
-1. **`ProstheticDevice` is a misnomer** — it holds orthoses too. The
-   rename to `Device` (table, model, router path, FE feature) is a
-   deferred cosmetic change; the model docstring notes it.
+1. **~~`ProstheticDevice` is a misnomer~~** — renamed to `Device` /
+   `devices` in R-30 (migration `f3a1b2c4d5e6`, table + owned
+   sequence/indexes/FKs). Audit `entity_type` is now `"device"`.
 2. **~~PROM instruments are amputation-centric~~** — addressed in R-19:
    `orthosis_comfort_score` and `quest_satisfaction` (QUEST 2.0) were
    added, the picker groups instruments Amputation / Orthotic / General,
