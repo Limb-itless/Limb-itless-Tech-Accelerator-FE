@@ -1,8 +1,9 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-11 (Patients, Devices, Recovery milestones, Outcome
-measures + trend, Timeline + notes, Dashboard). Runs against the local
-stack with the seeded clinical sample data.
+Covers FE R-06 → R-13 (Patients, Devices, Recovery milestones, Outcome
+measures + trend, Timeline + notes, Dashboard, Practice administration,
+Orthoses / bilateral). Runs against the local stack with the seeded
+clinical sample data.
 
 ## Setup
 
@@ -41,6 +42,13 @@ stack with the seeded clinical sample data.
 | 29  | Johannes Botha   | **inactive** patient (records closed), retired device                                                                     |
 | 30  | Zanele Mthembu   | **Cape Mobility** — must NOT appear for Northgate users                                                                   |
 | 31  | David Fourie     | **Cape Mobility** — upper limb, no flags                                                                                  |
+| 32  | Kagiso Sithole   | **bilateral amputee** — one device per side (left transfemoral, right transtibial), both active                           |
+| 33  | Refilwe Adams    | **no limb loss** — post-stroke: an ankle-foot orthosis + a spinal brace; limb-loss level and cause are blank              |
+
+Extra Northgate staff exist for the admin screens:
+`nomvula.clinician@`, `thandi.clinician@`, `pieter.prosthetist@` (all
+active) and `former.clinician@northgate-rehab.co.za` (**deactivated**).
+Cape Mobility has a second site, _Bellville Satellite Rooms_.
 
 ---
 
@@ -188,6 +196,61 @@ stack with the seeded clinical sample data.
 
 ---
 
+## R-12 — Practice administration
+
+Log in as **`admin@northgate-rehab.co.za`** and open **Users** in the nav.
+
+1. **Staff list.** 7 rows. Each shows email, role, **site** (e.g.
+   _Northgate Main Hospital_), and status. `former.clinician@` is
+   **Inactive**.
+2. **Filters.** Role = _Clinician_ → 4 rows. Add Status = _Inactive_ →
+   just `former.clinician@`. Reset both.
+3. **Search.** Type `pieter` → one row.
+4. **Create.** **New user** → email `new.clinician@northgate-rehab.co.za`,
+   role _Clinician_, site _Rosebank Gait Lab_, a temporary password (8+
+   chars). Save → back to the list with the new user. Try a duplicate
+   email (`clinician@northgate-rehab.co.za`) → _"A user with that email
+   already exists."_
+5. **Edit.** Open a user → change their site, tick/untick **Account is
+   active**, Save. The row reflects it. Then use **Set a new password**
+   (the separate block) → _"Password updated."_
+6. **Self-protection.** Edit your own account (`admin@northgate-rehab`)
+   and untick **active** → Save → _"You cannot deactivate your own
+   account."_
+7. **Sites tab.** **Sites** → 2 rows (Northgate Main Hospital /
+   Location, Rosebank Gait Lab / Department). Type filter works.
+8. **Create / edit a site.** **New site** → name + type + address, Save →
+   appears in the list. Edit it → rename, Save. (Sites cannot be
+   deleted.)
+9. **Role gating.** As `clinician@northgate-rehab.co.za` or
+   `platform.admin@`, `/users` → `/forbidden`.
+10. **Practice isolation.** As `admin@capemobility.co.za`, the staff list
+    shows only Cape Mobility users and the Sites tab shows _Cape Mobility
+    Clinic_ + _Bellville Satellite Rooms_.
+
+---
+
+## R-13 — Orthoses & bilateral / no-limb-loss patients
+
+1. **Bilateral amputee.** Kagiso Sithole (id 32) → **Devices** shows two
+   active devices, one per side, each with its own limb level (left
+   transfemoral, right transtibial). His **Recovery pathway** and
+   **Outcome measures** work exactly like a single-limb patient.
+2. **Orthotics-only patient.** Refilwe Adams (id 33) → the header shows
+   **Limb loss level —** and **Cause of limb loss —** (blank). **Devices**
+   lists _Left — Ankle-foot orthosis (AFO)_ and _Bilateral — Spinal
+   orthosis / brace_, both active, with no limb level.
+3. **Add an orthosis.** On any patient, **Add device** → the **Device
+   type** picker is grouped **Prosthesis / Orthosis**; **Limb side**
+   includes **Bilateral**. Pick an orthosis → the **Limb level** field
+   switches to _"Not applicable"_ and the hint reads _"Orthoses have no
+   amputation level."_ Save with no level → the device is created.
+4. **Prosthesis still needs a level.** Pick a prosthesis type and leave
+   the level blank → Save is blocked with _"Limb level is required."_
+   Switching to an orthosis clears that.
+
+---
+
 ## Cross-cutting
 
 - **Deep-link auth.** Paste `http://localhost:4200/patients/25/timeline`
@@ -199,3 +262,48 @@ stack with the seeded clinical sample data.
 - **Other practice.** As the Northgate clinician, `GET /patients/30`
   (Zanele, Cape Mobility) → the detail page shows a "could not be loaded"
   error (404 from the API), never her data.
+
+---
+
+## Modelling notes — multi-limb loss and orthotics
+
+**Where the model stands after R-23 / R-13:**
+
+- **More than one limb lost** is supported through _devices_, not a
+  second field on the patient. A bilateral (or triple) amputee gets one
+  `ProstheticDevice` per side, each carrying its own `limb_side` and
+  `limb_level`; the "one active device per limb side" rule still holds
+  per side. `Patient.limb_loss_level` / `cause_of_limb_loss` stay as a
+  single _primary_ descriptor (or blank) — the per-side detail lives on
+  the devices, and the recovery pathway / PROMs / timeline all attach to
+  the patient (optionally to a device) so they already cover a
+  multi-limb case. Seeded example: **Kagiso Sithole (id 32)**.
+- **Patients with no amputation** (orthotics only) are supported:
+  `limb_loss_level` and `cause_of_limb_loss` are nullable and left blank,
+  and `DeviceType` now has orthosis values (`orthosis_afo`,
+  `orthosis_kafo`, `orthosis_spinal`, `orthosis_upper_limb`) with
+  `limb_level` null and a `LimbSide.bilateral` option for trunk / spinal
+  bracing. Seeded example: **Refilwe Adams (id 33)** — a foot-drop AFO
+  plus a lumbar brace.
+
+**Known limitations / future work (not done):**
+
+1. **`cause_of_limb_loss` is single-valued.** A bilateral amputee whose
+   two amputations have different causes can only record one. If this
+   matters, move cause onto the device (or a per-limb sub-record).
+2. **`ProstheticDevice` is a misnomer now** — it holds orthoses too.
+   A rename to `AssistiveDevice` / `Device` (table, model, router path,
+   FE feature) is deferred; the class docstring notes it.
+3. **PROM instruments are amputation-centric.** Residual-limb pain,
+   phantom pain and Socket Comfort Score do not apply to an
+   orthotics-only patient; only LCI-5 (general mobility) fits. An
+   orthotics patient needs its own instrument set + pathway template —
+   not yet built. Refilwe's seed data uses only LCI-5 for this reason.
+4. **Pathway templates** are `lower_limb` / `upper_limb` only. Orthotics
+   and bilateral rehab would benefit from their own templates; for now
+   the closest template is applied and milestones are edited by hand.
+5. **The device form** shows prosthesis-only componentry fields (socket,
+   liner, suspension, terminal device) regardless of type. They are all
+   optional, so an orthosis just leaves them blank, but a future pass
+   could swap in orthosis-relevant fields (joint type, trimline, strap
+   config).
