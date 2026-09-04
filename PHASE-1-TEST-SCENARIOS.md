@@ -1,9 +1,9 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-13 (Patients, Devices, Recovery milestones, Outcome
+Covers FE R-06 → R-14 (Patients, Devices, Recovery milestones, Outcome
 measures + trend, Timeline + notes, Dashboard, Practice administration,
-Orthoses / bilateral). Runs against the local stack with the seeded
-clinical sample data.
+Orthoses / bilateral, Platform administration). Runs against the local
+stack with the seeded clinical sample data.
 
 ## Setup
 
@@ -13,8 +13,9 @@ clinical sample data.
    venv/Scripts/python.exe -m alembic upgrade head
    venv/Scripts/python.exe -m scripts.seed          # idempotent; --reset to start clean
    ```
-   The seed adds **10 patients** (8 Northgate, 2 Cape Mobility) with
-   devices, milestones, PROMs and notes. Re-running it changes nothing.
+   The seed adds **14 patients** across **3 practices** (10 Northgate,
+   2 Cape Mobility, 2 Sunrise) with devices, milestones, PROMs and notes.
+   Re-running it changes nothing.
 2. **API**: `fastapi dev` (or `python -m uvicorn app.main:app --port 8000`).
 3. **App**: `npm start` in `Limb-itless-Tech-Accelerator-FE` → http://localhost:4200.
 
@@ -49,6 +50,11 @@ Extra Northgate staff exist for the admin screens:
 `nomvula.clinician@`, `thandi.clinician@`, `pieter.prosthetist@` (all
 active) and `former.clinician@northgate-rehab.co.za` (**deactivated**).
 Cape Mobility has a second site, _Bellville Satellite Rooms_.
+
+A third practice, **Sunrise Prosthetics & Orthotics** (Durban, private
+practice), has one site, `admin@sunrise-prosthetics.co.za`,
+`clinician@sunrise-prosthetics.co.za`, and two patients (Precious Ndlovu,
+Themba Cele). It exists so the platform practices list has real data.
 
 ---
 
@@ -248,6 +254,39 @@ Log in as **`admin@northgate-rehab.co.za`** and open **Users** in the nav.
 4. **Prosthesis still needs a level.** Pick a prosthesis type and leave
    the level blank → Save is blocked with _"Limb level is required."_
    Switching to an orthosis clears that.
+
+---
+
+## R-14 — Platform administration
+
+Log in as **`platform.admin@limbitless.co.za`**.
+
+1. **Landing + nav.** You land on **/platform** (not the dashboard). The
+   primary nav shows only **Practices**.
+2. **Practices list.** Three rows — Cape Mobility Clinic, Northgate
+   Rehabilitation Network, Sunrise Prosthetics & Orthotics — each with
+   **Sites / Users / Patients** counts (Northgate: 2 / 7 / 10). Search by
+   name filters the list.
+3. **Detail.** Click a practice → its type, address, counts, and site
+   list.
+4. **Onboard.** **Onboard a practice** → fill Practice (name/type/
+   address), First site, and First administrator (email + 8+ char
+   password). Save → you land on the new practice's detail page with
+   **Users 1** and the one site. It now appears in the list.
+5. **Duplicate admin email.** Onboard again using the same administrator
+   email → _"A user with that administrator email already exists. Nothing
+   was created."_ and you stay on the form (the practice is **not**
+   created — full rollback).
+6. **Add a recovery admin.** On a practice detail page, use **Add a
+   practice administrator** (email + password) → _"Practice administrator
+   added."_ and the **Users** count goes up.
+7. **Edit a practice.** **Edit** on a detail page → change the name,
+   Save → back on detail with the new name.
+8. **Add a platform admin.** Bottom of the practices list → **Add a
+   platform administrator** (email + password) → _"Platform administrator
+   added."_ (sign in as them to confirm they also land on /platform).
+9. **Role gating.** As any non-platform user, `/platform` → `/forbidden`.
+   As the platform admin, `/patients` or `/users` → `/forbidden`.
 
 ---
 
