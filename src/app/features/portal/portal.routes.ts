@@ -9,4 +9,8 @@ export const PORTAL_ROUTES: Routes = [
     path: 'measures',
     loadComponent: () => import('./portal-measures/portal-measures').then((m) => m.PortalMeasures),
   },
+  {
+    path: 'booking',
+    loadComponent: () => import('./portal-booking/portal-booking').then((m) => m.PortalBooking),
+  },
 ];

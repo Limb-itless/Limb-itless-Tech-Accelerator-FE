@@ -1,0 +1,113 @@
+<section class="booking">
+  <a class="booking__back" routerLink="/portal">← Back</a>
+  <h1>My appointments</h1>
+
+  @if (data.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (data.error()) {
+    <p role="alert" class="booking__error">We couldn't load your appointments.</p>
+  } @else if (data.value(); as d) {
+    @if (actionError(); as message) {
+      <p role="alert" class="booking__error">{{ message }}</p>
+    }
+    @if (justBooked()) {
+      <p role="status" class="booking__ok">Done — your appointment is confirmed.</p>
+    }
+
+    <h2>Upcoming</h2>
+    @if (upcoming().length === 0) {
+      <p class="booking__muted">You have no upcoming appointments.</p>
+    } @else {
+      <ul class="booking__list">
+        @for (a of upcoming(); track a.id) {
+          <li class="booking__item" [class.booking__item--rescheduling]="reschedulingId() === a.id">
+            <div class="booking__item-main">
+              <p class="booking__when">
+                {{ a.scheduledStart.slice(0, 10) }}, {{ a.scheduledStart.slice(11, 16) }}–{{
+                  a.scheduledEnd.slice(11, 16)
+                }}
+              </p>
+              <p class="booking__meta">
+                {{ appointmentTypeLabel(a.appointmentType) }} with {{ a.practitionerEmail }}
+              </p>
+              @if (a.coverageStatus; as cov) {
+                <span class="booking__badge booking__badge--{{ cov }}">{{
+                  coverageStatusLabel(cov)
+                }}</span>
+              }
+            </div>
+            <div class="booking__item-actions">
+              @if (reschedulingId() === a.id) {
+                <button type="button" (click)="cancelReschedule()">Keep current time</button>
+              } @else {
+                <button type="button" (click)="startReschedule(a)" [disabled]="busy()">
+                  Reschedule
+                </button>
+                <button type="button" (click)="cancel(a)" [disabled]="busy()">
+                  Cancel appointment
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (history().length > 0) {
+      <details class="booking__history">
+        <summary>Past appointments ({{ history().length }})</summary>
+        <ul class="booking__list">
+          @for (a of history(); track a.id) {
+            <li class="booking__item booking__item--past">
+              <div class="booking__item-main">
+                <p class="booking__when">
+                  {{ a.scheduledStart.slice(0, 10) }}, {{ a.scheduledStart.slice(11, 16) }}
+                </p>
+                <p class="booking__meta">
+                  {{ appointmentTypeLabel(a.appointmentType) }} with {{ a.practitionerEmail }} —
+                  {{ appointmentStatusLabel(a.status) }}
+                </p>
+              </div>
+            </li>
+          }
+        </ul>
+      </details>
+    }
+
+    <h2>{{ reschedulingId() ? 'Choose a new time' : 'Book a session' }}</h2>
+    @if (reschedulingId()) {
+      <p class="booking__muted">
+        Choose a slot below to move your appointment, or
+        <button type="button" class="booking__link" (click)="cancelReschedule()">
+          keep the current time
+        </button>
+        instead.
+      </p>
+    }
+    @if (d.slots.length === 0) {
+      <p class="booking__muted">There are no open slots to book right now.</p>
+    } @else {
+      <ul class="booking__list">
+        @for (slot of d.slots; track slot.id) {
+          <li class="booking__item">
+            <div class="booking__item-main">
+              <p class="booking__when">
+                {{ slot.startTime.slice(0, 10) }}, {{ slot.startTime.slice(11, 16) }}–{{
+                  slot.endTime.slice(11, 16)
+                }}
+              </p>
+              <p class="booking__meta">
+                {{ appointmentTypeLabel(slot.appointmentType) }} with {{ slot.practitionerEmail }}
+              </p>
+            </div>
+            <div class="booking__item-actions">
+              <button type="button" (click)="chooseSlot(slot.id)" [disabled]="busy()">
+                {{ reschedulingId() ? 'Move here' : 'Book' }}
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>

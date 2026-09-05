@@ -1,15 +1,16 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-25 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-26 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
 Patient portal, per-type device componentry, medical-aid reviewer,
-availability management). Runs against the local stack with the seeded
-clinical sample data. R-17 → R-25 are Phase 2 items; R-25 is the first
-FE slice of the booking feature (BE R-35 → R-38 — availability slots,
-appointments, reschedule, coverage determination), all still awaiting
-their own FE.
+availability management, patient booking). Runs against the local stack
+with the seeded clinical sample data. R-17 → R-26 are Phase 2 items;
+R-25 and R-26 are the booking feature's first two FE slices (BE R-35 →
+R-38 — availability slots, appointments, reschedule, coverage
+determination). Still awaiting FE: a staff appointments/triage view and
+the reviewer's coverage-decision queue.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -577,6 +578,50 @@ was cancelled by the practitioner, Refilwe's coverage is still pending.
    `/forbidden`. `/availability/new` and `/availability/:id/edit` are
    writer-only — a practice administrator visiting either →
    `/forbidden`.
+
+---
+
+## R-26 — Patient booking _(Phase 2 — booking, FE)_
+
+The patient side of the booking feature (`/portal/booking`), reusing
+R-25's seeded slots. No schema change - same migrations as R-25.
+Rescheduling reuses the same "Book a session" slot list in a different
+mode rather than a separate picker, so the demo naturally exercises the
+coverage carry-over rule from BE R-38: moving Thabo's approved **Review**
+onto another **Review** slot would carry the same approval over; moving
+it onto a **Fitting** slot (a different appointment type) re-triggers a
+fresh **pending** determination - the scenario below does the latter, so
+watch the badge change.
+
+1. **Nav.** Log in as `thabo.molefe@patient.limbitless.co.za` /
+   `Password123!` → **My appointments** sits between My care and My
+   measures.
+2. **Upcoming.** Thabo's seeded Review appointment shows with a
+   **Medical aid approved** badge (BE R-38 seeded it pre-approved).
+   **Book a session** below lists the practice's other open slots.
+3. **Reschedule re-triggers coverage.** **Reschedule** on the Review
+   appointment → the "Book a session" heading becomes "Choose a new
+   time" and every slot's button becomes **Move here**; pick the
+   Fitting slot → back on **Upcoming** with the new Fitting appointment
+   showing **Awaiting medical-aid approval** (the type changed, so the
+   old approval didn't carry - confirms BE R-38's rule from the FE
+   side). The old Review appointment now shows under **Past
+   appointments** as _"...— Rescheduled"_, and its slot is back in the
+   bookable list.
+4. **Cancel.** **Cancel appointment** on the (now Fitting) upcoming
+   appointment → it moves to **Past appointments** as _"...— Cancelled
+   by you"_, **Upcoming** shows the empty state, and its slot reappears
+   in **Book a session**.
+5. **Book.** **Book** on any open slot → **Upcoming** shows it
+   immediately ("Done — your appointment is confirmed."); a self-pay
+   patient (no `MedicalAidMembership`) would show no coverage badge at
+   all, since no `CoverageDetermination` is opened for one.
+6. **Keep the current time.** Start a reschedule, then use "keep the
+   current time" (either the button under the appointment or the inline
+   link above the slot list) → back to normal, nothing changed.
+7. **Someone else's record.** As Refilwe
+   (`refilwe.adams@patient.limbitless.co.za`), her own pending Fitting
+   appointment is what you'd expect - she never sees Thabo's.
 
 ---
 
