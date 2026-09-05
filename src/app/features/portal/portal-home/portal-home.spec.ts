@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -52,6 +53,7 @@ async function setup(over: Record<string, unknown> = {}) {
           profile: vi.fn().mockReturnValue(of(PROFILE)),
           involvements: vi.fn().mockReturnValue(of(INVOLVEMENTS)),
           milestones: vi.fn().mockReturnValue(of(MILESTONES)),
+          claim: vi.fn().mockReturnValue(of(PROFILE)),
           ...over,
         },
       },
@@ -85,5 +87,49 @@ describe('PortalHome', () => {
       profile: vi.fn().mockReturnValue(throwError(() => new Error('x'))),
     });
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Link your record');
+  });
+
+  it('shows a claim form instead of the generic error when unlinked (404)', async () => {
+    const { fixture } = await setup({
+      profile: vi.fn().mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 }))),
+    });
+    expect(fixture.nativeElement.textContent).toContain('Link your record');
+  });
+
+  it('claims the record and reloads the portal data on success', async () => {
+    const profile = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 404 })))
+      .mockReturnValue(of(PROFILE));
+    const { fixture } = await setup({ profile });
+
+    fixture.componentInstance.claimForm.setValue({
+      identifier: '9107035800086',
+      contactValue: 'lerato.dlamini@example.co.za',
+    });
+    fixture.componentInstance.submitClaim();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Hello, Thabo');
+  });
+
+  it('shows a generic message when the claim does not match', async () => {
+    const { fixture } = await setup({
+      profile: vi.fn().mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 }))),
+      claim: vi.fn().mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400 }))),
+    });
+
+    fixture.componentInstance.claimForm.setValue({
+      identifier: 'wrong',
+      contactValue: 'wrong@example.co.za',
+    });
+    fixture.componentInstance.submitClaim();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.claimError()).toBeTruthy();
+    expect(fixture.componentInstance.claiming()).toBe(false);
   });
 });

@@ -79,6 +79,17 @@ export class Auth {
     );
   }
 
+  /** Self-service patient sign-up (requirements Section 5.11) — creates
+   * the account and signs it in, the same as {@link login}. No linked
+   * clinical record yet; claiming one is a separate step. */
+  register(email: string, password: string): Observable<AuthenticatedUser> {
+    return this.http.post<TokenResponse>(`${AUTH_BASE}/register`, { email, password }).pipe(
+      tap((res) => this.storeTokens(res)),
+      switchMap(() => this.fetchCurrentUser()),
+      tap((user) => this.currentUserSignal.set(user)),
+    );
+  }
+
   /** Clear the local session. JWTs are stateless, so there's no server call. */
   logout(): void {
     this.tokens.clear();

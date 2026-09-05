@@ -83,6 +83,21 @@ describe('Auth', () => {
     expect(result).toEqual(auth.currentUser());
   });
 
+  it('registers: JSON body, stores tokens, loads the user', () => {
+    let result: unknown;
+    auth.register('new@example.co.za', 'pw').subscribe((user) => (result = user));
+
+    const req = http.expectOne(`${AUTH}/register`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'new@example.co.za', password: 'pw' });
+    req.flush(TOKENS);
+
+    http.expectOne(`${AUTH}/me`).flush({ ...ME, role: 'patient' as const, practice_id: null });
+
+    expect(auth.isAuthenticated()).toBe(true);
+    expect(result).toEqual(auth.currentUser());
+  });
+
   it('logout clears tokens and the current user', () => {
     tokens.set({ accessToken: 'acc', refreshToken: 'ref' });
     auth.login('doc@clinic.io', 'pw').subscribe();

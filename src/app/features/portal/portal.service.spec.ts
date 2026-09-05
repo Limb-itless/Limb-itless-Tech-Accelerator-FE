@@ -60,4 +60,23 @@ describe('PortalService', () => {
     });
     req.flush({ id: 5, instrument: 'socket_comfort_score', score: 3, flagged: true });
   });
+
+  it('claims a walk-in record with a snake_case body', () => {
+    let received: unknown;
+    service
+      .claim({ identifier: '9107035800086', contactValue: 'lerato.dlamini@example.co.za' })
+      .subscribe((p) => (received = p));
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/account-link-requests`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      identifier: '9107035800086',
+      contact_value: 'lerato.dlamini@example.co.za',
+    });
+    req.flush({ id: 2, first_name: 'Lerato', practice_name: 'Northgate', site_name: 'Main' });
+
+    expect(received).toEqual(
+      expect.objectContaining({ firstName: 'Lerato', practiceName: 'Northgate' }),
+    );
+  });
 });

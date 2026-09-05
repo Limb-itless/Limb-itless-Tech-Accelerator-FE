@@ -1,22 +1,22 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-29 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-30 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
 Patient portal, per-type device componentry, medical-aid reviewer,
 availability management, patient booking, appointments/triage, reviewer
-coverage queue, per-patient progress report). Runs against the local
-stack with the seeded clinical sample data. R-17 → R-29 are Phase 2
-items; R-25 → R-28 are the booking feature's FE slices (BE R-35 → R-38 —
-availability slots, appointments, reschedule, coverage determination) -
-**every booking role now has a screen** (practitioner, patient, staff,
-reviewer); R-29 (BE R-39) closes one of the three gaps flagged in the
-requirements-doc review. Still awaiting FE: front-desk booking on a
-patient's behalf (flagged, not an oversight — see R-27). One gap from
-the same review remains open: patient self-registration/walk-in-claim
-flow (§5.11) — the reviewer-scoping gap that review flagged was already
-reconciled by BE R-38.
+coverage queue, per-patient progress report, self-registration &
+walk-in-record claim). Runs against the local stack with the seeded
+clinical sample data. R-17 → R-30 are Phase 2 items; R-25 → R-28 are the
+booking feature's FE slices (BE R-35 → R-38 — availability slots,
+appointments, reschedule, coverage determination) - **every booking role
+now has a screen** (practitioner, patient, staff, reviewer); R-29 (BE
+R-39) and R-30 (BE R-40) close the last two of the three gaps flagged in
+the requirements-doc review — the reviewer-scoping gap that review
+flagged was already reconciled by BE R-38, so **all three gaps are now
+closed**. Still awaiting FE: front-desk booking on a patient's behalf
+(flagged, not an oversight — see R-27).
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -750,6 +750,41 @@ existing tables, works against any already-seeded patient.
    prosthetist / practice_administrator read it); other-practice access
    fails the same way the API's own patient-scoping does everywhere
    else (404, not silently empty).
+
+---
+
+## R-30 — Self-registration & walk-in-record claim _(Phase 1 gap, closed)_
+
+The last of the three gaps flagged when the real requirements doc first
+came in (§5.11: a patient who was seen as a walk-in, with a record
+already in the system, can create their own account and claim it). BE
+R-40 added `POST /auth/register` (any email/password → a `patient`-role
+account) and `POST /account-link-requests` (identity number + a contact
+detail already on file as a second factor — deliberately never reveals
+*which* part was wrong, to resist enumeration).
+
+1. **Sign up.** From `/login`, **Create an account** → `/register`.
+   Email + password (min 8 chars) + confirm password → **Create
+   account** signs you in and lands on `/portal`.
+2. **Unlinked landing.** A freshly-registered account has no clinical
+   record yet, so instead of the usual dashboard the portal shows **Link
+   your record** — an ID/passport + contact-detail form — rather than
+   the generic "couldn't load your details" error (that error is now
+   reserved for anything that *isn't* the unlinked case).
+3. **Wrong details.** Submit anything that doesn't match a record (or a
+   real ID with the wrong contact) → *"We couldn't find a matching
+   record with those details."* — the same message either way, so it
+   never leaks which half was wrong.
+4. **Correct details.** Lerato Dlamini (id 2) is seeded with a contact
+   email/phone: ID `9107035800086` + `lerato.dlamini@example.co.za` (or
+   `082 555 0102`) → the form succeeds and the portal reloads straight
+   into her record (involvements, milestones, everything R-22 already
+   shows).
+5. **Already linked.** Trying to claim again once linked never shows the
+   form — you're on the normal portal home.
+6. **Duplicate email.** Registering with an email already in use →
+   *"An account with that email already exists. Try signing in
+   instead."*, form re-enabled.
 
 ---
 

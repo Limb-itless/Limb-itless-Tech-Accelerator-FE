@@ -7,7 +7,12 @@ import { camelizeKeys, snakeizeKeys } from '../../core/api/case';
 import { InvolvementDetail } from '../patients/involvements/involvement.model';
 import { Milestone } from '../patients/milestones/milestone.model';
 import { Prom } from '../patients/proms/prom.model';
-import { PortalInstruments, PortalProfile, PortalPromCreate } from './portal.model';
+import {
+  AccountLinkClaim,
+  PortalInstruments,
+  PortalProfile,
+  PortalPromCreate,
+} from './portal.model';
 
 @Injectable({ providedIn: 'root' })
 export class PortalService {
@@ -46,5 +51,12 @@ export class PortalService {
     return this.http
       .post<unknown>(`${this.base}/proms`, snakeizeKeys(data))
       .pipe(map((body) => camelizeKeys<Prom>(body)));
+  }
+
+  /** Claim an existing walk-in record onto this account (Section 5.11). */
+  claim(data: AccountLinkClaim): Observable<PortalProfile> {
+    return this.http
+      .post<unknown>(`${environment.apiBaseUrl}/account-link-requests`, snakeizeKeys(data))
+      .pipe(map((body) => camelizeKeys<PortalProfile>(body)));
   }
 }

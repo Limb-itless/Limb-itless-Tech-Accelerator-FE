@@ -1,6 +1,39 @@
 <section class="portal">
   @if (data.isLoading()) {
     <p role="status">Loading…</p>
+  } @else if (unlinked()) {
+    <section class="portal__card">
+      <h1>Link your record</h1>
+      <p class="portal__muted">
+        We don't have your clinic record linked to this account yet. Enter the ID or passport number
+        on file, plus the email or phone number your clinic has for you, and we'll link it.
+      </p>
+
+      <form
+        class="portal__claim-form"
+        [formGroup]="claimForm"
+        (ngSubmit)="submitClaim()"
+        novalidate
+      >
+        @if (claimError(); as message) {
+          <p class="portal__error" role="alert">{{ message }}</p>
+        }
+
+        <div class="portal__field">
+          <label for="claim-identifier">ID or passport number</label>
+          <input id="claim-identifier" type="text" formControlName="identifier" />
+        </div>
+
+        <div class="portal__field">
+          <label for="claim-contact">Email or phone number on file</label>
+          <input id="claim-contact" type="text" formControlName="contactValue" />
+        </div>
+
+        <button type="submit" class="portal__claim-submit" [disabled]="claiming()">
+          {{ claiming() ? 'Linking…' : 'Link my record' }}
+        </button>
+      </form>
+    </section>
   } @else if (data.error()) {
     <p role="alert" class="portal__error">
       We couldn't load your details. If this keeps happening, please contact your clinic.

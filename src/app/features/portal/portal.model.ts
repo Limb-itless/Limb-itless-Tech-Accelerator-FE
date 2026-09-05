@@ -17,3 +17,10 @@ export interface PortalPromCreate {
   recordedAt?: string | null;
   notes?: string | null;
 }
+
+/** Claim an existing walk-in record (requirements Section 5.11): the
+ * identity number on file, plus a contact detail as a second factor. */
+export interface AccountLinkClaim {
+  identifier: string;
+  contactValue: string;
+}
