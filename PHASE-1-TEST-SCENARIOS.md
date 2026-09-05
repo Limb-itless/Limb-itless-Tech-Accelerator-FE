@@ -1,17 +1,22 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-28 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-29 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
 Patient portal, per-type device componentry, medical-aid reviewer,
 availability management, patient booking, appointments/triage, reviewer
-coverage queue). Runs against the local stack with the seeded clinical
-sample data. R-17 → R-28 are Phase 2 items; R-25 → R-28 are the booking
-feature's FE slices (BE R-35 → R-38 — availability slots, appointments,
-reschedule, coverage determination) - **every role now has a screen**
-(practitioner, patient, staff, reviewer). Still awaiting FE: front-desk
-booking on a patient's behalf (flagged, not an oversight — see R-27).
+coverage queue, per-patient progress report). Runs against the local
+stack with the seeded clinical sample data. R-17 → R-29 are Phase 2
+items; R-25 → R-28 are the booking feature's FE slices (BE R-35 → R-38 —
+availability slots, appointments, reschedule, coverage determination) -
+**every booking role now has a screen** (practitioner, patient, staff,
+reviewer); R-29 (BE R-39) closes one of the three gaps flagged in the
+requirements-doc review. Still awaiting FE: front-desk booking on a
+patient's behalf (flagged, not an oversight — see R-27). One gap from
+the same review remains open: patient self-registration/walk-in-claim
+flow (§5.11) — the reviewer-scoping gap that review flagged was already
+reconciled by BE R-38.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -707,6 +712,44 @@ treating practice granted them access - independently of each other.
 6. **Role gating.** A patient, staff member, or platform administrator
    never sees the Coverage nav link; visiting `/review/coverage`
    directly → `/forbidden` (same guard as the rest of `/review`).
+
+---
+
+## R-29 — Per-patient progress report _(Phase 1 gap, closed)_
+
+One of the three gaps flagged when the real requirements doc first came
+in (§5.5: "a per-patient progress report... viewed on screen and
+exported... for handover"). No schema change - pure aggregation over
+existing tables, works against any already-seeded patient.
+
+1. **Nav.** On any patient's detail page (e.g. Thabo Molefe, id 1), a
+   third link — **Progress report** — sits next to View timeline and
+   Body map.
+2. **What's being treated.** Each involvement (region — kind, level
+   where it applies, status badge) with its devices listed underneath.
+3. **Recovery milestones.** A stat row — Completed (x / total), On
+   time, Late, In progress, Overdue — then the full milestone table
+   (type / status / target / completed). Thabo's should read **5 / 7**
+   completed, **3** on time, **2** late, **1** in progress, **1**
+   overdue.
+4. **Outcome measure trends.** One chart per instrument the patient has
+   readings for — this **reuses the same trend chart** from the
+   patient-detail PROM panel (R-09), so a flagged reading shows as the
+   same red dot with the same dashed threshold line. Thabo's residual-
+   limb-pain chart should show 2 readings rising to a flagged 8.
+5. **A different patient shape.** Refilwe Adams (id 14, orthotic, no
+   amputation level) → two orthotic involvements (no level shown, since
+   `orthotic_need` has none), the orthotic pathway's milestones, and all
+   three orthotic-specific instruments (LCI-5, Orthosis Comfort Score —
+   flagged at 3, QUEST 2.0).
+6. **Print / Export.** The **Print / Export** button opens the browser's
+   own print dialog; the app header and the "Back to patient" toolbar
+   are hidden in the print preview (no PDF library — the browser does
+   the job).
+7. **Role gating.** Same reader roles as the timeline (clinician /
+   prosthetist / practice_administrator read it); other-practice access
+   fails the same way the API's own patient-scoping does everywhere
+   else (404, not silently empty).
 
 ---
 
