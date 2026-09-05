@@ -1,0 +1,114 @@
+<section class="coverage">
+  <h1>Coverage queue</h1>
+  <p class="coverage__note">
+    Decisions here are captured manually - never fetched live from a scheme's own systems.
+  </p>
+
+  <label class="coverage__filter">
+    <span class="coverage__filter-label">Status</span>
+    <select #statusSelect (change)="onStatusChange(statusSelect.value)">
+      <option value="" [selected]="statusFilter() === null">All statuses</option>
+      @for (s of statuses; track s) {
+        <option [value]="s" [selected]="statusFilter() === s">{{ coverageStatusLabel(s) }}</option>
+      }
+    </select>
+  </label>
+
+  @if (actionError(); as message) {
+    <p class="coverage__error" role="alert">{{ message }}</p>
+  }
+
+  @if (queue.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (queue.error()) {
+    <p class="coverage__error" role="alert">Could not load the coverage queue.</p>
+  } @else if (queue.value(); as rows) {
+    @if (rows.length === 0) {
+      <p class="coverage__empty">Nothing here right now.</p>
+    } @else {
+      <ul class="coverage__list">
+        @for (c of rows; track c.id) {
+          <li class="coverage__item">
+            <div class="coverage__item-main">
+              <p class="coverage__when">
+                {{ c.scheduledStart.slice(0, 10) }}, {{ c.scheduledStart.slice(11, 16) }}
+              </p>
+              <p class="coverage__meta">
+                {{ c.patientName }} · {{ appointmentTypeLabel(c.appointmentType) }} ·
+                {{ c.practiceName ?? 'Unknown practice' }}
+              </p>
+              <p class="coverage__meta">Scheme: {{ c.schemeName }}</p>
+              <span class="coverage__badge coverage__badge--{{ c.status }}">{{
+                coverageStatusLabel(c.status)
+              }}</span>
+              @if (c.status !== 'pending') {
+                <p class="coverage__decided">
+                  @if (c.authorizationNumber) {
+                    Auth: {{ c.authorizationNumber }}
+                  }
+                  @if (c.validUntil) {
+                    · Valid until {{ c.validUntil }}
+                  }
+                  @if (c.notes) {
+                    · "{{ c.notes }}"
+                  }
+                </p>
+              }
+            </div>
+            @if (c.status === 'pending') {
+              <div class="coverage__item-actions">
+                @if (decidingId() === c.id && decidingMode() === 'approve') {
+                  <div class="coverage__decision-form">
+                    <input
+                      #authInput
+                      type="text"
+                      placeholder="Authorization number (optional)"
+                      [value]="authorizationNumber()"
+                      (input)="authorizationNumber.set(authInput.value)"
+                    />
+                    <input
+                      #validInput
+                      type="date"
+                      [value]="validUntil()"
+                      (input)="validUntil.set(validInput.value)"
+                    />
+                    <input
+                      #notesInput
+                      type="text"
+                      placeholder="Notes (optional)"
+                      [value]="notes()"
+                      (input)="notes.set(notesInput.value)"
+                    />
+                    <button type="button" (click)="confirmApprove(c.id)" [disabled]="busy()">
+                      Confirm approval
+                    </button>
+                    <button type="button" (click)="back()">Back</button>
+                  </div>
+                } @else if (decidingId() === c.id && decidingMode() === 'deny') {
+                  <div class="coverage__decision-form">
+                    <input
+                      #denyNotesInput
+                      type="text"
+                      placeholder="Reason (optional)"
+                      [value]="notes()"
+                      (input)="notes.set(denyNotesInput.value)"
+                    />
+                    <button type="button" (click)="confirmDeny(c.id)" [disabled]="busy()">
+                      Confirm denial
+                    </button>
+                    <button type="button" (click)="back()">Back</button>
+                  </div>
+                } @else {
+                  <button type="button" (click)="startApprove(c)" [disabled]="busy()">
+                    Approve
+                  </button>
+                  <button type="button" (click)="startDeny(c)" [disabled]="busy()">Deny</button>
+                }
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>

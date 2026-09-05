@@ -1,16 +1,17 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-27 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-28 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
 Patient portal, per-type device componentry, medical-aid reviewer,
-availability management, patient booking, appointments/triage). Runs
-against the local stack with the seeded clinical sample data. R-17 →
-R-27 are Phase 2 items; R-25/R-26/R-27 are the booking feature's FE
-slices so far (BE R-35 → R-38 — availability slots, appointments,
-reschedule, coverage determination). Still awaiting FE: the reviewer's
-coverage-decision queue, and front-desk booking on a patient's behalf.
+availability management, patient booking, appointments/triage, reviewer
+coverage queue). Runs against the local stack with the seeded clinical
+sample data. R-17 → R-28 are Phase 2 items; R-25 → R-28 are the booking
+feature's FE slices (BE R-35 → R-38 — availability slots, appointments,
+reschedule, coverage determination) - **every role now has a screen**
+(practitioner, patient, staff, reviewer). Still awaiting FE: front-desk
+booking on a patient's behalf (flagged, not an oversight — see R-27).
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -670,6 +671,42 @@ action column at all).
 **Not built here:** front-desk booking a session on a patient's behalf
 (`POST /appointments` exists on the API and is BE-tested, but has no FE
 yet - flagged as a fast-follow, not this slice).
+
+---
+
+## R-28 — Reviewer coverage-decision queue _(Phase 2 — booking, FE)_
+
+The last piece of the booking feature's frontend: `/review/coverage`,
+where a medical-aid reviewer actually approves or denies a coverage
+determination rather than it only being visible via curl. No schema
+change - same migrations as R-25. Demonstrates the R-38 access
+reconciliation live: a reviewer sees a determination either because
+their own scheme matches the patient's membership, or because a
+treating practice granted them access - independently of each other.
+
+1. **Nav.** Log in as `reviewer@medscheme.co.za` / `Password123!` →
+   **Coverage** sits next to Reviews.
+2. **Defaults to Pending.** The queue starts on **Pending** - same
+   reasoning as the staff triage view defaulting to Booked. Kagiso's
+   Fitting (scheme: Bonitas) and Refilwe's Adjustment (scheme:
+   Momentum) both show - **neither is this reviewer's own scheme**
+   (Discovery Health), so they're visible purely through the manual
+   `review_by` grant, not a scheme match. Thabo's (Discovery Health,
+   already approved) is hidden until you widen the filter.
+3. **All statuses.** Switch to **All statuses** → Thabo's now appears
+   too, **Approved**, with its seeded authorization number and expiry
+   shown inline (no actions - only a `pending` row gets any).
+4. **Approve.** **Approve** on Kagiso's row → an inline form
+   (authorization number / valid-until date / notes, all optional)
+   replaces the buttons; fill in some or all of it, **Confirm approval**
+   → the row drops out of the Pending view; switch to All statuses to
+   see it **Approved** with exactly what you entered.
+5. **Deny.** **Deny** on Refilwe's row → a reason field (optional)
+   replaces the buttons; **Confirm denial** → **Denied**, with the
+   reason shown once you widen the filter.
+6. **Role gating.** A patient, staff member, or platform administrator
+   never sees the Coverage nav link; visiting `/review/coverage`
+   directly → `/forbidden` (same guard as the rest of `/review`).
 
 ---
 
