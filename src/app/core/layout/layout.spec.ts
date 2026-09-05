@@ -70,7 +70,13 @@ describe('Layout', () => {
     const clinLabels = [...clin.fixture.nativeElement.querySelectorAll('.app-header__nav a')].map(
       (a: HTMLAnchorElement) => a.textContent?.trim(),
     );
-    expect(clinLabels).toEqual(['Dashboard', 'Patients', 'Availability', 'Reports']);
+    expect(clinLabels).toEqual([
+      'Dashboard',
+      'Patients',
+      'Availability',
+      'Appointments',
+      'Reports',
+    ]);
 
     const platform = await setup({ ...USER, role: 'platform_administrator' });
     const platformLabels = [

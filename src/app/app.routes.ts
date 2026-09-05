@@ -39,6 +39,12 @@ export const routes: Routes = [
           import('./features/availability/availability.routes').then((m) => m.AVAILABILITY_ROUTES),
       },
       {
+        path: 'appointments',
+        canActivate: [roleGuard('clinician', 'prosthetist', 'practice_administrator')],
+        loadChildren: () =>
+          import('./features/appointments/appointments.routes').then((m) => m.APPOINTMENTS_ROUTES),
+      },
+      {
         path: 'users',
         canActivate: [roleGuard('practice_administrator')],
         loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),

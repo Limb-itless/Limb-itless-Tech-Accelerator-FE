@@ -1,0 +1,153 @@
+<section class="triage">
+  <header class="triage__head">
+    <h1>Appointments</h1>
+  </header>
+
+  <div class="triage__controls">
+    <label class="triage__filter">
+      <span class="triage__filter-label">Practitioner</span>
+      <select #practitionerSelect (change)="onPractitionerChange(practitionerSelect.value)">
+        <option value="">All practitioners</option>
+        @for (person of staff.value(); track person.id) {
+          <option [value]="person.id">{{ person.email }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="triage__filter">
+      <span class="triage__filter-label">Status</span>
+      <select #statusSelect (change)="onStatusChange(statusSelect.value)">
+        <option value="" [selected]="statusFilter() === null">All statuses</option>
+        @for (s of statuses; track s) {
+          <option [value]="s" [selected]="statusFilter() === s">
+            {{ appointmentStatusLabel(s) }}
+          </option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (actionError(); as message) {
+    <p class="triage__error" role="alert">{{ message }}</p>
+  }
+
+  @if (appointments.isLoading()) {
+    <p class="triage__status" role="status">Loading…</p>
+  } @else if (appointments.error()) {
+    <p class="triage__status triage__status--error" role="alert">
+      Could not load appointments. Please try again.
+    </p>
+  } @else if (appointments.value(); as rows) {
+    @if (rows.length === 0) {
+      <p class="triage__status">No appointments match these filters.</p>
+    } @else {
+      <table class="triage__table">
+        <caption class="visually-hidden">
+          Appointments
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">When</th>
+            <th scope="col">Patient</th>
+            <th scope="col">Practitioner</th>
+            <th scope="col">Type</th>
+            <th scope="col">Status</th>
+            <th scope="col">Coverage</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of rows; track a.id) {
+            <tr>
+              <td>
+                {{ a.scheduledStart.slice(0, 10) }}, {{ a.scheduledStart.slice(11, 16) }}–{{
+                  a.scheduledEnd.slice(11, 16)
+                }}
+              </td>
+              <td>{{ a.patientName }}</td>
+              <td>{{ a.practitionerEmail }}</td>
+              <td>{{ appointmentTypeLabel(a.appointmentType) }}</td>
+              <td>
+                <span class="triage__badge triage__badge--{{ a.status }}">{{
+                  appointmentStatusLabel(a.status)
+                }}</span>
+                @if (a.lateCancellation) {
+                  <span class="triage__late">(late)</span>
+                }
+              </td>
+              <td>
+                @if (a.coverageStatus; as cov) {
+                  <span class="triage__badge triage__badge--cov-{{ cov }}">{{
+                    coverageStatusLabel(cov)
+                  }}</span>
+                } @else {
+                  —
+                }
+              </td>
+              <td class="triage__actions">
+                @if (canWrite() && a.status === 'booked') {
+                  @if (cancellingId() === a.id) {
+                    <div class="triage__cancel-form">
+                      <input
+                        #reasonInput
+                        type="text"
+                        placeholder="Reason (required)"
+                        [value]="cancelReason()"
+                        (input)="cancelReason.set(reasonInput.value)"
+                      />
+                      <button
+                        type="button"
+                        (click)="confirmCancel(a.id)"
+                        [disabled]="busy() || !cancelReason().trim()"
+                      >
+                        Confirm
+                      </button>
+                      <button type="button" (click)="backFromCancel()">Back</button>
+                    </div>
+                  } @else if (reschedulingId() === a.id) {
+                    <button type="button" (click)="cancelReschedule()">Cancel reschedule</button>
+                  } @else {
+                    <button type="button" (click)="startReschedule(a)" [disabled]="busy()">
+                      Reschedule
+                    </button>
+                    <button type="button" (click)="startCancel(a)" [disabled]="busy()">
+                      Cancel
+                    </button>
+                    @if (isPast(a.scheduledStart)) {
+                      <button type="button" (click)="noShow(a)" [disabled]="busy()">No-show</button>
+                    }
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+
+  @if (reschedulingId()) {
+    <h2>Choose a new time</h2>
+    @if (openSlots.value(); as slots) {
+      @if (slots.length === 0) {
+        <p class="triage__status">No open slots to reschedule into.</p>
+      } @else {
+        <ul class="triage__slots">
+          @for (slot of slots; track slot.id) {
+            <li class="triage__slot">
+              <span>
+                {{ slot.startTime.slice(0, 10) }}, {{ slot.startTime.slice(11, 16) }}–{{
+                  slot.endTime.slice(11, 16)
+                }}
+                · {{ appointmentTypeLabel(slot.appointmentType) }} · {{ slot.practitionerEmail }}
+              </span>
+              <button type="button" (click)="chooseSlot(slot.id)" [disabled]="busy()">
+                Move here
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</section>

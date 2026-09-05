@@ -1,16 +1,16 @@
 # Phase 1 FE — manual test scenarios
 
-Covers FE R-06 → R-26 (Patients, Limb involvements, Devices, Recovery
+Covers FE R-06 → R-27 (Patients, Limb involvements, Devices, Recovery
 milestones, Outcome measures + trend, Timeline + notes, Dashboard,
 Practice administration, Orthoses / bilateral, Platform administration,
 Care team, Body map, Reports, Orthotic PROMs & pathway, Audit log,
 Patient portal, per-type device componentry, medical-aid reviewer,
-availability management, patient booking). Runs against the local stack
-with the seeded clinical sample data. R-17 → R-26 are Phase 2 items;
-R-25 and R-26 are the booking feature's first two FE slices (BE R-35 →
-R-38 — availability slots, appointments, reschedule, coverage
-determination). Still awaiting FE: a staff appointments/triage view and
-the reviewer's coverage-decision queue.
+availability management, patient booking, appointments/triage). Runs
+against the local stack with the seeded clinical sample data. R-17 →
+R-27 are Phase 2 items; R-25/R-26/R-27 are the booking feature's FE
+slices so far (BE R-35 → R-38 — availability slots, appointments,
+reschedule, coverage determination). Still awaiting FE: the reviewer's
+coverage-decision queue, and front-desk booking on a patient's behalf.
 
 > **R-15 model redesign.** A patient is now just a person. What is being
 > treated lives in one or more **limb involvements** (an amputation, a
@@ -622,6 +622,54 @@ watch the badge change.
 7. **Someone else's record.** As Refilwe
    (`refilwe.adams@patient.limbitless.co.za`), her own pending Fitting
    appointment is what you'd expect - she never sees Thabo's.
+
+---
+
+## R-27 — Appointments / triage view _(Phase 2 — booking, FE)_
+
+The staff side (`/appointments`), for front-desk/clinical staff to
+manage the practice's bookings: filter, cancel (reason required), mark a
+no-show, or reschedule. No schema change - same migrations as R-25. A
+practice administrator sees the same table entirely read-only (no
+action column at all).
+
+1. **Nav.** Log in as `clinician@northgate-rehab.co.za` → **Appointments**
+   sits between Availability and Reports.
+2. **Defaults to Booked.** The Status filter starts on **Booked** (not
+   "All statuses") - a triage view is about what still needs attention.
+   Thabo's Review and Refilwe's Adjustment both show, each with their
+   coverage badge (**Approved** / **Pending**); Kagiso's is hidden until
+   you switch the filter.
+3. **All statuses.** Switch Status to **All statuses** → Kagiso's
+   Fitting appointment appears as **Cancelled by practice**, with no
+   coverage badge changed and **no actions** (only a `booked` row gets
+   any).
+4. **Cancel requires a reason.** **Cancel** on Thabo's row → an inline
+   reason field replaces the action buttons; **Confirm** stays disabled
+   until you type something (matches the API's 400 on a blank reason).
+   Type a reason, Confirm → the row becomes **Cancelled by practice**
+   and the actions disappear.
+5. **No-show only offers on a past appointment.** None of the seeded
+   appointments are in the past, so **No-show** won't appear on any
+   seeded row - publish an availability slot for today or yesterday (see
+   R-25) and book into it to see it appear once its time has passed.
+6. **Reschedule.** **Reschedule** on Refilwe's row → a **Choose a new
+   time** panel opens below the table listing every open slot across
+   every practitioner (not just hers); **Move here** on one → her row
+   becomes the new appointment (new time/type/practitioner), the old one
+   shows **Rescheduled** with no actions, and the panel closes.
+7. **Practitioner filter.** Narrow to one practitioner via the
+   Practitioner select → only their appointments remain, regardless of
+   the Status filter.
+8. **Role gating.** As `admin@northgate-rehab.co.za` (practice
+   administrator), the same table loads but **no row has an action
+   column at all** - confirms the read-only boundary. A patient or
+   medical-aid reviewer never sees the Appointments nav link; visiting
+   `/appointments` directly → `/forbidden`.
+
+**Not built here:** front-desk booking a session on a patient's behalf
+(`POST /appointments` exists on the API and is BE-tested, but has no FE
+yet - flagged as a fast-follow, not this slice).
 
 ---
 
