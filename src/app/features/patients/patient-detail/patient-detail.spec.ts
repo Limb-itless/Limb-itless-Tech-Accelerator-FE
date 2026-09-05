@@ -83,7 +83,7 @@ describe('PatientDetail', () => {
     const links = [...fixture.nativeElement.querySelectorAll('.patient__actions a')].map(
       (a: HTMLAnchorElement) => a.textContent?.trim(),
     );
-    expect(links).toEqual(['View timeline', 'Body map']);
+    expect(links).toEqual(['View timeline', 'Body map', 'Progress report']);
     expect(fixture.nativeElement.querySelector('.patient__actions button')).toBeNull();
   });
 

@@ -11,3 +11,11 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Printing a page (e.g. the per-patient progress report) shouldn't
+ * include the app chrome around it. */
+@media print {
+  .app-header {
+    display: none;
+  }
+}

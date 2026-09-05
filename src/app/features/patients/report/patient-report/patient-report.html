@@ -1,0 +1,125 @@
+<section class="report">
+  <div class="report__toolbar">
+    <a class="report__back" [routerLink]="['/patients', id()]">← Back to patient</a>
+  </div>
+
+  @if (report.isLoading()) {
+    <p role="status">Loading…</p>
+  } @else if (report.error()) {
+    <p role="alert" class="report__error">This report could not be loaded.</p>
+  } @else if (report.value(); as r) {
+    <header class="report__head">
+      <div class="report__head-top">
+        <h1>{{ r.patient.firstName }} {{ r.patient.lastName }} — progress report</h1>
+        <button type="button" class="report__print" (click)="print()">Print / Export</button>
+      </div>
+      <p class="report__meta">
+        DOB {{ r.patient.dateOfBirth }} · {{ r.practiceName ?? 'Unknown practice'
+        }}{{ r.siteName ? ' · ' + r.siteName : '' }}
+      </p>
+      <p class="report__meta">Generated {{ r.generatedAt.slice(0, 16).replace('T', ' ') }}</p>
+    </header>
+
+    <section class="report__section">
+      <h2>What's being treated</h2>
+      @if (r.involvements.length === 0) {
+        <p class="report__muted">No involvements recorded.</p>
+      } @else {
+        <ul class="report__involvements">
+          @for (inv of r.involvements; track inv.id) {
+            <li class="report__involvement">
+              <p class="report__involvement-title">
+                {{ regionLabel(inv.region) }} — {{ kindLabel(inv.kind) }}
+                @if (inv.level) {
+                  ({{ humanise(inv.level) }})
+                }
+                <span
+                  class="report__badge"
+                  [class.report__badge--resolved]="inv.status === 'resolved'"
+                >
+                  {{ humanise(inv.status) }}
+                </span>
+              </p>
+              @if (inv.devices.length > 0) {
+                <ul class="report__devices">
+                  @for (device of inv.devices; track device.id) {
+                    <li>
+                      {{ deviceTypeLabel(device.deviceType) }} — {{ device.manufacturer }}
+                      {{ device.model }} ({{ humanise(device.status) }})
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="report__section">
+      <h2>Recovery milestones</h2>
+      <dl class="report__stats">
+        <div>
+          <dt>Completed</dt>
+          <dd>{{ r.milestoneSummary.completed }} / {{ r.milestoneSummary.total }}</dd>
+        </div>
+        <div>
+          <dt>On time</dt>
+          <dd>{{ r.milestoneSummary.completedOnTime }}</dd>
+        </div>
+        <div>
+          <dt>Late</dt>
+          <dd>{{ r.milestoneSummary.completedLate }}</dd>
+        </div>
+        <div>
+          <dt>In progress</dt>
+          <dd>{{ r.milestoneSummary.inProgress }}</dd>
+        </div>
+        <div>
+          <dt>Overdue</dt>
+          <dd>{{ r.milestoneSummary.overdue }}</dd>
+        </div>
+      </dl>
+
+      @if (r.milestones.length === 0) {
+        <p class="report__muted">No milestones recorded.</p>
+      } @else {
+        <table class="report__table">
+          <thead>
+            <tr>
+              <th scope="col">Milestone</th>
+              <th scope="col">Status</th>
+              <th scope="col">Target</th>
+              <th scope="col">Completed</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of r.milestones; track m.id) {
+              <tr>
+                <td>{{ humanise(m.milestoneType) }}</td>
+                <td>{{ humanise(m.status) }}</td>
+                <td>{{ m.targetDate ?? '—' }}</td>
+                <td>{{ m.completedDate ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+    <section class="report__section">
+      <h2>Outcome measure trends</h2>
+      @if (r.promTrends.length === 0) {
+        <p class="report__muted">No outcome measures recorded.</p>
+      } @else {
+        <div class="report__trends">
+          @for (trend of r.promTrends; track trend.instrument) {
+            <div class="report__trend">
+              <app-prom-trend [instrument]="trend.instrument" [points]="chartPoints(trend)" />
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</section>

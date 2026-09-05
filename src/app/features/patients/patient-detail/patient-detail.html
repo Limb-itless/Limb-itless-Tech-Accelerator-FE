@@ -17,6 +17,7 @@
       <div class="patient__actions">
         <a class="patient__edit" [routerLink]="['/patients', p.id, 'timeline']">View timeline</a>
         <a class="patient__edit" [routerLink]="['/patients', p.id, 'body-map']">Body map</a>
+        <a class="patient__edit" [routerLink]="['/patients', p.id, 'report']">Progress report</a>
         @if (canEdit()) {
           <a class="patient__edit" [routerLink]="['/patients', p.id, 'edit']">Edit</a>
           @if (p.isActive) {
